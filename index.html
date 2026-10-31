@@ -1,9 +1,9 @@
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Al-Madina Sanitary & Hardware | Official Enterprise Store</title>
-    <!-- Tailwind CSS CDN for modern UI styling -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,36 +11,34 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            DEFAULT: '#0073aa',
-                            dark: '#005983',
-                            light: '#e7f5fb'
-                        }
+                        brand: { DEFAULT: '#0073aa', dark: '#005983', light: '#e7f5fb' }
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome & HTML2PDF -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- HTML2PDF Library for Invoice Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
     <style>
-        .page-section { display: none; }
-        .page-section.active-page { display: block; }
+        .page-section { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        .page-section.active-page { display: block; opacity: 1; }
         .cart-drawer { transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
     <!-- Top Announcement Bar -->
     <div class="bg-gray-900 text-white text-xs py-2 px-4 flex flex-col md:flex-row justify-between items-center border-b border-gray-800">
         <div><i class="fa-solid fa-location-dot text-brand mr-1"></i> Main Bazar, Pakistan | <i class="fa-solid fa-phone text-brand ml-2 mr-1"></i> Helpline: +92 300 0000000</div>
         <div class="mt-1 md:mt-0 flex items-center gap-4">
             <span><i class="fa-solid fa-truck-fast text-green-400 mr-1"></i> Free Shipping on orders over Rs. 15,000</span>
-            <!-- Dark Mode Toggle Button -->
-            <button onclick="toggleDarkMode()" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-1 rounded border border-gray-700 text-xs flex items-center gap-1">
+            <button onclick="toggleDarkMode()" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-1 rounded border border-gray-700 text-xs flex items-center gap-1 cursor-pointer">
                 <i class="fa-solid fa-moon" id="themeIcon"></i> <span id="themeText">Dark</span>
             </button>
         </div>
@@ -52,66 +50,60 @@
             <a onclick="navigateTo('home')" class="text-xl md:text-2xl font-bold tracking-tight cursor-pointer flex items-center gap-2">
                 <i class="fa-solid fa-faucet-drip"></i> Al-Madina Hardware
             </a>
-            
-            <!-- Navigation Links -->
             <nav class="hidden md:flex space-x-6 font-medium text-sm">
                 <a id="nav-home" onclick="navigateTo('home')" class="hover:text-gray-200 cursor-pointer border-b-2 border-white">Home</a>
                 <a id="nav-shop" onclick="navigateTo('shop')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Shop Catalog</a>
+                <a id="nav-wishlist" onclick="navigateTo('wishlist')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Wishlist (<span id="wishCount">0</span>)</a>
                 <a id="nav-track" onclick="navigateTo('track')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Track Order</a>
                 <a id="nav-shipping" onclick="navigateTo('shipping')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Shipping Rates</a>
                 <a id="nav-admin" onclick="navigateTo('admin')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent"><i class="fa-solid fa-lock text-xs"></i> CMS Admin</a>
             </nav>
-
-            <!-- User Actions & Cart -->
             <div class="flex items-center gap-3">
                 <div id="userStateArea">
-                    <button onclick="openAuthModal('login')" class="bg-white text-brand px-3 py-1.5 rounded-full font-semibold text-xs shadow hover:bg-gray-100">
+                    <button onclick="openAuthModal('login')" class="bg-white text-brand px-3 py-1.5 rounded-full font-semibold text-xs shadow hover:bg-gray-100 cursor-pointer">
                         <i class="fa-solid fa-user"></i> Login / Register
                     </button>
                 </div>
-
-                <button onclick="toggleCart()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-full font-bold text-xs shadow flex items-center gap-2">
+                <button onclick="toggleCart()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-full font-bold text-xs shadow flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-cart-shopping"></i> <span id="cartCount" class="bg-white text-green-700 px-1.5 py-0.5 rounded-full text-xs">0</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MAIN CONTENT CONTAINER (SPA ROUTING) -->
+    <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
 
-        <!-- ================= PAGE 1: HOME ================= -->
-        <section id="page-home" class="page-section active-page space-y-8">
-            <!-- Hero Section -->
+        <!-- HOME -->
+        <section id="page-home" class="page-section active-page space-y-8 animate-fade">
             <div class="relative bg-gradient-to-r from-brand to-brand-dark text-white rounded-2xl p-8 md:p-12 shadow-xl overflow-hidden">
                 <div class="relative z-10 max-w-2xl space-y-4">
                     <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Wholesale Rates</span>
                     <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Premium Sanitaryware & Hardware</h1>
-                    <p class="text-gray-100 text-sm md:text-base">Top quality Faucets, Rain Showers, PVC Pipes & Bathroom Fittings delivered to your doorstep.</p>
+                    <p class="text-gray-100 text-sm md:text-base">Top quality Faucets, Rain Showers, PVC Pipes & Bathroom Fittings delivered with animated precision.</p>
                     <div class="pt-2 flex flex-wrap gap-3">
-                        <button onclick="navigateTo('shop')" class="bg-white text-brand px-6 py-3 rounded-lg font-bold shadow hover:bg-gray-100 transition">Explore Shop Catalog</button>
-                        <button onclick="navigateTo('shipping')" class="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-bold hover:bg-white/10 transition">Weight Calculator</button>
+                        <button onclick="navigateTo('shop')" class="bg-white text-brand px-6 py-3 rounded-lg font-bold shadow hover:bg-gray-100 transition cursor-pointer">Explore Shop Catalog</button>
+                        <button onclick="navigateTo('shipping')" class="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-bold hover:bg-white/10 transition cursor-pointer">Weight Calculator</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Category Highlights -->
             <div>
                 <h2 class="text-xl font-bold mb-4 border-b-2 border-brand pb-1 inline-block">Popular Categories</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <div onclick="filterCategoryAndNavigate('faucet')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center">
+                    <div onclick="filterCategoryAndNavigate('faucet')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center transform hover:-translate-y-1">
                         <div class="w-12 h-12 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl"><i class="fa-solid fa-faucet"></i></div>
                         <h3 class="font-bold">Faucets & Mixers</h3>
                     </div>
-                    <div onclick="filterCategoryAndNavigate('shower')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center">
+                    <div onclick="filterCategoryAndNavigate('shower')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center transform hover:-translate-y-1">
                         <div class="w-12 h-12 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl"><i class="fa-solid fa-shower"></i></div>
                         <h3 class="font-bold">Shower Systems</h3>
                     </div>
-                    <div onclick="filterCategoryAndNavigate('pipes')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center">
+                    <div onclick="filterCategoryAndNavigate('pipes')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center transform hover:-translate-y-1">
                         <div class="w-12 h-12 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl"><i class="fa-solid fa-wrench"></i></div>
                         <h3 class="font-bold">PVC & Iron Pipes</h3>
                     </div>
-                    <div onclick="filterCategoryAndNavigate('accessories')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center">
+                    <div onclick="filterCategoryAndNavigate('accessories')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center transform hover:-translate-y-1">
                         <div class="w-12 h-12 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl"><i class="fa-solid fa-box-open"></i></div>
                         <h3 class="font-bold">Accessories</h3>
                     </div>
@@ -119,12 +111,10 @@
             </div>
         </section>
 
-        <!-- ================= PAGE 2: SHOP CATALOG ================= -->
-        <section id="page-shop" class="page-section space-y-6">
+        <!-- SHOP CATALOG -->
+        <section id="page-shop" class="page-section space-y-6 animate-fade">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Shop Hardware Products</h2>
-                
-                <!-- Search & Filters -->
+                <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Shop Hardware Products (15+ Items)</h2>
                 <div class="flex flex-wrap gap-2 w-full md:w-auto">
                     <input type="text" id="searchInput" onkeyup="renderCatalog()" placeholder="Search products..." class="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand w-full md:w-64">
                     <select id="categoryFilter" onchange="renderCatalog()" class="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand">
@@ -136,13 +126,17 @@
                     </select>
                 </div>
             </div>
-
-            <!-- Product Display Grid -->
             <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- ================= PAGE 3: ORDER TRACKING ================= -->
-        <section id="page-track" class="page-section space-y-6">
+        <!-- WISHLIST PAGE -->
+        <section id="page-wishlist" class="page-section space-y-6 animate-fade">
+            <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">My Saved Wishlist</h2>
+            <div id="wishlistGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- TRACK ORDER -->
+        <section id="page-track" class="page-section space-y-6 animate-fade">
             <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Track Your Order Status</h2>
             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 max-w-lg mx-auto shadow-sm">
                 <div class="space-y-4">
@@ -150,71 +144,45 @@
                         <label class="block text-sm font-semibold mb-1">Enter Tracking ID (e.g. TRK-1001):</label>
                         <input type="text" id="trackInput" placeholder="TRK-XXXX" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand">
                     </div>
-                    <button onclick="trackOrder()" class="w-full bg-brand text-white font-bold py-2 rounded-lg hover:bg-brand-dark transition">Track Order</button>
+                    <button onclick="trackOrder()" class="w-full bg-brand text-white font-bold py-2 rounded-lg hover:bg-brand-dark transition cursor-pointer">Track Order</button>
                 </div>
                 <div id="trackingResult" class="mt-6 border-t pt-4 hidden"></div>
             </div>
         </section>
 
-        <!-- ================= PAGE 4: SHIPPING CALCULATOR ================= -->
-        <section id="page-shipping" class="page-section space-y-6">
+        <!-- SHIPPING ESTIMATOR -->
+        <section id="page-shipping" class="page-section space-y-6 animate-fade">
             <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Weight-Based Shipping Estimator</h2>
             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 max-w-lg mx-auto shadow-sm space-y-4">
                 <div>
                     <label class="block text-sm font-semibold mb-1">Total Package Weight (KG):</label>
                     <input type="number" id="shipWeight" placeholder="Enter weight in kg..." class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:outline-none">
                 </div>
-                <button onclick="calcShipRate()" class="w-full bg-brand text-white font-bold py-2 rounded-lg hover:bg-brand-dark transition">Calculate Shipping Cost</button>
+                <button onclick="calcShipRate()" class="w-full bg-brand text-white font-bold py-2 rounded-lg hover:bg-brand-dark transition cursor-pointer">Calculate Shipping Cost</button>
                 <div id="shipResult" class="text-center font-bold text-brand mt-4"></div>
             </div>
         </section>
 
-        <!-- ================= PAGE 5: CMS ADMIN DASHBOARD ================= -->
-        <section id="page-admin" class="page-section space-y-6">
+        <!-- CMS ADMIN DASHBOARD -->
+        <section id="page-admin" class="page-section space-y-6 animate-fade">
             <div class="flex justify-between items-center">
                 <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Store Admin Dashboard (CMS)</h2>
-                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-mono">Firebase Realtime Sync Active</span>
+                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-mono">Local State Management Active</span>
             </div>
-            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Add Product Form -->
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
                     <h3 class="font-bold border-b pb-2">Add New Product</h3>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Product Title</label>
-                        <input type="text" id="adminTitle" placeholder="e.g. Mixer Tap" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Category</label>
-                        <select id="adminCat" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                            <option value="faucet">Faucet</option>
-                            <option value="shower">Shower</option>
-                            <option value="pipes">Pipes</option>
-                            <option value="accessories">Accessories</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Price (Rs.)</label>
-                        <input type="number" id="adminPrice" placeholder="4500" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Image URL</label>
-                        <input type="text" id="adminImg" placeholder="https://..." class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                    </div>
-                    <button onclick="adminAddProduct()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm hover:bg-green-700">Add to Store Inventory</button>
+                    <div><label class="block text-xs font-semibold mb-1">Product Title</label><input type="text" id="adminTitle" placeholder="e.g. Mixer Tap" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Category</label><select id="adminCat" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"><option value="faucet">Faucet</option><option value="shower">Shower</option><option value="pipes">Pipes</option><option value="accessories">Accessories</option></select></div>
+                    <div><label class="block text-xs font-semibold mb-1">Price (Rs.)</label><input type="number" id="adminPrice" placeholder="4500" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Image URL</label><input type="text" id="adminImg" placeholder="https://..." class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
+                    <button onclick="adminAddProduct()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm hover:bg-green-700 cursor-pointer">Add to Store Inventory</button>
                 </div>
-
-                <!-- Product Inventory Table -->
                 <div class="md:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
                     <h3 class="font-bold border-b pb-2 mb-4">Current Inventory List</h3>
                     <table class="w-full text-left text-xs">
                         <thead class="bg-gray-100 dark:bg-gray-700 uppercase">
-                            <tr>
-                                <th class="p-2">Product</th>
-                                <th class="p-2">Category</th>
-                                <th class="p-2">Price</th>
-                                <th class="p-2">Action</th>
-                            </tr>
+                            <tr><th class="p-2">Product</th><th class="p-2">Category</th><th class="p-2">Price</th><th class="p-2">Action</th></tr>
                         </thead>
                         <tbody id="adminProductTable" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
                     </table>
@@ -224,128 +192,90 @@
 
     </main>
 
-    <!-- SLIDE-OVER CART DRAWER -->
-    <div id="cartDrawer" class="cart-drawer fixed top-0 right-[-400px] w-80 md:w-96 h-full bg-white dark:bg-gray-800 shadow-2xl z-50 p-6 flex flex-col">
-        <div class="flex justify-between items-center border-b pb-4 dark:border-gray-700">
-            <h3 class="font-bold text-lg">Your Cart</h3>
-            <button onclick="toggleCart()" class="text-xl font-bold text-gray-500 hover:text-black dark:hover:text-white">&times;</button>
-        </div>
-
-        <div id="cartItems" class="flex-grow overflow-y-auto py-4 space-y-3"></div>
-
-        <div class="border-t pt-4 space-y-3 dark:border-gray-700">
-            <!-- Coupon Input -->
-            <div class="flex gap-2">
-                <input type="text" id="couponInput" placeholder="Coupon Code (e.g. NAZIM10)" class="w-full px-3 py-1 text-xs border rounded uppercase dark:bg-gray-700 dark:border-gray-600">
-                <button onclick="applyCoupon()" class="bg-gray-800 text-white px-3 py-1 text-xs rounded font-bold hover:bg-black">Apply</button>
-            </div>
-            <div id="discountNote" class="text-xs text-green-600 font-semibold hidden"></div>
-
-            <div class="flex justify-between font-bold text-base">
-                <span>Total Amount:</span>
-                <span id="cartTotal" class="text-brand">Rs. 0</span>
-            </div>
-            <button onclick="openCheckout()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition shadow">Proceed to Checkout</button>
+    <!-- QUICK VIEW MODAL -->
+    <div id="quickViewModal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-center p-4 animate-fade">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-lg w-full relative shadow-2xl space-y-4">
+            <button onclick="closeQuickView()" class="absolute top-3 right-3 text-gray-500 text-xl font-bold cursor-pointer">&times;</button>
+            <div id="quickViewContent"></div>
         </div>
     </div>
 
-    <!-- AUTHENTICATION MODAL (LOGIN / SIGNUP / FORGOT PASSWORD) -->
-    <div id="authModal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
-            <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-gray-500 text-xl font-bold">&times;</button>
+    <!-- CART DRAWER -->
+    <div id="cartDrawer" class="cart-drawer fixed top-0 right-[-400px] w-80 md:w-96 h-full bg-white dark:bg-gray-800 shadow-2xl z-50 p-6 flex flex-col">
+        <div class="flex justify-between items-center border-b pb-4 dark:border-gray-700">
+            <h3 class="font-bold text-lg">Your Cart</h3>
+            <button onclick="toggleCart()" class="text-xl font-bold text-gray-500 hover:text-black dark:hover:text-white cursor-pointer">&times;</button>
+        </div>
+        <div id="cartItems" class="flex-grow overflow-y-auto py-4 space-y-3"></div>
+        <div class="border-t pt-4 space-y-3 dark:border-gray-700">
+            <div class="flex gap-2">
+                <input type="text" id="couponInput" placeholder="Coupon (e.g. NAZIM10)" class="w-full px-3 py-1 text-xs border rounded uppercase dark:bg-gray-700 dark:border-gray-600">
+                <button onclick="applyCoupon()" class="bg-gray-800 text-white px-3 py-1 text-xs rounded font-bold cursor-pointer">Apply</button>
+            </div>
+            <div id="discountNote" class="text-xs text-green-600 font-semibold hidden"></div>
+            <div class="flex justify-between font-bold text-base"><span>Total Amount:</span><span id="cartTotal" class="text-brand">Rs. 0</span></div>
+            <button onclick="openCheckout()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition shadow cursor-pointer">Proceed to Checkout</button>
+        </div>
+    </div>
 
-            <!-- Login Form -->
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-center p-4 animate-fade">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-gray-500 text-xl font-bold cursor-pointer">&times;</button>
             <div id="loginFormState" class="space-y-3">
                 <h3 class="text-xl font-bold text-brand">Login to Your Account</h3>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Email Address</label>
-                    <input type="email" id="loginEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Password</label>
-                    <input type="password" id="loginPass" placeholder="••••••••" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                </div>
-                <button onclick="handleLogin()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm hover:bg-brand-dark">Sign In</button>
+                <div><label class="block text-xs font-semibold mb-1">Email Address</label><input type="email" id="loginEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <div><label class="block text-xs font-semibold mb-1">Password</label><input type="password" id="loginPass" placeholder="••••••••" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <button onclick="handleLogin()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm cursor-pointer">Sign In</button>
                 <div class="flex justify-between text-xs pt-2">
                     <a onclick="switchAuthForm('forgot')" class="text-brand hover:underline cursor-pointer">Forgot Password?</a>
                     <a onclick="switchAuthForm('signup')" class="text-brand hover:underline cursor-pointer">Register New Account</a>
                 </div>
             </div>
-
-            <!-- Signup Form -->
             <div id="signupFormState" class="space-y-3 hidden">
                 <h3 class="text-xl font-bold text-brand">Create New Account</h3>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Full Name</label>
-                    <input type="text" id="signupName" placeholder="Muhammad Nazim" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Email Address</label>
-                    <input type="email" id="signupEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Password</label>
-                    <input type="password" id="signupPass" placeholder="••••••••" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                </div>
-                <button onclick="handleSignup()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm hover:bg-green-700">Create Account</button>
-                <div class="text-center text-xs pt-2">
-                    Already have an account? <a onclick="switchAuthForm('login')" class="text-brand font-bold cursor-pointer">Login here</a>
-                </div>
+                <div><label class="block text-xs font-semibold mb-1">Full Name</label><input type="text" id="signupName" placeholder="Muhammad Nazim" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <div><label class="block text-xs font-semibold mb-1">Email Address</label><input type="email" id="signupEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <div><label class="block text-xs font-semibold mb-1">Password</label><input type="password" id="signupPass" placeholder="••••••••" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <button onclick="handleSignup()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm cursor-pointer">Create Account</button>
+                <div class="text-center text-xs pt-2">Already have an account? <a onclick="switchAuthForm('login')" class="text-brand font-bold cursor-pointer">Login here</a></div>
             </div>
-
-            <!-- Forgot Password Form -->
             <div id="forgotFormState" class="space-y-3 hidden">
                 <h3 class="text-xl font-bold text-brand">Reset Password</h3>
-                <p class="text-xs text-gray-500">Enter your registered email address to receive password reset instructions.</p>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Email Address</label>
-                    <input type="email" id="forgotEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                </div>
-                <button onclick="handleForgot()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm hover:bg-brand-dark">Send Reset Link</button>
-                <div class="text-center text-xs pt-2">
-                    Back to <a onclick="switchAuthForm('login')" class="text-brand font-bold cursor-pointer">Login</a>
-                </div>
+                <p class="text-xs text-gray-500">Enter your registered email address.</p>
+                <div><label class="block text-xs font-semibold mb-1">Email Address</label><input type="email" id="forgotEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <button onclick="handleForgot()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm cursor-pointer">Send Reset Link</button>
+                <div class="text-center text-xs pt-2">Back to <a onclick="switchAuthForm('login')" class="text-brand font-bold cursor-pointer">Login</a></div>
             </div>
         </div>
     </div>
 
-    <!-- CHECKOUT MODAL WITH PDF GENERATION -->
-    <div id="checkoutModal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-center p-4">
+    <!-- CHECKOUT & PDF MODAL -->
+    <div id="checkoutModal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-center p-4 animate-fade">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeCheckout()" class="absolute top-3 right-3 text-gray-500 text-xl font-bold">&times;</button>
-            
+            <button onclick="closeCheckout()" class="absolute top-3 right-3 text-gray-500 text-xl font-bold cursor-pointer">&times;</button>
             <div id="invoiceArea" class="space-y-4 p-2">
                 <div class="border-b pb-2">
                     <h3 class="text-xl font-bold text-brand">Order Confirmation & Invoice</h3>
                     <p class="text-xs text-gray-500">Al-Madina Sanitary & Hardware Store</p>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Full Customer Name</label>
-                    <input type="text" id="custName" placeholder="Muhammad Nazim" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Phone / WhatsApp Number</label>
-                    <input type="text" id="custPhone" placeholder="0300 1234567" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Delivery Address</label>
-                    <textarea id="custAddr" rows="2" placeholder="Full street address..." class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></textarea>
-                </div>
+                <div><label class="block text-xs font-semibold mb-1">Full Customer Name</label><input type="text" id="custName" placeholder="Muhammad Nazim" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <div><label class="block text-xs font-semibold mb-1">Phone / WhatsApp Number</label><input type="text" id="custPhone" placeholder="0300 1234567" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <div><label class="block text-xs font-semibold mb-1">Delivery Address</label><textarea id="custAddr" rows="2" placeholder="Full street address..." class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></textarea></div>
                 <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs space-y-1">
                     <div class="flex justify-between"><span>Subtotal:</span><span id="invSubtotal">Rs. 0</span></div>
                     <div class="flex justify-between text-green-600 font-semibold"><span>Discount:</span><span id="invDiscount">Rs. 0</span></div>
                     <div class="flex justify-between font-bold text-sm border-t pt-1"><span>Payable Amount:</span><span id="invTotal" class="text-brand">Rs. 0</span></div>
                 </div>
             </div>
-
             <div class="space-y-2">
-                <button onclick="submitOrderWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded text-sm transition"><i class="fa-brands fa-whatsapp mr-1"></i> Confirm & Send Order via WhatsApp</button>
-                <button onclick="downloadPDFInvoice()" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-2 rounded text-xs transition"><i class="fa-solid fa-file-pdf mr-1"></i> Download Official PDF Invoice</button>
+                <button onclick="submitOrderWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded text-sm cursor-pointer"><i class="fa-brands fa-whatsapp mr-1"></i> Confirm & Send Order via WhatsApp</button>
+                <button onclick="downloadPDFInvoice()" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-2 rounded text-xs cursor-pointer"><i class="fa-solid fa-file-pdf mr-1"></i> Download Official PDF Invoice</button>
             </div>
         </div>
     </div>
 
-    <!-- FOOTER SECTION -->
+    <!-- FOOTER -->
     <footer class="bg-gray-900 text-gray-400 py-8 px-4 border-t border-gray-800 text-center text-xs mt-auto">
         <div class="max-w-7xl mx-auto space-y-3">
             <p>&copy; 2026 Al-Madina Sanitary Store. All Rights Reserved.</p>
@@ -355,11 +285,11 @@
         </div>
     </footer>
 
-    <!-- GLOBAL APPLICATION JAVASCRIPT LOGIC -->
+    <!-- ULTRA-MODERN ANIMATED JAVASCRIPT LOGIC -->
     <script>
-        // State Store
         let currentUser = null;
         let cart = [];
+        let wishlist = [];
         let appliedDiscountPercent = 0;
         let mockTrackingDB = {
             'TRK-1001': { status: 'Out for Delivery', items: 'Chrome Basin Faucet x 1', date: '2026-10-28' },
@@ -367,18 +297,44 @@
         };
 
         let productsDB = [
-            { id: 1, title: 'Chrome Basin Faucet', category: 'faucet', price: 4500, rating: 5, reviewsCount: 12, img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80' },
-            { id: 2, title: 'Luxury Overhead Shower', category: 'shower', price: 12000, rating: 4, reviewsCount: 8, img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80' },
-            { id: 3, title: 'Heavy Duty PVC Pipe', category: 'pipes', price: 1800, rating: 5, reviewsCount: 20, img: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=400&q=80' }
+            { id: 1, title: 'Chrome Basin Faucet', category: 'faucet', price: 4500, rating: 5, reviewsCount: 12, img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80', desc: 'High-quality durable brass mixer tap with smooth water flow control.' },
+            { id: 2, title: 'Luxury Overhead Shower', category: 'shower', price: 12000, rating: 4, reviewsCount: 8, img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80', desc: 'Stainless steel overhead rain shower set with adjustable handheld nozzle.' },
+            { id: 3, title: 'Heavy Duty PVC Pipe', category: 'pipes', price: 1800, rating: 5, reviewsCount: 20, img: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=400&q=80', desc: 'Durable 4-inch water supply and drainage pipe (Price per length).' },
+            { id: 4, title: 'Stainless Steel Rack Set', category: 'accessories', price: 3500, rating: 4, reviewsCount: 15, img: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=400&q=80', desc: 'Complete 5-piece rust-proof bathroom accessory shelf and holder kit.' },
+            { id: 5, title: 'Matte Black Mixer Tap', category: 'faucet', price: 6500, rating: 5, reviewsCount: 9, img: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?auto=format&fit=crop&w=400&q=80', desc: 'Modern matte black finish basin mixer tap for luxury bathrooms.' },
+            { id: 6, title: 'Handheld Bidet Spray', category: 'accessories', price: 1500, rating: 4, reviewsCount: 22, img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80', desc: 'High-pressure chrome finished health faucet bidet spray set.' },
+            { id: 7, title: 'UPVC Drainage Pipe 6 Inch', category: 'pipes', price: 2900, rating: 5, reviewsCount: 11, img: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=400&q=80', desc: 'Heavy duty UPVC drainage pipe for commercial and residential use.' },
+            { id: 8, title: 'Digital LED Rain Shower', category: 'shower', price: 18500, rating: 5, reviewsCount: 6, img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80', desc: 'Temperature-sensitive LED lighting overhead rain shower system.' },
+            { id: 9, title: 'Brass Angle Valve', category: 'accessories', price: 800, rating: 4, reviewsCount: 30, img: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=400&q=80', desc: 'Leak-proof heavy solid brass angle stop valve for sanitary fixtures.' },
+            { id: 10, title: 'Sensor Automatic Tap', category: 'faucet', price: 9500, rating: 5, reviewsCount: 4, img: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?auto=format&fit=crop&w=400&q=80', desc: 'Infrared motion sensor automatic water saving basin tap.' },
+            { id: 11, title: 'Flexible Shower Hose 1.5m', category: 'shower', price: 1200, rating: 4, reviewsCount: 18, img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80', desc: 'Double-interlocked stainless steel flexible shower hose pipe.' },
+            { id: 12, title: 'Galvanized Iron Pipe 4"', category: 'pipes', price: 3400, rating: 4, reviewsCount: 14, img: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=400&q=80', desc: 'High-grade galvanized iron water supply pipe.' },
+            { id: 13, title: 'Ceramic Soap Dispenser', category: 'accessories', price: 950, rating: 5, reviewsCount: 25, img: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=400&q=80', desc: 'Elegant countertop ceramic liquid soap dispenser pump.' },
+            { id: 14, title: 'Kitchen Sink Mixer Tap', category: 'faucet', price: 5500, rating: 5, reviewsCount: 16, img: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?auto=format&fit=crop&w=400&q=80', desc: '360-degree swivel spout sink mixer tap for kitchen.' },
+            { id: 15, title: 'Bathroom Floor Drain Trap', category: 'accessories', price: 750, rating: 4, reviewsCount: 19, img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80', desc: 'Anti-odor stainless steel floor grating trap with strainer.' }
         ];
 
-        // Init App
         window.addEventListener('DOMContentLoaded', () => {
             renderCatalog();
+            renderWishlist();
             renderAdminTable();
         });
 
-        // Theme Toggle Logic
+        // Toast Notification System
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 text-white text-xs px-4 py-3 rounded-lg shadow-xl pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300 flex items-center gap-2 border-l-4 border-green-500';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-green-400"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Theme Toggle
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
@@ -386,17 +342,19 @@
             document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
 
-        // SPA Navigation Router
+        // Navigation Router with Fade Effect
         function navigateTo(pageId) {
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-page'));
+            document.querySelectorAll('.page-section').forEach(sec => {
+                sec.classList.remove('active-page');
+            });
             document.querySelectorAll('nav a').forEach(a => a.classList.replace('border-white', 'border-transparent'));
-
-            const targetSection = document.getElementById(`page-${pageId}`);
-            if (targetSection) targetSection.classList.add('active-page');
             
-            const navLink = document.getElementById(`nav-${pageId}`);
-            if (navLink) navLink.classList.replace('border-transparent', 'border-white');
-
+            const target = document.getElementById(`page-${pageId}`);
+            if (target) {
+                target.classList.add('active-page');
+            }
+            const nav = document.getElementById(`nav-${pageId}`);
+            if (nav) nav.classList.replace('border-transparent', 'border-white');
             window.scrollTo(0, 0);
         }
 
@@ -406,42 +364,109 @@
             renderCatalog();
         }
 
-        // Catalog & Review Rendering
+        // Render Catalog with Wishlist & Quick View
         function renderCatalog() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const category = document.getElementById('categoryFilter').value;
             const grid = document.getElementById('catalogGrid');
 
             let filtered = productsDB.filter(p => {
-                const matchCat = category === 'all' || p.category === category;
-                const matchSearch = p.title.toLowerCase().includes(search);
-                return matchCat && matchSearch;
+                return (category === 'all' || p.category === category) && p.title.toLowerCase().includes(search);
             });
 
-            grid.innerHTML = filtered.map(p => `
-                <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="h-48 overflow-hidden bg-gray-100">
-                            <img src="${p.img}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="p-4 space-y-2">
-                            <span class="text-[10px] uppercase font-bold bg-brand-light text-brand px-2 py-0.5 rounded">${p.category}</span>
-                            <h3 class="font-bold text-base">${p.title}</h3>
-                            <div class="flex items-center gap-1 text-yellow-400 text-xs">
-                                ${'<i class="fa-solid fa-star"></i>'.repeat(p.rating)}
-                                <span class="text-gray-400 ml-1">(${p.reviewsCount} reviews)</span>
+            grid.innerHTML = filtered.map(p => {
+                const isWished = wishlist.some(w => w.id === p.id);
+                return `
+                    <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between transform hover:-translate-y-1 transition duration-200">
+                        <div>
+                            <div class="h-48 overflow-hidden bg-gray-100 relative group cursor-pointer" onclick="openQuickView(${p.id})">
+                                <img src="${p.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <button onclick="event.stopPropagation(); toggleWishlist(${p.id})" class="absolute top-3 right-3 bg-white/80 dark:bg-gray-900/80 p-2 rounded-full shadow hover:bg-white text-sm cursor-pointer">
+                                    <i class="fa-solid fa-heart ${isWished ? 'text-red-500' : 'text-gray-400'}"></i>
+                                </button>
                             </div>
-                            <div class="text-lg font-extrabold text-brand">Rs. ${p.price.toLocaleString()}</div>
+                            <div class="p-4 space-y-2">
+                                <span class="text-[10px] uppercase font-bold bg-brand-light text-brand px-2 py-0.5 rounded">${p.category}</span>
+                                <h3 class="font-bold text-base cursor-pointer hover:text-brand transition" onclick="openQuickView(${p.id})">${p.title}</h3>
+                                <div class="flex items-center gap-1 text-yellow-400 text-xs">
+                                    ${'<i class="fa-solid fa-star"></i>'.repeat(p.rating)}
+                                    <span class="text-gray-400 ml-1">(${p.reviewsCount})</span>
+                                </div>
+                                <div class="text-lg font-extrabold text-brand">Rs. ${p.price.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="p-4 pt-0">
+                            <button onclick="addToCart(${p.id})" class="w-full bg-brand hover:bg-brand-dark text-white font-semibold py-2 rounded-lg text-sm transition cursor-pointer">Add to Cart</button>
                         </div>
                     </div>
-                    <div class="p-4 pt-0">
-                        <button onclick="addToCart(${p.id})" class="w-full bg-brand hover:bg-brand-dark text-white font-semibold py-2 rounded-lg text-sm transition">Add to Cart</button>
+                `;
+            }).join('');
+        }
+
+        // Quick View Modal Logic
+        function openQuickView(id) {
+            const p = productsDB.find(item => item.id === id);
+            if (!p) return;
+            document.getElementById('quickViewContent').innerHTML = `
+                <div class="flex flex-col md:flex-row gap-4">
+                    <img src="${p.img}" class="w-full md:w-1/2 h-48 object-cover rounded-lg">
+                    <div class="space-y-2">
+                        <span class="text-xs uppercase bg-brand-light text-brand px-2 py-0.5 rounded font-bold">${p.category}</span>
+                        <h3 class="text-xl font-bold">${p.title}</h3>
+                        <div class="text-lg font-extrabold text-brand">Rs. ${p.price.toLocaleString()}</div>
+                        <p class="text-xs text-gray-500">${p.desc}</p>
+                        <button onclick="addToCart(${p.id}); closeQuickView();" class="w-full bg-brand text-white font-bold py-2 rounded text-sm hover:bg-brand-dark cursor-pointer">Add to Cart</button>
                     </div>
+                </div>
+            `;
+            document.getElementById('quickViewModal').classList.remove('hidden');
+            document.getElementById('quickViewModal').classList.add('flex');
+        }
+
+        function closeQuickView() {
+            document.getElementById('quickViewModal').classList.add('hidden');
+            document.getElementById('quickViewModal').classList.remove('flex');
+        }
+
+        // Wishlist System
+        function toggleWishlist(id) {
+            const idx = wishlist.findIndex(w => w.id === id);
+            if (idx > -1) {
+                wishlist.splice(idx, 1);
+                showToast('Removed from Wishlist');
+            } else {
+                const p = productsDB.find(item => item.id === id);
+                if (p) {
+                    wishlist.push(p);
+                    showToast('Added to Wishlist!');
+                }
+            }
+            document.getElementById('wishCount').innerText = wishlist.length;
+            renderCatalog();
+            renderWishlist();
+        }
+
+        function renderWishlist() {
+            const grid = document.getElementById('wishlistGrid');
+            if (wishlist.length === 0) {
+                grid.innerHTML = `<p class="text-gray-400 text-xs">Your wishlist is empty.</p>`;
+                return;
+            }
+            grid.innerHTML = wishlist.map(p => `
+                <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <img src="${p.img}" class="w-16 h-16 object-cover rounded">
+                        <div>
+                            <h4 class="font-bold text-sm">${p.title}</h4>
+                            <div class="text-brand font-bold text-xs">Rs. ${p.price.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <button onclick="toggleWishlist(${p.id})" class="text-red-500 font-bold cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `).join('');
         }
 
-        // Cart Drawer Logic
+        // Cart Drawer
         function toggleCart() {
             document.getElementById('cartDrawer').classList.toggle('right-0');
             document.getElementById('cartDrawer').classList.toggle('right-[-400px]');
@@ -452,6 +477,7 @@
             if (prod) {
                 cart.push(prod);
                 updateCartUI();
+                showToast(`${prod.title} added to cart!`);
                 toggleCart();
             }
         }
@@ -459,13 +485,11 @@
         function updateCartUI() {
             document.getElementById('cartCount').innerText = cart.length;
             const container = document.getElementById('cartItems');
-
             if (cart.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-gray-400 py-8">Your shopping cart is currently empty.</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-gray-400 py-8">Your cart is empty.</p>`;
                 document.getElementById('cartTotal').innerText = 'Rs. 0';
                 return;
             }
-
             let subtotal = cart.reduce((sum, item) => sum + item.price, 0);
             let finalTotal = subtotal - (subtotal * (appliedDiscountPercent / 100));
 
@@ -475,31 +499,31 @@
                         <div class="font-bold">${item.title}</div>
                         <div class="text-gray-400">Rs. ${item.price}</div>
                     </div>
-                    <button onclick="removeFromCart(${idx})" class="text-red-500 font-bold">&times;</button>
+                    <button onclick="removeFromCart(${idx})" class="text-red-500 font-bold cursor-pointer">&times;</button>
                 </div>
             `).join('');
-
             document.getElementById('cartTotal').innerText = `Rs. ${finalTotal.toLocaleString()}`;
         }
 
         function removeFromCart(index) {
             cart.splice(index, 1);
             updateCartUI();
+            showToast('Item removed from cart');
         }
 
         function applyCoupon() {
             const code = document.getElementById('couponInput').value.trim().toUpperCase();
             if (code === 'NAZIM10' || code === 'MADINA10') {
                 appliedDiscountPercent = 10;
-                document.getElementById('discountNote').innerText = '10% Coupon Discount Applied!';
+                document.getElementById('discountNote').innerText = '10% Discount Applied!';
                 document.getElementById('discountNote').classList.remove('hidden');
+                showToast('Coupon applied successfully!');
             } else {
                 alert('Invalid Coupon Code');
             }
             updateCartUI();
         }
 
-        // Authentication Modal Logic
         function openAuthModal(state = 'login') {
             document.getElementById('authModal').classList.remove('hidden');
             document.getElementById('authModal').classList.add('flex');
@@ -515,7 +539,6 @@
             document.getElementById('loginFormState').classList.add('hidden');
             document.getElementById('signupFormState').classList.add('hidden');
             document.getElementById('forgotFormState').classList.add('hidden');
-
             if (state === 'login') document.getElementById('loginFormState').classList.remove('hidden');
             if (state === 'signup') document.getElementById('signupFormState').classList.remove('hidden');
             if (state === 'forgot') document.getElementById('forgotFormState').classList.remove('hidden');
@@ -527,6 +550,7 @@
             currentUser = { name: email.split('@')[0], email };
             updateUserHeader();
             closeAuthModal();
+            showToast('Logged in successfully!');
         }
 
         function handleSignup() {
@@ -536,6 +560,7 @@
             currentUser = { name, email };
             updateUserHeader();
             closeAuthModal();
+            showToast('Account created successfully!');
         }
 
         function handleForgot() {
@@ -545,33 +570,22 @@
 
         function updateUserHeader() {
             if (currentUser) {
-                document.getElementById('userStateArea').innerHTML = `
-                    <span class="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full"><i class="fa-solid fa-user-check"></i> ${currentUser.name}</span>
-                `;
+                document.getElementById('userStateArea').innerHTML = `<span class="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full"><i class="fa-solid fa-user-check"></i> ${currentUser.name}</span>`;
             }
         }
 
-        // Order Tracking Logic
         function trackOrder() {
             const id = document.getElementById('trackInput').value.trim().toUpperCase();
             const res = document.getElementById('trackingResult');
             res.classList.remove('hidden');
-
             if (mockTrackingDB[id]) {
                 const info = mockTrackingDB[id];
-                res.innerHTML = `
-                    <div class="space-y-2 text-xs">
-                        <div class="font-bold text-green-600">Status: ${info.status}</div>
-                        <div><b>Items:</b> ${info.items}</div>
-                        <div class="text-gray-400">Date: ${info.date}</div>
-                    </div>
-                `;
+                res.innerHTML = `<div class="space-y-2 text-xs"><div class="font-bold text-green-600">Status: ${info.status}</div><div><b>Items:</b> ${info.items}</div><div class="text-gray-400">Date: ${info.date}</div></div>`;
             } else {
                 res.innerHTML = `<span class="text-red-500 text-xs font-bold">Tracking ID not found! Try TRK-1001</span>`;
             }
         }
 
-        // Shipping Rate Calculation
         function calcShipRate() {
             const w = parseFloat(document.getElementById('shipWeight').value);
             const res = document.getElementById('shipResult');
@@ -580,17 +594,14 @@
             res.innerText = `Calculated Shipping: Rs. ${cost.toLocaleString()}`;
         }
 
-        // Checkout & PDF Invoice Generator
         function openCheckout() {
             if (cart.length === 0) return alert('Cart is empty');
             let subtotal = cart.reduce((sum, item) => sum + item.price, 0);
             let discount = subtotal * (appliedDiscountPercent / 100);
             let total = subtotal - discount;
-
             document.getElementById('invSubtotal').innerText = `Rs. ${subtotal.toLocaleString()}`;
             document.getElementById('invDiscount').innerText = `Rs. ${discount.toLocaleString()}`;
             document.getElementById('invTotal').innerText = `Rs. ${total.toLocaleString()}`;
-
             document.getElementById('checkoutModal').classList.remove('hidden');
             document.getElementById('checkoutModal').classList.add('flex');
         }
@@ -604,12 +615,9 @@
             const name = document.getElementById('custName').value;
             const phone = document.getElementById('custPhone').value;
             const addr = document.getElementById('custAddr').value;
-
             if (!name || !phone || !addr) return alert('Fill delivery details');
-
             let msg = `New Order Request:\nName: ${name}\nPhone: ${phone}\nAddress: ${addr}\nItems:\n`;
             cart.forEach(i => msg += `- ${i.title} (Rs. ${i.price})\n`);
-            
             window.open(`https://wa.me/923000000000?text=${encodeURIComponent(msg)}`, '_blank');
             closeCheckout();
             cart = [];
@@ -622,7 +630,6 @@
             html2pdf().from(element).save('Al-Madina-Hardware-Invoice.pdf');
         }
 
-        // CMS Admin Add/Delete Logic
         function renderAdminTable() {
             const tbody = document.getElementById('adminProductTable');
             tbody.innerHTML = productsDB.map((p, idx) => `
@@ -630,7 +637,7 @@
                     <td class="p-2 font-bold">${p.title}</td>
                     <td class="p-2">${p.category}</td>
                     <td class="p-2">Rs. ${p.price}</td>
-                    <td class="p-2"><button onclick="adminDeleteProduct(${idx})" class="text-red-500 font-bold">Delete</button></td>
+                    <td class="p-2"><button onclick="adminDeleteProduct(${idx})" class="text-red-500 font-bold cursor-pointer">Delete</button></td>
                 </tr>
             `).join('');
         }
@@ -640,19 +647,18 @@
             const category = document.getElementById('adminCat').value;
             const price = parseFloat(document.getElementById('adminPrice').value);
             const img = document.getElementById('adminImg').value || 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80';
-
             if (!title || !price) return alert('Enter title & price');
-
-            productsDB.push({ id: Date.now(), title, category, price, rating: 5, reviewsCount: 1, img });
+            productsDB.push({ id: Date.now(), title, category, price, rating: 5, reviewsCount: 1, img, desc: 'Custom added product.' });
             renderAdminTable();
             renderCatalog();
-            alert('Product added to inventory!');
+            showToast('Product added to inventory!');
         }
 
         function adminDeleteProduct(index) {
             productsDB.splice(index, 1);
             renderAdminTable();
             renderCatalog();
+            showToast('Product deleted');
         }
     </script>
 </body>
