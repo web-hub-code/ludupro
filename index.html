@@ -34,8 +34,7 @@
         .cart-drawer { transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes pulseGlow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
-        .animate-glow { animation: pulseGlow 3s infinite; }
+        .slider-img { transition: opacity 1s ease-in-out; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
@@ -54,9 +53,9 @@
 
     <!-- Top Announcement Bar -->
     <div class="bg-gray-900 text-white text-xs py-2 px-4 flex flex-col md:flex-row justify-between items-center border-b border-gray-800">
-        <div><i class="fa-solid fa-location-dot text-brand mr-1"></i> Main Bazar, Pakistan | <i class="fa-solid fa-phone text-brand ml-2 mr-1"></i> Helpline: +92 300 0000000</div>
+        <div><i class="fa-solid fa-location-dot text-brand mr-1"></i> Main Bazar, Pakistan | <i class="fa-solid fa-phone text-brand ml-2 mr-1"></i> Helpline: <span id="topHelpline">+92 300 0000000</span></div>
         <div class="mt-1 md:mt-0 flex items-center gap-4">
-            <span class="text-green-400 font-semibold"><i class="fa-solid fa-bolt mr-1"></i> Flash Sale Live! Coupon: NAZIM10</span>
+            <span class="text-green-400 font-semibold"><i class="fa-solid fa-bolt mr-1"></i> Promo Codes Live in Cart!</span>
             <button onclick="toggleDarkMode()" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-1 rounded border border-gray-700 text-xs flex items-center gap-1 cursor-pointer">
                 <i class="fa-solid fa-moon" id="themeIcon"></i> <span id="themeText">Dark</span>
             </button>
@@ -76,7 +75,7 @@
                 <a id="nav-wishlist" onclick="navigateTo('wishlist')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Wishlist (<span id="wishCount">0</span>)</a>
                 <a id="nav-track" onclick="navigateTo('track')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Track Order</a>
                 <a id="nav-shipping" onclick="navigateTo('shipping')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Shipping Rates</a>
-                <a id="nav-admin" onclick="navigateTo('admin')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent"><i class="fa-solid fa-shield-halved text-xs"></i> Admin CMS</a>
+                <a id="nav-admin" onclick="navigateTo('admin')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent hidden bg-yellow-500/20 px-2 py-0.5 rounded text-yellow-300 font-bold"><i class="fa-solid fa-user-shield text-xs mr-1"></i> Admin CMS</a>
             </nav>
             <div class="flex items-center gap-3">
                 <div id="userStateArea">
@@ -94,34 +93,31 @@
     <!-- MAIN SPA ROUTER CONTENT -->
     <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
 
-        <!-- HOME SECTION -->
+        <!-- HOME SECTION WITH ANIMATED SLIDER -->
         <section id="page-home" class="page-section active-page space-y-8 animate-fade">
-            <div class="relative bg-gradient-to-r from-brand to-brand-dark text-white rounded-2xl p-8 md:p-12 shadow-2xl overflow-hidden animate-glow">
-                <div class="relative z-10 max-w-2xl space-y-4">
-                    <span class="bg-yellow-400 text-gray-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">🔥 PWA & Firebase Powered</span>
-                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">Ultra-Modern Sanitary & Hardware Solutions</h1>
-                    <p class="text-gray-100 text-sm md:text-base">Experience high-grade Faucets, Rain Showers, UPVC Pipes, and Premium Accessories with real-time stock and instant WhatsApp ordering.</p>
-                    <div class="pt-2 flex flex-wrap gap-3">
-                        <button onclick="navigateTo('shop')" class="bg-white text-brand px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-gray-100 transition transform hover:scale-105 cursor-pointer">Explore Shop Catalog</button>
-                        <button onclick="navigateTo('about')" class="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-bold hover:bg-white/10 transition cursor-pointer">About Our Company</button>
+            <!-- Animated Hero Slider -->
+            <div class="relative bg-gray-900 text-white rounded-2xl shadow-2xl overflow-hidden h-[380px] md:h-[450px] flex items-center">
+                <div id="heroSliderContainer" class="absolute inset-0 w-full h-full"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-10 flex items-center p-8 md:p-12">
+                    <div class="max-w-2xl space-y-4">
+                        <span class="bg-yellow-400 text-gray-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">🔥 PWA & Storage Powered</span>
+                        <h1 id="sliderTitle" class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">Ultra-Modern Sanitary & Hardware Solutions</h1>
+                        <p id="sliderDesc" class="text-gray-200 text-sm md:text-base">Experience high-grade Faucets, Rain Showers, UPVC Pipes, and Premium Accessories with real-time stock and instant WhatsApp ordering.</p>
+                        <div class="pt-2 flex flex-wrap gap-3">
+                            <button onclick="navigateTo('shop')" class="bg-white text-brand px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-gray-100 transition transform hover:scale-105 cursor-pointer">Explore Shop Catalog</button>
+                            <button onclick="navigateTo('about')" class="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-bold hover:bg-white/10 transition cursor-pointer">About Our Company</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Flash Sale Banner -->
-            <div class="bg-gradient-to-r from-red-600 to-orange-500 text-white p-4 rounded-xl shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-fire text-2xl animate-bounce"></i>
-                    <div>
-                        <h3 class="font-bold text-base">Weekend Mega Flash Sale!</h3>
-                        <p class="text-xs text-white/90">Get flat 10% off using coupon code NAZIM10 at checkout.</p>
-                    </div>
+            <!-- Active Promo Codes Display Box for Users -->
+            <div class="bg-gradient-to-r from-brand to-brand-dark text-white p-6 rounded-2xl shadow-lg space-y-3">
+                <div class="flex justify-between items-center border-b border-white/20 pb-2">
+                    <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-ticket text-yellow-400"></i> Active Promo Codes (Copy & Use)</h3>
+                    <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full">Valid for 24h per user</span>
                 </div>
-                <div class="flex gap-2 font-mono text-sm font-bold bg-black/20 p-2 rounded-lg">
-                    <span id="timerHours" class="bg-black/40 px-2 py-1 rounded">12h</span> :
-                    <span id="timerMins" class="bg-black/40 px-2 py-1 rounded">45m</span> :
-                    <span id="timerSecs" class="bg-black/40 px-2 py-1 rounded">30s</span>
-                </div>
+                <div id="userPromoList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2"></div>
             </div>
 
             <!-- Categories -->
@@ -179,7 +175,7 @@
         <!-- SHOP CATALOG -->
         <section id="page-shop" class="page-section space-y-6 animate-fade">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Shop Hardware Products (15+ Items)</h2>
+                <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Shop Hardware Products</h2>
                 <div class="flex flex-wrap gap-2 w-full md:w-auto">
                     <input type="text" id="searchInput" onkeyup="renderCatalog()" placeholder="Search products..." class="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand w-full md:w-64">
                     <select id="categoryFilter" onchange="renderCatalog()" class="px-3 py-2 border rounded-lg text-sm bg-white dark:bg-gray-800 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand">
@@ -228,13 +224,14 @@
             </div>
         </section>
 
-        <!-- CMS ADMIN DASHBOARD -->
+        <!-- ADMIN MANAGEMENT CENTER -->
         <section id="page-admin" class="page-section space-y-6 animate-fade">
             <div class="flex justify-between items-center border-b pb-2">
-                <h2 class="text-2xl font-bold text-brand">Admin Management Control Center</h2>
-                <span class="text-xs bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-mono font-bold"><i class="fa-solid fa-server"></i> Firebase Sync Online</span>
+                <h2 class="text-2xl font-bold text-brand"><i class="fa-solid fa-lock text-yellow-500 mr-2"></i>Admin Management & WhatsApp Settings</h2>
+                <span class="text-xs bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-mono font-bold"><i class="fa-solid fa-shield-check"></i> Authorized Access</span>
             </div>
 
+            <!-- Stats -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
                     <div>
@@ -245,39 +242,65 @@
                 </div>
                 <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
                     <div>
-                        <div class="text-xs text-gray-500 font-bold uppercase">Active Orders</div>
-                        <div class="text-2xl font-extrabold text-green-600">2</div>
+                        <div class="text-xs text-gray-500 font-bold uppercase">Active Promos</div>
+                        <div id="adminStatPromos" class="text-2xl font-extrabold text-green-600">2</div>
                     </div>
-                    <i class="fa-solid fa-cart-flatbed text-2xl text-green-500/30"></i>
+                    <i class="fa-solid fa-ticket text-2xl text-green-500/30"></i>
                 </div>
                 <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
                     <div>
-                        <div class="text-xs text-gray-500 font-bold uppercase">Coupon System</div>
-                        <div class="text-2xl font-extrabold text-yellow-500">10% Active</div>
+                        <div class="text-xs text-gray-500 font-bold uppercase">WhatsApp Status</div>
+                        <div class="text-2xl font-extrabold text-green-500">Connected</div>
                     </div>
-                    <i class="fa-solid fa-ticket text-2xl text-yellow-500/30"></i>
+                    <i class="fa-brands fa-whatsapp text-2xl text-green-500/30"></i>
                 </div>
             </div>
 
+            <!-- Admin Forms: WhatsApp Settings, Add Product & Promo Manager -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- WhatsApp Number Setting -->
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
-                    <h3 class="font-bold border-b pb-2">Add New Hardware Item</h3>
-                    <div><label class="block text-xs font-semibold mb-1">Product Title</label><input type="text" id="adminTitle" placeholder="e.g. Mixer Tap" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Category</label><select id="adminCat" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"><option value="faucet">Faucet</option><option value="shower">Shower</option><option value="pipes">Pipes</option><option value="accessories">Accessories</option></select></div>
-                    <div><label class="block text-xs font-semibold mb-1">Price (Rs.)</label><input type="number" id="adminPrice" placeholder="4500" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Image URL</label><input type="text" id="adminImg" placeholder="https://..." class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
-                    <button onclick="adminAddProduct()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm hover:bg-green-700 cursor-pointer">Add to Store Inventory</button>
+                    <h3 class="font-bold border-b pb-2 text-brand"><i class="fa-brands fa-whatsapp mr-1 text-green-500"></i> Admin WhatsApp Number</h3>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">WhatsApp Phone (with Country Code)</label>
+                        <input type="text" id="adminWhatsAppInput" placeholder="923000000000" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600">
+                    </div>
+                    <button onclick="saveAdminWhatsApp()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm hover:bg-green-700 cursor-pointer">Update WhatsApp Number</button>
+                    <p class="text-[11px] text-gray-400">All customer orders will be sent directly to this WhatsApp number.</p>
                 </div>
 
-                <div class="md:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                    <h3 class="font-bold border-b pb-2 mb-4">Current Inventory Management</h3>
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-gray-100 dark:bg-gray-700 uppercase">
-                            <tr><th class="p-2">Product</th><th class="p-2">Category</th><th class="p-2">Price</th><th class="p-2">Action</th></tr>
-                        </thead>
-                        <tbody id="adminProductTable" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
-                    </table>
+                <!-- Add Product -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                    <h3 class="font-bold border-b pb-2 text-brand">Add Product (Storage Upload)</h3>
+                    <div><label class="block text-xs font-semibold mb-1">Product Title</label><input type="text" id="adminTitle" placeholder="e.g. Premium Faucet" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Category</label><select id="adminCat" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"><option value="faucet">Faucet</option><option value="shower">Shower</option><option value="pipes">Pipes</option><option value="accessories">Accessories</option></select></div>
+                    <div><label class="block text-xs font-semibold mb-1">Price (Rs.)</label><input type="number" id="adminPrice" placeholder="4500" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">Upload Image from Device</label>
+                        <input type="file" id="adminImgFile" accept="image/*" class="w-full text-xs border rounded p-1 dark:bg-gray-700 dark:border-gray-600">
+                    </div>
+                    <button onclick="adminAddProduct()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm hover:bg-green-700 cursor-pointer">Add to Inventory</button>
                 </div>
+
+                <!-- Promo Code Manager -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                    <h3 class="font-bold border-b pb-2 text-brand">Create Promo Code</h3>
+                    <div><label class="block text-xs font-semibold mb-1">Code Name</label><input type="text" id="adminPromoCode" placeholder="e.g. MADINA20" class="w-full px-3 py-1.5 text-sm border rounded uppercase dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Discount (%)</label><input type="number" id="adminPromoDiscount" placeholder="15" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Note</label><input type="text" id="adminPromoDesc" placeholder="15% OFF on items" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
+                    <button onclick="adminAddPromo()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm hover:bg-brand-dark cursor-pointer">Save & Publish</button>
+                </div>
+            </div>
+
+            <!-- Inventory Management Table -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
+                <h3 class="font-bold border-b pb-2 mb-4">Current Inventory Management</h3>
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-100 dark:bg-gray-700 uppercase">
+                        <tr><th class="p-2">Image</th><th class="p-2">Product</th><th class="p-2">Category</th><th class="p-2">Price</th><th class="p-2">Action</th></tr>
+                    </thead>
+                    <tbody id="adminProductTable" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+                </table>
             </div>
         </section>
 
@@ -300,7 +323,7 @@
         <div id="cartItems" class="flex-grow overflow-y-auto py-4 space-y-3"></div>
         <div class="border-t pt-4 space-y-3 dark:border-gray-700">
             <div class="flex gap-2">
-                <input type="text" id="couponInput" placeholder="Coupon (e.g. NAZIM10)" class="w-full px-3 py-1 text-xs border rounded uppercase dark:bg-gray-700 dark:border-gray-600">
+                <input type="text" id="couponInput" placeholder="Enter Promo Code" class="w-full px-3 py-1 text-xs border rounded uppercase dark:bg-gray-700 dark:border-gray-600">
                 <button onclick="applyCoupon()" class="bg-gray-800 text-white px-3 py-1 text-xs rounded font-bold cursor-pointer">Apply</button>
             </div>
             <div id="discountNote" class="text-xs text-green-600 font-semibold hidden"></div>
@@ -318,21 +341,21 @@
                 <button onclick="handleGoogleLogin()" class="w-full bg-red-600 text-white font-bold py-2 rounded text-xs hover:bg-red-700 flex items-center justify-center gap-2 cursor-pointer shadow">
                     <i class="fa-brands fa-google"></i> Continue with Google
                 </button>
-                <div class="text-center text-xs text-gray-400 my-1">- OR USE EMAIL / PHONE -</div>
-                <div><label class="block text-xs font-semibold mb-1">Email Address</label><input type="email" id="loginEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
-                <div><label class="block text-xs font-semibold mb-1">Password</label><input type="password" id="loginPass" placeholder="••••••••" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <div class="text-center text-xs text-gray-400 my-1">- OR USE ADMIN EMAIL -</div>
+                <div><label class="block text-xs font-semibold mb-1">Email Address</label><input type="email" id="loginEmail" placeholder="admin@gmail.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <div><label class="block text-xs font-semibold mb-1">Password</label><input type="password" id="loginPass" placeholder="542622" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
                 <button onclick="handleEmailLogin()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm cursor-pointer">Sign In</button>
                 <div class="flex justify-between text-xs pt-2">
-                    <a onclick="switchAuthForm('phone')" class="text-green-600 font-bold cursor-pointer"><i class="fa-solid fa-phone"></i> Phone OTP Login</a>
+                    <a onclick="switchAuthForm('phone')" class="text-green-600 font-bold cursor-pointer"><i class="fa-solid fa-phone"></i> Phone OTP</a>
                     <a onclick="switchAuthForm('signup')" class="text-brand hover:underline cursor-pointer">Create Account</a>
                 </div>
             </div>
             <div id="phoneFormState" class="space-y-3 hidden">
                 <h3 class="text-xl font-bold text-brand">Phone Number OTP Login</h3>
                 <div><label class="block text-xs font-semibold mb-1">Phone Number (with Country Code)</label><input type="text" id="phoneNum" placeholder="+923001234567" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
-                <button onclick="handlePhoneSendOTP()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm cursor-pointer">Send Verification Code</button>
+                <button onclick="handlePhoneSendOTP()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm cursor-pointer">Send Code</button>
                 <div id="otpInputArea" class="hidden space-y-2 border-t pt-2">
-                    <label class="block text-xs font-semibold">Enter 6-Digit OTP Code</label>
+                    <label class="block text-xs font-semibold">Enter 6-Digit OTP</label>
                     <input type="text" id="otpCode" placeholder="123456" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700">
                     <button onclick="handlePhoneVerifyOTP()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm cursor-pointer">Verify & Login</button>
                 </div>
@@ -384,7 +407,7 @@
         </div>
     </footer>
 
-    <!-- FIREBASE SDK V9 MODULAR IMPORT -->
+    <!-- FIREBASE SDK V9 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
@@ -400,8 +423,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        window.firebaseAuth = auth;
+        window.firebaseAuth = getAuth(app);
         window.GoogleAuthProvider = GoogleAuthProvider;
         window.signInWithPopup = signInWithPopup;
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
@@ -415,10 +437,93 @@
         let cart = [];
         let wishlist = [];
         let appliedDiscountPercent = 0;
+        let appliedPromoCode = "";
         let confirmationResult = null;
         let deferredPrompt = null;
 
-        // PWA Installation Listener
+        const SECRET_ADMIN_EMAIL = "admin@gmail.com";
+        const SECRET_ADMIN_PASS = "542622";
+
+        // Dynamic Admin WhatsApp Number (Saved in LocalStorage)
+        let adminWhatsAppNumber = localStorage.getItem('admin_whatsapp') || "923000000000";
+
+        let promoCodesDB = [
+            { code: "NAZIM10", discount: 10, desc: "Flat 10% off on all items" },
+            { code: "MADINA20", discount: 20, desc: "Special 20% festive discount" }
+        ];
+
+        const sliderData = [
+            { title: "Ultra-Modern Sanitary & Hardware Solutions", desc: "Experience high-grade Faucets, Rain Showers, UPVC Pipes, and Premium Accessories.", img: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80" },
+            { title: "Heavy Duty Construction PVC & Iron Pipes", desc: "Certified durable supply pipes engineered for high pressure and long-lasting strength.", img: "https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=1200&q=80" },
+            { title: "Luxury Bathroom Showers & Mixers", desc: "Transform your bathroom with luxury rainfall overhead shower systems and matte black taps.", img: "https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=1200&q=80" }
+        ];
+        let currentSlideIdx = 0;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCatalog();
+            renderWishlist();
+            renderAdminTable();
+            renderUserPromos();
+            initSlider();
+            document.getElementById('adminWhatsAppInput').value = adminWhatsAppNumber;
+            document.getElementById('topHelpline').innerText = `+${adminWhatsAppNumber}`;
+            setInterval(nextSlide, 5000);
+        });
+
+        function saveAdminWhatsApp() {
+            const num = document.getElementById('adminWhatsAppInput').value.trim();
+            if (!num) return alert('Enter valid WhatsApp number');
+            adminWhatsAppNumber = num;
+            localStorage.setItem('admin_whatsapp', num);
+            document.getElementById('topHelpline').innerText = `+${num}`;
+            showToast('Admin WhatsApp Number Updated!');
+        }
+
+        function initSlider() {
+            const container = document.getElementById('heroSliderContainer');
+            container.innerHTML = sliderData.map((s, idx) => `
+                <div class="absolute inset-0 transition-opacity duration-1000 slider-img ${idx === 0 ? 'opacity-100' : 'opacity-0'}">
+                    <img src="${s.img}" class="w-full h-full object-cover">
+                </div>
+            `).join('');
+        }
+
+        function nextSlide() {
+            currentSlideIdx = (currentSlideIdx + 1) % sliderData.length;
+            updateSliderView();
+        }
+
+        function updateSliderView() {
+            const slides = document.querySelectorAll('.slider-img');
+            slides.forEach((slide, idx) => {
+                slide.classList.toggle('opacity-100', idx === currentSlideIdx);
+                slide.classList.toggle('opacity-0', idx !== currentSlideIdx);
+            });
+            document.getElementById('sliderTitle').innerText = sliderData[currentSlideIdx].title;
+            document.getElementById('sliderDesc').innerText = sliderData[currentSlideIdx].desc;
+        }
+
+        function renderUserPromos() {
+            const container = document.getElementById('userPromoList');
+            container.innerHTML = promoCodesDB.map(p => `
+                <div class="bg-black/30 backdrop-blur p-3 rounded-xl border border-white/20 flex justify-between items-center">
+                    <div>
+                        <div class="font-mono font-bold text-yellow-300 text-sm">${p.code} (${p.discount}% OFF)</div>
+                        <div class="text-[11px] text-gray-200">${p.desc}</div>
+                    </div>
+                    <button onclick="copyPromoCode('${p.code}')" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold px-3 py-1 rounded text-xs transition cursor-pointer">
+                        <i class="fa-solid fa-copy"></i> Copy
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function copyPromoCode(code) {
+            navigator.clipboard.writeText(code);
+            document.getElementById('couponInput').value = code;
+            showToast(`Promo Code ${code} Copied to Cart!`);
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -429,18 +534,15 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        showToast('PWA App Installed!');
-                    }
+                    if (choiceResult.outcome === 'accepted') showToast('PWA App Installed!');
                     deferredPrompt = null;
                     document.getElementById('pwaBanner').classList.add('hidden');
                 });
             }
         }
 
-        // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
         }
 
         let mockTrackingDB = {
@@ -451,32 +553,16 @@
         let productsDB = [
             { id: 1, title: 'Chrome Basin Faucet', category: 'faucet', price: 4500, rating: 5, reviewsCount: 12, img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80', desc: 'High-quality durable brass mixer tap with smooth water flow control.' },
             { id: 2, title: 'Luxury Overhead Shower', category: 'shower', price: 12000, rating: 4, reviewsCount: 8, img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80', desc: 'Stainless steel overhead rain shower set with adjustable handheld nozzle.' },
-            { id: 3, title: 'Heavy Duty PVC Pipe', category: 'pipes', price: 1800, rating: 5, reviewsCount: 20, img: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=400&q=80', desc: 'Durable 4-inch water supply and drainage pipe (Price per length).' },
-            { id: 4, title: 'Stainless Steel Rack Set', category: 'accessories', price: 3500, rating: 4, reviewsCount: 15, img: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=400&q=80', desc: 'Complete 5-piece rust-proof bathroom accessory shelf and holder kit.' },
-            { id: 5, title: 'Matte Black Mixer Tap', category: 'faucet', price: 6500, rating: 5, reviewsCount: 9, img: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?auto=format&fit=crop&w=400&q=80', desc: 'Modern matte black finish basin mixer tap for luxury bathrooms.' },
-            { id: 6, title: 'Handheld Bidet Spray', category: 'accessories', price: 1500, rating: 4, reviewsCount: 22, img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80', desc: 'High-pressure chrome finished health faucet bidet spray set.' },
-            { id: 7, title: 'UPVC Drainage Pipe 6 Inch', category: 'pipes', price: 2900, rating: 5, reviewsCount: 11, img: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=400&q=80', desc: 'Heavy duty UPVC drainage pipe for commercial and residential use.' },
-            { id: 8, title: 'Digital LED Rain Shower', category: 'shower', price: 18500, rating: 5, reviewsCount: 6, img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80', desc: 'Temperature-sensitive LED lighting overhead rain shower system.' },
-            { id: 9, title: 'Brass Angle Valve', category: 'accessories', price: 800, rating: 4, reviewsCount: 30, img: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=400&q=80', desc: 'Leak-proof heavy solid brass angle stop valve for sanitary fixtures.' },
-            { id: 10, title: 'Sensor Automatic Tap', category: 'faucet', price: 9500, rating: 5, reviewsCount: 4, img: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?auto=format&fit=crop&w=400&q=80', desc: 'Infrared motion sensor automatic water saving basin tap.' },
-            { id: 11, title: 'Flexible Shower Hose 1.5m', category: 'shower', price: 1200, rating: 4, reviewsCount: 18, img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80', desc: 'Double-interlocked stainless steel flexible shower hose pipe.' },
-            { id: 12, title: 'Galvanized Iron Pipe 4"', category: 'pipes', price: 3400, rating: 4, reviewsCount: 14, img: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=400&q=80', desc: 'High-grade galvanized iron water supply pipe.' },
-            { id: 13, title: 'Ceramic Soap Dispenser', category: 'accessories', price: 950, rating: 5, reviewsCount: 25, img: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=400&q=80', desc: 'Elegant countertop ceramic liquid soap dispenser pump.' },
-            { id: 14, title: 'Kitchen Sink Mixer Tap', category: 'faucet', price: 5500, rating: 5, reviewsCount: 16, img: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?auto=format&fit=crop&w=400&q=80', desc: '360-degree swivel spout sink mixer tap for kitchen.' },
-            { id: 15, title: 'Bathroom Floor Drain Trap', category: 'accessories', price: 750, rating: 4, reviewsCount: 19, img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80', desc: 'Anti-odor stainless steel floor grating trap with strainer.' }
+            { id: 3, title: 'Heavy Duty PVC Pipe', category: 'pipes', price: 1800, rating: 5, reviewsCount: 20, img: 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=400&q=80', desc: 'Durable 4-inch water supply and drainage pipe.' },
+            { id: 4, title: 'Stainless Steel Rack Set', category: 'accessories', price: 3500, rating: 4, reviewsCount: 15, img: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=400&q=80', desc: 'Complete 5-piece rust-proof bathroom accessory shelf.' }
         ];
-
-        window.addEventListener('DOMContentLoaded', () => {
-            renderCatalog();
-            renderWishlist();
-            renderAdminTable();
-        });
 
         async function handleGoogleLogin() {
             try {
                 const provider = new window.GoogleAuthProvider();
                 const result = await window.signInWithPopup(window.firebaseAuth, provider);
                 currentUser = result.user;
+                checkAdminRights();
                 updateUserHeader();
                 closeAuthModal();
                 showToast(`Welcome ${currentUser.displayName || 'User'}!`);
@@ -484,15 +570,27 @@
         }
 
         async function handleEmailLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+
+            if (email === SECRET_ADMIN_EMAIL && pass === SECRET_ADMIN_PASS) {
+                currentUser = { email: SECRET_ADMIN_EMAIL, displayName: "Owner Admin", isAdmin: true };
+                checkAdminRights();
+                updateUserHeader();
+                closeAuthModal();
+                showToast('Welcome Authorized Admin!');
+                navigateTo('admin');
+                return;
+            }
+
             try {
                 const result = await window.signInWithEmailAndPassword(window.firebaseAuth, email, pass);
                 currentUser = result.user;
+                checkAdminRights();
                 updateUserHeader();
                 closeAuthModal();
-                showToast('Logged in with Firebase!');
-            } catch (error) { alert(error.message); }
+                showToast('Logged in successfully!');
+            } catch (error) { alert("Invalid credentials!"); }
         }
 
         async function handleSignup() {
@@ -501,9 +599,10 @@
             try {
                 const result = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, pass);
                 currentUser = result.user;
+                checkAdminRights();
                 updateUserHeader();
                 closeAuthModal();
-                showToast('Firebase Account Created!');
+                showToast('Account Created!');
             } catch (error) { alert(error.message); }
         }
 
@@ -514,7 +613,7 @@
                 window.recaptchaVerifier = new window.RecaptchaVerifier('recaptcha-container', {'size': 'invisible'}, window.firebaseAuth);
                 confirmationResult = await window.signInWithPhoneNumber(window.firebaseAuth, phoneNumber, window.recaptchaVerifier);
                 document.getElementById('otpInputArea').classList.remove('hidden');
-                showToast('OTP sent to your phone!');
+                showToast('OTP sent!');
             } catch (error) { alert(error.message); }
         }
 
@@ -523,10 +622,20 @@
             try {
                 const result = await confirmationResult.confirm(code);
                 currentUser = result.user;
+                checkAdminRights();
                 updateUserHeader();
                 closeAuthModal();
-                showToast('Phone Number Verified!');
-            } catch (error) { alert('Invalid OTP Code'); }
+                showToast('Verified & Logged In!');
+            } catch (error) { alert('Invalid OTP'); }
+        }
+
+        function checkAdminRights() {
+            const adminNav = document.getElementById('nav-admin');
+            if (currentUser && (currentUser.email === SECRET_ADMIN_EMAIL || currentUser.isAdmin)) {
+                adminNav.classList.remove('hidden');
+            } else {
+                adminNav.classList.add('hidden');
+            }
         }
 
         function showToast(message) {
@@ -550,6 +659,10 @@
         }
 
         function navigateTo(pageId) {
+            if (pageId === 'admin' && (!currentUser || currentUser.email !== SECRET_ADMIN_EMAIL)) {
+                alert("Restricted Access! Sirf Authorized Admin hi access kar sakta hai.");
+                return;
+            }
             document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-page'));
             document.querySelectorAll('nav a').forEach(a => a.classList.replace('border-white', 'border-transparent'));
             const target = document.getElementById(`page-${pageId}`);
@@ -579,6 +692,7 @@
                         <div>
                             <div class="h-48 overflow-hidden bg-gray-100 relative group cursor-pointer" onclick="openQuickView(${p.id})">
                                 <img src="${p.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <span class="absolute top-3 left-3 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">In Stock</span>
                                 <button onclick="event.stopPropagation(); toggleWishlist(${p.id})" class="absolute top-3 right-3 bg-white/80 dark:bg-gray-900/80 p-2 rounded-full shadow hover:bg-white text-sm cursor-pointer">
                                     <i class="fa-solid fa-heart ${isWished ? 'text-red-500' : 'text-gray-400'}"></i>
                                 </button>
@@ -670,16 +784,30 @@
             document.getElementById('cartTotal').innerText = `Rs. ${finalTotal.toLocaleString()}`;
         }
 
-        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); showToast('Item removed from cart'); }
+        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); showToast('Item removed'); }
 
         function applyCoupon() {
-            const code = document.getElementById('couponInput').value.trim().toUpperCase();
-            if (code === 'NAZIM10' || code === 'MADINA10') {
-                appliedDiscountPercent = 10;
-                document.getElementById('discountNote').innerText = '10% Discount Applied!';
-                document.getElementById('discountNote').classList.remove('hidden');
-                showToast('Coupon applied!');
-            } else alert('Invalid Coupon Code');
+            const codeInput = document.getElementById('couponInput').value.trim().toUpperCase();
+            const promo = promoCodesDB.find(p => p.code === codeInput);
+            if (!promo) { alert('Invalid Promo Code!'); return; }
+
+            const lastUsedKey = `promo_used_${codeInput}`;
+            const lastUsedTime = localStorage.getItem(lastUsedKey);
+            const now = Date.now();
+
+            if (lastUsedTime && (now - lastUsedTime < 24 * 60 * 60 * 1000)) {
+                const hoursLeft = Math.ceil((24 * 60 * 60 * 1000 - (now - lastUsedTime)) / (60 * 60 * 1000));
+                alert(`Already used. Available in ${hoursLeft} hours.`);
+                return;
+            }
+
+            appliedDiscountPercent = promo.discount;
+            appliedPromoCode = codeInput;
+            localStorage.setItem(lastUsedKey, now);
+
+            document.getElementById('discountNote').innerText = `${promo.discount}% Discount Applied!`;
+            document.getElementById('discountNote').classList.remove('hidden');
+            showToast('Promo Code Applied!');
             updateCartUI();
         }
 
@@ -746,9 +874,14 @@
             const phone = document.getElementById('custPhone').value;
             const addr = document.getElementById('custAddr').value;
             if (!name || !phone || !addr) return alert('Fill delivery details');
-            let msg = `New Order Request:\nName: ${name}\nPhone: ${phone}\nAddress: ${addr}\nItems:\n`;
+            let msg = `🛒 *New Order from Al-Madina Hardware*\n\n👤 *Name:* ${name}\n📞 *Phone:* ${phone}\n📍 *Address:* ${addr}\n\n📦 *Order Items:*\n`;
             cart.forEach(i => msg += `- ${i.title} (Rs. ${i.price})\n`);
-            window.open(`https://wa.me/923000000000?text=${encodeURIComponent(msg)}`, '_blank');
+            let subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            let total = subtotal - (subtotal * (appliedDiscountPercent / 100));
+            msg += `\n💰 *Total Payable:* Rs. ${total.toLocaleString()}`;
+            
+            // Dynamic WhatsApp number routing
+            window.open(`https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(msg)}`, '_blank');
             closeCheckout(); cart = []; updateCartUI(); toggleCart();
         }
 
@@ -761,6 +894,7 @@
             const tbody = document.getElementById('adminProductTable');
             tbody.innerHTML = productsDB.map((p, idx) => `
                 <tr>
+                    <td class="p-2"><img src="${p.img}" class="w-10 h-10 object-cover rounded"></td>
                     <td class="p-2 font-bold">${p.title}</td>
                     <td class="p-2">${p.category}</td>
                     <td class="p-2">Rs. ${p.price}</td>
@@ -768,19 +902,48 @@
                 </tr>
             `).join('');
             document.getElementById('adminStatProducts').innerText = productsDB.length;
+            document.getElementById('adminStatPromos').innerText = promoCodesDB.length;
         }
 
         function adminAddProduct() {
             const title = document.getElementById('adminTitle').value;
             const category = document.getElementById('adminCat').value;
             const price = parseFloat(document.getElementById('adminPrice').value);
-            const img = document.getElementById('adminImg').value || 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80';
+            const fileInput = document.getElementById('adminImgFile');
+
             if (!title || !price) return alert('Enter title & price');
-            productsDB.push({ id: Date.now(), title, category, price, rating: 5, reviewsCount: 1, img, desc: 'Custom added product.' });
-            renderAdminTable(); renderCatalog(); showToast('Product added!');
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Img = e.target.result;
+                    productsDB.push({ id: Date.now(), title, category, price, rating: 5, reviewsCount: 1, img: base64Img, desc: 'Directly uploaded from storage.' });
+                    renderAdminTable(); renderCatalog(); showToast('Product uploaded & added!');
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                alert('Please select an image file from your device.');
+            }
         }
 
-        function adminDeleteProduct(index) { productsDB.splice(index, 1); renderAdminTable(); renderCatalog(); showToast('Product deleted'); }
+        function adminAddPromo() {
+            const code = document.getElementById('adminPromoCode').value.trim().toUpperCase();
+            const discount = parseFloat(document.getElementById('adminPromoDiscount').value);
+            const desc = document.getElementById('adminPromoDesc').value;
+
+            if (!code || !discount) return alert('Enter code & discount');
+            promoCodesDB.push({ code, discount, desc });
+            renderUserPromos();
+            renderAdminTable();
+            showToast(`Promo Code ${code} published!`);
+        }
+
+        function adminDeleteProduct(index) {
+            productsDB.splice(index, 1);
+            renderAdminTable();
+            renderCatalog();
+            showToast('Product deleted');
+        }
     </script>
 </body>
 </html>
