@@ -2,7 +2,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al-Madina Sanitary & Hardware | Official Enterprise Store</title>
+    <title>Al-Madina Sanitary & Hardware | Official Enterprise App</title>
+    
+    <!-- PWA Setup Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0073aa">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3074/3074058.png">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,19 +33,30 @@
         .page-section.active-page { display: block; opacity: 1; }
         .cart-drawer { transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
+        .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes pulseGlow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        .animate-glow { animation: pulseGlow 3s infinite; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
-    <!-- Toast Notification Container -->
+    <div id="recaptcha-container"></div>
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- PWA Install Banner Button -->
+    <div id="pwaBanner" class="bg-brand-dark text-white px-4 py-2 text-xs flex justify-between items-center hidden">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-mobile-screen-button text-yellow-400"></i>
+            <span>Install Al-Madina Hardware App on your Mobile / Desktop!</span>
+        </div>
+        <button onclick="installPWA()" class="bg-yellow-400 text-gray-900 font-bold px-3 py-1 rounded shadow text-xs cursor-pointer">Install Now</button>
+    </div>
 
     <!-- Top Announcement Bar -->
     <div class="bg-gray-900 text-white text-xs py-2 px-4 flex flex-col md:flex-row justify-between items-center border-b border-gray-800">
         <div><i class="fa-solid fa-location-dot text-brand mr-1"></i> Main Bazar, Pakistan | <i class="fa-solid fa-phone text-brand ml-2 mr-1"></i> Helpline: +92 300 0000000</div>
         <div class="mt-1 md:mt-0 flex items-center gap-4">
-            <span><i class="fa-solid fa-truck-fast text-green-400 mr-1"></i> Free Shipping on orders over Rs. 15,000</span>
+            <span class="text-green-400 font-semibold"><i class="fa-solid fa-bolt mr-1"></i> Flash Sale Live! Coupon: NAZIM10</span>
             <button onclick="toggleDarkMode()" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-1 rounded border border-gray-700 text-xs flex items-center gap-1 cursor-pointer">
                 <i class="fa-solid fa-moon" id="themeIcon"></i> <span id="themeText">Dark</span>
             </button>
@@ -53,10 +72,11 @@
             <nav class="hidden md:flex space-x-6 font-medium text-sm">
                 <a id="nav-home" onclick="navigateTo('home')" class="hover:text-gray-200 cursor-pointer border-b-2 border-white">Home</a>
                 <a id="nav-shop" onclick="navigateTo('shop')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Shop Catalog</a>
+                <a id="nav-about" onclick="navigateTo('about')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">About Store</a>
                 <a id="nav-wishlist" onclick="navigateTo('wishlist')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Wishlist (<span id="wishCount">0</span>)</a>
                 <a id="nav-track" onclick="navigateTo('track')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Track Order</a>
                 <a id="nav-shipping" onclick="navigateTo('shipping')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent">Shipping Rates</a>
-                <a id="nav-admin" onclick="navigateTo('admin')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent"><i class="fa-solid fa-lock text-xs"></i> CMS Admin</a>
+                <a id="nav-admin" onclick="navigateTo('admin')" class="hover:text-gray-200 cursor-pointer border-b-2 border-transparent"><i class="fa-solid fa-shield-halved text-xs"></i> Admin CMS</a>
             </nav>
             <div class="flex items-center gap-3">
                 <div id="userStateArea">
@@ -71,41 +91,86 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT CONTAINER -->
+    <!-- MAIN SPA ROUTER CONTENT -->
     <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
 
-        <!-- HOME -->
+        <!-- HOME SECTION -->
         <section id="page-home" class="page-section active-page space-y-8 animate-fade">
-            <div class="relative bg-gradient-to-r from-brand to-brand-dark text-white rounded-2xl p-8 md:p-12 shadow-xl overflow-hidden">
+            <div class="relative bg-gradient-to-r from-brand to-brand-dark text-white rounded-2xl p-8 md:p-12 shadow-2xl overflow-hidden animate-glow">
                 <div class="relative z-10 max-w-2xl space-y-4">
-                    <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Wholesale Rates</span>
-                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Premium Sanitaryware & Hardware</h1>
-                    <p class="text-gray-100 text-sm md:text-base">Top quality Faucets, Rain Showers, PVC Pipes & Bathroom Fittings delivered with animated precision.</p>
+                    <span class="bg-yellow-400 text-gray-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">🔥 PWA & Firebase Powered</span>
+                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">Ultra-Modern Sanitary & Hardware Solutions</h1>
+                    <p class="text-gray-100 text-sm md:text-base">Experience high-grade Faucets, Rain Showers, UPVC Pipes, and Premium Accessories with real-time stock and instant WhatsApp ordering.</p>
                     <div class="pt-2 flex flex-wrap gap-3">
-                        <button onclick="navigateTo('shop')" class="bg-white text-brand px-6 py-3 rounded-lg font-bold shadow hover:bg-gray-100 transition cursor-pointer">Explore Shop Catalog</button>
-                        <button onclick="navigateTo('shipping')" class="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-bold hover:bg-white/10 transition cursor-pointer">Weight Calculator</button>
+                        <button onclick="navigateTo('shop')" class="bg-white text-brand px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-gray-100 transition transform hover:scale-105 cursor-pointer">Explore Shop Catalog</button>
+                        <button onclick="navigateTo('about')" class="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-bold hover:bg-white/10 transition cursor-pointer">About Our Company</button>
                     </div>
                 </div>
             </div>
 
+            <!-- Flash Sale Banner -->
+            <div class="bg-gradient-to-r from-red-600 to-orange-500 text-white p-4 rounded-xl shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-fire text-2xl animate-bounce"></i>
+                    <div>
+                        <h3 class="font-bold text-base">Weekend Mega Flash Sale!</h3>
+                        <p class="text-xs text-white/90">Get flat 10% off using coupon code NAZIM10 at checkout.</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 font-mono text-sm font-bold bg-black/20 p-2 rounded-lg">
+                    <span id="timerHours" class="bg-black/40 px-2 py-1 rounded">12h</span> :
+                    <span id="timerMins" class="bg-black/40 px-2 py-1 rounded">45m</span> :
+                    <span id="timerSecs" class="bg-black/40 px-2 py-1 rounded">30s</span>
+                </div>
+            </div>
+
+            <!-- Categories -->
             <div>
                 <h2 class="text-xl font-bold mb-4 border-b-2 border-brand pb-1 inline-block">Popular Categories</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <div onclick="filterCategoryAndNavigate('faucet')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center transform hover:-translate-y-1">
-                        <div class="w-12 h-12 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl"><i class="fa-solid fa-faucet"></i></div>
+                    <div onclick="filterCategoryAndNavigate('faucet')" class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl cursor-pointer transition text-center transform hover:-translate-y-2">
+                        <div class="w-14 h-14 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-3 text-2xl"><i class="fa-solid fa-faucet"></i></div>
                         <h3 class="font-bold">Faucets & Mixers</h3>
                     </div>
-                    <div onclick="filterCategoryAndNavigate('shower')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center transform hover:-translate-y-1">
-                        <div class="w-12 h-12 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl"><i class="fa-solid fa-shower"></i></div>
+                    <div onclick="filterCategoryAndNavigate('shower')" class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl cursor-pointer transition text-center transform hover:-translate-y-2">
+                        <div class="w-14 h-14 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-3 text-2xl"><i class="fa-solid fa-shower"></i></div>
                         <h3 class="font-bold">Shower Systems</h3>
                     </div>
-                    <div onclick="filterCategoryAndNavigate('pipes')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center transform hover:-translate-y-1">
-                        <div class="w-12 h-12 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl"><i class="fa-solid fa-wrench"></i></div>
+                    <div onclick="filterCategoryAndNavigate('pipes')" class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl cursor-pointer transition text-center transform hover:-translate-y-2">
+                        <div class="w-14 h-14 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-3 text-2xl"><i class="fa-solid fa-wrench"></i></div>
                         <h3 class="font-bold">PVC & Iron Pipes</h3>
                     </div>
-                    <div onclick="filterCategoryAndNavigate('accessories')" class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition text-center transform hover:-translate-y-1">
-                        <div class="w-12 h-12 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-2 text-xl"><i class="fa-solid fa-box-open"></i></div>
+                    <div onclick="filterCategoryAndNavigate('accessories')" class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl cursor-pointer transition text-center transform hover:-translate-y-2">
+                        <div class="w-14 h-14 bg-brand-light dark:bg-gray-700 text-brand rounded-full flex items-center justify-center mx-auto mb-3 text-2xl"><i class="fa-solid fa-box-open"></i></div>
                         <h3 class="font-bold">Accessories</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT COMPANY PAGE -->
+        <section id="page-about" class="page-section space-y-6 animate-fade">
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm space-y-6">
+                <div class="text-center max-w-2xl mx-auto space-y-2">
+                    <span class="bg-brand-light text-brand text-xs font-bold px-3 py-1 rounded-full uppercase">Official Company Overview</span>
+                    <h2 class="text-3xl font-extrabold text-brand">Al-Madina Sanitary & Hardware Store</h2>
+                    <p class="text-sm text-gray-500">Delivering durability, elegance, and premium hardware craftsmanship since establishment.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                    <div class="p-4 border rounded-xl dark:border-gray-700 text-center space-y-2">
+                        <i class="fa-solid fa-award text-3xl text-yellow-500"></i>
+                        <h3 class="font-bold text-base">Certified Quality</h3>
+                        <p class="text-xs text-gray-500">Every product undergoes strict pressure and durability tests before dispatch.</p>
+                    </div>
+                    <div class="p-4 border rounded-xl dark:border-gray-700 text-center space-y-2">
+                        <i class="fa-solid fa-truck-ramp-box text-3xl text-green-500"></i>
+                        <h3 class="font-bold text-base">Wholesale Supply</h3>
+                        <p class="text-xs text-gray-500">Bulk delivery available for commercial construction projects across Pakistan.</p>
+                    </div>
+                    <div class="p-4 border rounded-xl dark:border-gray-700 text-center space-y-2">
+                        <i class="fa-solid fa-code text-3xl text-brand"></i>
+                        <h3 class="font-bold text-base">Digital Architecture</h3>
+                        <p class="text-xs text-gray-500">Engineered with custom Web SPA architecture powered by Prime Solutions - M Nazim.</p>
                     </div>
                 </div>
             </div>
@@ -135,7 +200,7 @@
             <div id="wishlistGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- TRACK ORDER -->
+        <!-- TRACK ORDER PAGE -->
         <section id="page-track" class="page-section space-y-6 animate-fade">
             <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Track Your Order Status</h2>
             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 max-w-lg mx-auto shadow-sm">
@@ -165,21 +230,47 @@
 
         <!-- CMS ADMIN DASHBOARD -->
         <section id="page-admin" class="page-section space-y-6 animate-fade">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold border-b-2 border-brand pb-1">Store Admin Dashboard (CMS)</h2>
-                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-mono">Local State Management Active</span>
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-2xl font-bold text-brand">Admin Management Control Center</h2>
+                <span class="text-xs bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-mono font-bold"><i class="fa-solid fa-server"></i> Firebase Sync Online</span>
             </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-500 font-bold uppercase">Total Products</div>
+                        <div id="adminStatProducts" class="text-2xl font-extrabold text-brand">15</div>
+                    </div>
+                    <i class="fa-solid fa-boxes-stacked text-2xl text-brand/30"></i>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-500 font-bold uppercase">Active Orders</div>
+                        <div class="text-2xl font-extrabold text-green-600">2</div>
+                    </div>
+                    <i class="fa-solid fa-cart-flatbed text-2xl text-green-500/30"></i>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-500 font-bold uppercase">Coupon System</div>
+                        <div class="text-2xl font-extrabold text-yellow-500">10% Active</div>
+                    </div>
+                    <i class="fa-solid fa-ticket text-2xl text-yellow-500/30"></i>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
-                    <h3 class="font-bold border-b pb-2">Add New Product</h3>
+                    <h3 class="font-bold border-b pb-2">Add New Hardware Item</h3>
                     <div><label class="block text-xs font-semibold mb-1">Product Title</label><input type="text" id="adminTitle" placeholder="e.g. Mixer Tap" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
                     <div><label class="block text-xs font-semibold mb-1">Category</label><select id="adminCat" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"><option value="faucet">Faucet</option><option value="shower">Shower</option><option value="pipes">Pipes</option><option value="accessories">Accessories</option></select></div>
                     <div><label class="block text-xs font-semibold mb-1">Price (Rs.)</label><input type="number" id="adminPrice" placeholder="4500" class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
                     <div><label class="block text-xs font-semibold mb-1">Image URL</label><input type="text" id="adminImg" placeholder="https://..." class="w-full px-3 py-1.5 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"></div>
                     <button onclick="adminAddProduct()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm hover:bg-green-700 cursor-pointer">Add to Store Inventory</button>
                 </div>
+
                 <div class="md:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                    <h3 class="font-bold border-b pb-2 mb-4">Current Inventory List</h3>
+                    <h3 class="font-bold border-b pb-2 mb-4">Current Inventory Management</h3>
                     <table class="w-full text-left text-xs">
                         <thead class="bg-gray-100 dark:bg-gray-700 uppercase">
                             <tr><th class="p-2">Product</th><th class="p-2">Category</th><th class="p-2">Price</th><th class="p-2">Action</th></tr>
@@ -218,19 +309,34 @@
         </div>
     </div>
 
-    <!-- AUTH MODAL -->
+    <!-- FIREBASE AUTHENTICATION MODAL -->
     <div id="authModal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-center p-4 animate-fade">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
             <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-gray-500 text-xl font-bold cursor-pointer">&times;</button>
             <div id="loginFormState" class="space-y-3">
-                <h3 class="text-xl font-bold text-brand">Login to Your Account</h3>
+                <h3 class="text-xl font-bold text-brand">Login to Store</h3>
+                <button onclick="handleGoogleLogin()" class="w-full bg-red-600 text-white font-bold py-2 rounded text-xs hover:bg-red-700 flex items-center justify-center gap-2 cursor-pointer shadow">
+                    <i class="fa-brands fa-google"></i> Continue with Google
+                </button>
+                <div class="text-center text-xs text-gray-400 my-1">- OR USE EMAIL / PHONE -</div>
                 <div><label class="block text-xs font-semibold mb-1">Email Address</label><input type="email" id="loginEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
                 <div><label class="block text-xs font-semibold mb-1">Password</label><input type="password" id="loginPass" placeholder="••••••••" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
-                <button onclick="handleLogin()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm cursor-pointer">Sign In</button>
+                <button onclick="handleEmailLogin()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm cursor-pointer">Sign In</button>
                 <div class="flex justify-between text-xs pt-2">
-                    <a onclick="switchAuthForm('forgot')" class="text-brand hover:underline cursor-pointer">Forgot Password?</a>
-                    <a onclick="switchAuthForm('signup')" class="text-brand hover:underline cursor-pointer">Register New Account</a>
+                    <a onclick="switchAuthForm('phone')" class="text-green-600 font-bold cursor-pointer"><i class="fa-solid fa-phone"></i> Phone OTP Login</a>
+                    <a onclick="switchAuthForm('signup')" class="text-brand hover:underline cursor-pointer">Create Account</a>
                 </div>
+            </div>
+            <div id="phoneFormState" class="space-y-3 hidden">
+                <h3 class="text-xl font-bold text-brand">Phone Number OTP Login</h3>
+                <div><label class="block text-xs font-semibold mb-1">Phone Number (with Country Code)</label><input type="text" id="phoneNum" placeholder="+923001234567" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
+                <button onclick="handlePhoneSendOTP()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm cursor-pointer">Send Verification Code</button>
+                <div id="otpInputArea" class="hidden space-y-2 border-t pt-2">
+                    <label class="block text-xs font-semibold">Enter 6-Digit OTP Code</label>
+                    <input type="text" id="otpCode" placeholder="123456" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700">
+                    <button onclick="handlePhoneVerifyOTP()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm cursor-pointer">Verify & Login</button>
+                </div>
+                <div class="text-center text-xs pt-2">Back to <a onclick="switchAuthForm('login')" class="text-brand font-bold cursor-pointer">Email Login</a></div>
             </div>
             <div id="signupFormState" class="space-y-3 hidden">
                 <h3 class="text-xl font-bold text-brand">Create New Account</h3>
@@ -239,13 +345,6 @@
                 <div><label class="block text-xs font-semibold mb-1">Password</label><input type="password" id="signupPass" placeholder="••••••••" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
                 <button onclick="handleSignup()" class="w-full bg-green-600 text-white font-bold py-2 rounded text-sm cursor-pointer">Create Account</button>
                 <div class="text-center text-xs pt-2">Already have an account? <a onclick="switchAuthForm('login')" class="text-brand font-bold cursor-pointer">Login here</a></div>
-            </div>
-            <div id="forgotFormState" class="space-y-3 hidden">
-                <h3 class="text-xl font-bold text-brand">Reset Password</h3>
-                <p class="text-xs text-gray-500">Enter your registered email address.</p>
-                <div><label class="block text-xs font-semibold mb-1">Email Address</label><input type="email" id="forgotEmail" placeholder="name@example.com" class="w-full px-3 py-2 text-sm border rounded dark:bg-gray-700"></div>
-                <button onclick="handleForgot()" class="w-full bg-brand text-white font-bold py-2 rounded text-sm cursor-pointer">Send Reset Link</button>
-                <div class="text-center text-xs pt-2">Back to <a onclick="switchAuthForm('login')" class="text-brand font-bold cursor-pointer">Login</a></div>
             </div>
         </div>
     </div>
@@ -285,12 +384,65 @@
         </div>
     </footer>
 
-    <!-- ULTRA-MODERN ANIMATED JAVASCRIPT LOGIC -->
+    <!-- FIREBASE SDK V9 MODULAR IMPORT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAL7_6DTdz14ySlLQ1jjuQC4WdO4mpRZKY",
+            authDomain: "shopping-center-9.firebaseapp.com",
+            databaseURL: "https://shopping-center-9-default-rtdb.firebaseio.com",
+            projectId: "shopping-center-9",
+            storageBucket: "shopping-center-9.firebasestorage.app",
+            messagingSenderId: "33427127023",
+            appId: "1:33427127023:web:a478af6499f28f84d9391a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        window.firebaseAuth = auth;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.signInWithPopup = signInWithPopup;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.RecaptchaVerifier = RecaptchaVerifier;
+        window.signInWithPhoneNumber = signInWithPhoneNumber;
+    </script>
+
     <script>
         let currentUser = null;
         let cart = [];
         let wishlist = [];
         let appliedDiscountPercent = 0;
+        let confirmationResult = null;
+        let deferredPrompt = null;
+
+        // PWA Installation Listener
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwaBanner').classList.remove('hidden');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast('PWA App Installed!');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('pwaBanner').classList.add('hidden');
+                });
+            }
+        }
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+        }
+
         let mockTrackingDB = {
             'TRK-1001': { status: 'Out for Delivery', items: 'Chrome Basin Faucet x 1', date: '2026-10-28' },
             'TRK-1002': { status: 'Processing at Warehouse', items: 'Heavy Duty PVC Pipe x 4', date: '2026-10-30' }
@@ -320,7 +472,63 @@
             renderAdminTable();
         });
 
-        // Toast Notification System
+        async function handleGoogleLogin() {
+            try {
+                const provider = new window.GoogleAuthProvider();
+                const result = await window.signInWithPopup(window.firebaseAuth, provider);
+                currentUser = result.user;
+                updateUserHeader();
+                closeAuthModal();
+                showToast(`Welcome ${currentUser.displayName || 'User'}!`);
+            } catch (error) { alert('Google Sign-In Error: ' + error.message); }
+        }
+
+        async function handleEmailLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            try {
+                const result = await window.signInWithEmailAndPassword(window.firebaseAuth, email, pass);
+                currentUser = result.user;
+                updateUserHeader();
+                closeAuthModal();
+                showToast('Logged in with Firebase!');
+            } catch (error) { alert(error.message); }
+        }
+
+        async function handleSignup() {
+            const email = document.getElementById('signupEmail').value;
+            const pass = document.getElementById('signupPass').value;
+            try {
+                const result = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, pass);
+                currentUser = result.user;
+                updateUserHeader();
+                closeAuthModal();
+                showToast('Firebase Account Created!');
+            } catch (error) { alert(error.message); }
+        }
+
+        async function handlePhoneSendOTP() {
+            const phoneNumber = document.getElementById('phoneNum').value;
+            if (!phoneNumber) return alert('Enter phone number with country code e.g. +923001234567');
+            try {
+                window.recaptchaVerifier = new window.RecaptchaVerifier('recaptcha-container', {'size': 'invisible'}, window.firebaseAuth);
+                confirmationResult = await window.signInWithPhoneNumber(window.firebaseAuth, phoneNumber, window.recaptchaVerifier);
+                document.getElementById('otpInputArea').classList.remove('hidden');
+                showToast('OTP sent to your phone!');
+            } catch (error) { alert(error.message); }
+        }
+
+        async function handlePhoneVerifyOTP() {
+            const code = document.getElementById('otpCode').value;
+            try {
+                const result = await confirmationResult.confirm(code);
+                currentUser = result.user;
+                updateUserHeader();
+                closeAuthModal();
+                showToast('Phone Number Verified!');
+            } catch (error) { alert('Invalid OTP Code'); }
+        }
+
         function showToast(message) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -334,7 +542,6 @@
             }, 3000);
         }
 
-        // Theme Toggle
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
@@ -342,17 +549,11 @@
             document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
 
-        // Navigation Router with Fade Effect
         function navigateTo(pageId) {
-            document.querySelectorAll('.page-section').forEach(sec => {
-                sec.classList.remove('active-page');
-            });
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-page'));
             document.querySelectorAll('nav a').forEach(a => a.classList.replace('border-white', 'border-transparent'));
-            
             const target = document.getElementById(`page-${pageId}`);
-            if (target) {
-                target.classList.add('active-page');
-            }
+            if (target) target.classList.add('active-page');
             const nav = document.getElementById(`nav-${pageId}`);
             if (nav) nav.classList.replace('border-transparent', 'border-white');
             window.scrollTo(0, 0);
@@ -364,15 +565,12 @@
             renderCatalog();
         }
 
-        // Render Catalog with Wishlist & Quick View
         function renderCatalog() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const category = document.getElementById('categoryFilter').value;
             const grid = document.getElementById('catalogGrid');
 
-            let filtered = productsDB.filter(p => {
-                return (category === 'all' || p.category === category) && p.title.toLowerCase().includes(search);
-            });
+            let filtered = productsDB.filter(p => (category === 'all' || p.category === category) && p.title.toLowerCase().includes(search));
 
             grid.innerHTML = filtered.map(p => {
                 const isWished = wishlist.some(w => w.id === p.id);
@@ -388,10 +586,7 @@
                             <div class="p-4 space-y-2">
                                 <span class="text-[10px] uppercase font-bold bg-brand-light text-brand px-2 py-0.5 rounded">${p.category}</span>
                                 <h3 class="font-bold text-base cursor-pointer hover:text-brand transition" onclick="openQuickView(${p.id})">${p.title}</h3>
-                                <div class="flex items-center gap-1 text-yellow-400 text-xs">
-                                    ${'<i class="fa-solid fa-star"></i>'.repeat(p.rating)}
-                                    <span class="text-gray-400 ml-1">(${p.reviewsCount})</span>
-                                </div>
+                                <div class="flex items-center gap-1 text-yellow-400 text-xs">${'<i class="fa-solid fa-star"></i>'.repeat(p.rating)}<span class="text-gray-400 ml-1">(${p.reviewsCount})</span></div>
                                 <div class="text-lg font-extrabold text-brand">Rs. ${p.price.toLocaleString()}</div>
                             </div>
                         </div>
@@ -403,7 +598,6 @@
             }).join('');
         }
 
-        // Quick View Modal Logic
         function openQuickView(id) {
             const p = productsDB.find(item => item.id === id);
             if (!p) return;
@@ -428,45 +622,28 @@
             document.getElementById('quickViewModal').classList.remove('flex');
         }
 
-        // Wishlist System
         function toggleWishlist(id) {
             const idx = wishlist.findIndex(w => w.id === id);
-            if (idx > -1) {
-                wishlist.splice(idx, 1);
-                showToast('Removed from Wishlist');
-            } else {
-                const p = productsDB.find(item => item.id === id);
-                if (p) {
-                    wishlist.push(p);
-                    showToast('Added to Wishlist!');
-                }
-            }
+            if (idx > -1) { wishlist.splice(idx, 1); showToast('Removed from Wishlist'); }
+            else { const p = productsDB.find(item => item.id === id); if (p) { wishlist.push(p); showToast('Added to Wishlist!'); } }
             document.getElementById('wishCount').innerText = wishlist.length;
-            renderCatalog();
-            renderWishlist();
+            renderCatalog(); renderWishlist();
         }
 
         function renderWishlist() {
             const grid = document.getElementById('wishlistGrid');
-            if (wishlist.length === 0) {
-                grid.innerHTML = `<p class="text-gray-400 text-xs">Your wishlist is empty.</p>`;
-                return;
-            }
+            if (wishlist.length === 0) { grid.innerHTML = `<p class="text-gray-400 text-xs">Your wishlist is empty.</p>`; return; }
             grid.innerHTML = wishlist.map(p => `
                 <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 p-4 flex justify-between items-center">
                     <div class="flex items-center gap-3">
                         <img src="${p.img}" class="w-16 h-16 object-cover rounded">
-                        <div>
-                            <h4 class="font-bold text-sm">${p.title}</h4>
-                            <div class="text-brand font-bold text-xs">Rs. ${p.price.toLocaleString()}</div>
-                        </div>
+                        <div><h4 class="font-bold text-sm">${p.title}</h4><div class="text-brand font-bold text-xs">Rs. ${p.price.toLocaleString()}</div></div>
                     </div>
                     <button onclick="toggleWishlist(${p.id})" class="text-red-500 font-bold cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `).join('');
         }
 
-        // Cart Drawer
         function toggleCart() {
             document.getElementById('cartDrawer').classList.toggle('right-0');
             document.getElementById('cartDrawer').classList.toggle('right-[-400px]');
@@ -474,42 +651,26 @@
 
         function addToCart(id) {
             const prod = productsDB.find(p => p.id === id);
-            if (prod) {
-                cart.push(prod);
-                updateCartUI();
-                showToast(`${prod.title} added to cart!`);
-                toggleCart();
-            }
+            if (prod) { cart.push(prod); updateCartUI(); showToast(`${prod.title} added to cart!`); toggleCart(); }
         }
 
         function updateCartUI() {
             document.getElementById('cartCount').innerText = cart.length;
             const container = document.getElementById('cartItems');
-            if (cart.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-gray-400 py-8">Your cart is empty.</p>`;
-                document.getElementById('cartTotal').innerText = 'Rs. 0';
-                return;
-            }
+            if (cart.length === 0) { container.innerHTML = `<p class="text-center text-xs text-gray-400 py-8">Your cart is empty.</p>`; document.getElementById('cartTotal').innerText = 'Rs. 0'; return; }
             let subtotal = cart.reduce((sum, item) => sum + item.price, 0);
             let finalTotal = subtotal - (subtotal * (appliedDiscountPercent / 100));
 
             container.innerHTML = cart.map((item, idx) => `
                 <div class="flex justify-between items-center text-xs border-b pb-2 dark:border-gray-700">
-                    <div>
-                        <div class="font-bold">${item.title}</div>
-                        <div class="text-gray-400">Rs. ${item.price}</div>
-                    </div>
+                    <div><div class="font-bold">${item.title}</div><div class="text-gray-400">Rs. ${item.price}</div></div>
                     <button onclick="removeFromCart(${idx})" class="text-red-500 font-bold cursor-pointer">&times;</button>
                 </div>
             `).join('');
             document.getElementById('cartTotal').innerText = `Rs. ${finalTotal.toLocaleString()}`;
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartUI();
-            showToast('Item removed from cart');
-        }
+        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); showToast('Item removed from cart'); }
 
         function applyCoupon() {
             const code = document.getElementById('couponInput').value.trim().toUpperCase();
@@ -517,10 +678,8 @@
                 appliedDiscountPercent = 10;
                 document.getElementById('discountNote').innerText = '10% Discount Applied!';
                 document.getElementById('discountNote').classList.remove('hidden');
-                showToast('Coupon applied successfully!');
-            } else {
-                alert('Invalid Coupon Code');
-            }
+                showToast('Coupon applied!');
+            } else alert('Invalid Coupon Code');
             updateCartUI();
         }
 
@@ -537,40 +696,16 @@
 
         function switchAuthForm(state) {
             document.getElementById('loginFormState').classList.add('hidden');
+            document.getElementById('phoneFormState').classList.add('hidden');
             document.getElementById('signupFormState').classList.add('hidden');
-            document.getElementById('forgotFormState').classList.add('hidden');
             if (state === 'login') document.getElementById('loginFormState').classList.remove('hidden');
+            if (state === 'phone') document.getElementById('phoneFormState').classList.remove('hidden');
             if (state === 'signup') document.getElementById('signupFormState').classList.remove('hidden');
-            if (state === 'forgot') document.getElementById('forgotFormState').classList.remove('hidden');
-        }
-
-        function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            if (!email) return alert('Enter email');
-            currentUser = { name: email.split('@')[0], email };
-            updateUserHeader();
-            closeAuthModal();
-            showToast('Logged in successfully!');
-        }
-
-        function handleSignup() {
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            if (!name || !email) return alert('Fill all fields');
-            currentUser = { name, email };
-            updateUserHeader();
-            closeAuthModal();
-            showToast('Account created successfully!');
-        }
-
-        function handleForgot() {
-            alert('Password reset link sent to your email!');
-            switchAuthForm('login');
         }
 
         function updateUserHeader() {
             if (currentUser) {
-                document.getElementById('userStateArea').innerHTML = `<span class="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full"><i class="fa-solid fa-user-check"></i> ${currentUser.name}</span>`;
+                document.getElementById('userStateArea').innerHTML = `<span class="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full"><i class="fa-solid fa-user-check"></i> ${currentUser.displayName || currentUser.email || currentUser.phoneNumber}</span>`;
             }
         }
 
@@ -581,9 +716,7 @@
             if (mockTrackingDB[id]) {
                 const info = mockTrackingDB[id];
                 res.innerHTML = `<div class="space-y-2 text-xs"><div class="font-bold text-green-600">Status: ${info.status}</div><div><b>Items:</b> ${info.items}</div><div class="text-gray-400">Date: ${info.date}</div></div>`;
-            } else {
-                res.innerHTML = `<span class="text-red-500 text-xs font-bold">Tracking ID not found! Try TRK-1001</span>`;
-            }
+            } else res.innerHTML = `<span class="text-red-500 text-xs font-bold">Tracking ID not found! Try TRK-1001</span>`;
         }
 
         function calcShipRate() {
@@ -606,10 +739,7 @@
             document.getElementById('checkoutModal').classList.add('flex');
         }
 
-        function closeCheckout() {
-            document.getElementById('checkoutModal').classList.add('hidden');
-            document.getElementById('checkoutModal').classList.remove('flex');
-        }
+        function closeCheckout() { document.getElementById('checkoutModal').classList.add('hidden'); document.getElementById('checkoutModal').classList.remove('flex'); }
 
         function submitOrderWhatsApp() {
             const name = document.getElementById('custName').value;
@@ -619,10 +749,7 @@
             let msg = `New Order Request:\nName: ${name}\nPhone: ${phone}\nAddress: ${addr}\nItems:\n`;
             cart.forEach(i => msg += `- ${i.title} (Rs. ${i.price})\n`);
             window.open(`https://wa.me/923000000000?text=${encodeURIComponent(msg)}`, '_blank');
-            closeCheckout();
-            cart = [];
-            updateCartUI();
-            toggleCart();
+            closeCheckout(); cart = []; updateCartUI(); toggleCart();
         }
 
         function downloadPDFInvoice() {
@@ -640,6 +767,7 @@
                     <td class="p-2"><button onclick="adminDeleteProduct(${idx})" class="text-red-500 font-bold cursor-pointer">Delete</button></td>
                 </tr>
             `).join('');
+            document.getElementById('adminStatProducts').innerText = productsDB.length;
         }
 
         function adminAddProduct() {
@@ -649,17 +777,10 @@
             const img = document.getElementById('adminImg').value || 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80';
             if (!title || !price) return alert('Enter title & price');
             productsDB.push({ id: Date.now(), title, category, price, rating: 5, reviewsCount: 1, img, desc: 'Custom added product.' });
-            renderAdminTable();
-            renderCatalog();
-            showToast('Product added to inventory!');
+            renderAdminTable(); renderCatalog(); showToast('Product added!');
         }
 
-        function adminDeleteProduct(index) {
-            productsDB.splice(index, 1);
-            renderAdminTable();
-            renderCatalog();
-            showToast('Product deleted');
-        }
+        function adminDeleteProduct(index) { productsDB.splice(index, 1); renderAdminTable(); renderCatalog(); showToast('Product deleted'); }
     </script>
 </body>
 </html>
