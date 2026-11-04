@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Slot & Wheel Casino Engine</title>
+    <title>Multi-Game Casino Arena</title>
     <style>
         * {
             box-sizing: border-box;
@@ -17,7 +17,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
         .app-card {
             width: 100%;
@@ -25,140 +25,143 @@
             background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
             border: 2px solid #f59e0b;
             border-radius: 20px;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
-            padding: 20px;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
+            padding: 15px;
             text-align: center;
-            position: relative;
         }
         .header h1 {
             color: #fbbf24;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+            margin-bottom: 8px;
         }
         .balance-box {
             background: #0284c7;
-            padding: 10px;
+            padding: 8px 15px;
             border-radius: 10px;
-            margin: 12px 0;
-            font-size: 1.2rem;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
         }
-        canvas {
-            background: #020617;
-            border-radius: 50%;
-            border: 4px solid #f59e0b;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-            margin: 10px 0;
-        }
-        .bet-controls {
+        .game-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            align-items: center;
+            gap: 4px;
+            margin-bottom: 15px;
+            background: #020617;
+            padding: 4px;
+            border-radius: 10px;
         }
-        .bet-input {
-            flex: 2;
+        .tab-btn {
+            flex: 1;
+            padding: 8px 4px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #f59e0b;
+            color: #000;
+        }
+        .game-panel {
+            display: none;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 250px;
+        }
+        .game-panel.active {
+            display: block;
+        }
+        .input-group {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .input-group label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .input-group input {
+            width: 100%;
             padding: 8px;
             background: #0f172a;
             border: 1px solid #334155;
             border-radius: 6px;
             color: #fff;
-            font-size: 1rem;
-            text-align: center;
+            font-size: 0.95rem;
         }
-        .btn-small {
-            flex: 1;
-            padding: 8px;
-            background: #334155;
-            border: 1px solid #475569;
-            border-radius: 6px;
-            color: #fbbf24;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
-        .btn-small:hover { background: #475569; }
-        .action-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        .btn-spin {
-            flex: 2;
-            padding: 14px;
+        .btn-main {
+            width: 100%;
+            padding: 10px;
             background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
             border: none;
-            border-radius: 10px;
-            color: #000;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-        }
-        .btn-auto {
-            flex: 1;
-            padding: 14px;
-            background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .btn-auto.active {
-            background: #ef4444;
-        }
-        .result {
-            margin-top: 12px;
-            font-size: 1rem;
-            min-height: 28px;
-            color: #4ade80;
-            font-weight: bold;
-        }
-        .history-panel {
-            margin-top: 15px;
-            background: #020617;
-            border: 1px solid #1e293b;
             border-radius: 8px;
-            padding: 10px;
-            max-height: 80px;
-            overflow-y: auto;
-            text-align: left;
-            font-size: 0.8rem;
+            color: #000;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
         }
-        .history-item {
+        .result-text {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            min-height: 24px;
+            color: #4ade80;
+        }
+        .mines-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin: 10px 0;
+        }
+        .mine-cell {
+            aspect-ratio: 1;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-            padding-bottom: 2px;
-            border-bottom: 1px solid #0f172a;
-        }
-        .win-text { color: #4ade80; }
-        .loss-text { color: #f87171; }
-        .jackpot-modal {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            border-radius: 20px;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 10;
+            font-size: 1rem;
+            cursor: pointer;
         }
-        .jackpot-modal h2 { color: #fbbf24; font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px #f59e0b; }
+        .mine-cell.revealed { background: #0f172a; border-color: #475569; }
+        .mine-cell.gem { color: #4ade80; }
+        .mine-cell.boom { color: #f87171; }
+        .color-btns {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .color-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+        }
+        .btn-green { background: #10b981; }
+        .btn-violet { background: #8b5cf6; }
+        .btn-red { background: #ef4444; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
     <div class="header">
-        <h1>ADVANCED WHEEL ENGINE</h1>
+        <h1>MULTI-GAME CASINO ARENA</h1>
     </div>
 
     <div class="balance-box">
@@ -166,249 +169,198 @@
         <span>$<span id="balance">1000</span></span>
     </div>
 
-    <!-- Canvas Wheel -->
-    <canvas id="wheelCanvas" width="240" height="240"></canvas>
-
-    <!-- Bet Multiplier Controls -->
-    <div class="bet-controls">
-        <input type="number" id="betAmount" class="bet-input" value="50" min="10">
-        <button class="btn-small" onclick="setBet('half')">1/2</button>
-        <button class="btn-small" onclick="setBet('double')">2X</button>
-        <button class="btn-small" onclick="setBet('max')">MAX</button>
+    <!-- Navigation Tabs -->
+    <div class="game-tabs">
+        <button class="tab-btn active" onclick="switchTab('crash')">🚀 Crash</button>
+        <button class="tab-btn" onclick="switchTab('mines')">💣 Mines</button>
+        <button class="tab-btn" onclick="switchTab('color')">🎯 Color</button>
     </div>
 
-    <!-- Spin & Auto Controls -->
-    <div class="action-controls">
-        <button class="btn-spin" id="spinBtn" onclick="spinWheel()">SPIN</button>
-        <button class="btn-auto" id="autoBtn" onclick="toggleAutoSpin()">AUTO</button>
+    <!-- Game 1: Crash -->
+    <div id="crash-panel" class="game-panel active">
+        <div style="font-size: 2rem; color: #fbbf24; margin: 15px 0; font-weight: bold;" id="crashMultiplier">1.00x</div>
+        <div class="input-group">
+            <label>Bet Amount ($)</label>
+            <input type="number" id="crashBet" value="50">
+        </div>
+        <button class="btn-main" id="crashBtn" onclick="startCrashGame()">START FLIGHT</button>
+        <div class="result-text" id="crashResult">Place bet & start rocket!</div>
     </div>
 
-    <div class="result" id="statusText">Set bet & press SPIN!</div>
-
-    <!-- Live History Log -->
-    <div class="history-panel" id="historyLog">
-        <div style="color:#64748b; text-align:center;">History log ready...</div>
+    <!-- Game 2: Mines -->
+    <div id="mines-panel" class="game-panel">
+        <div class="input-group">
+            <label>Bet Amount ($)</label>
+            <input type="number" id="minesBet" value="50">
+        </div>
+        <button class="btn-main" id="minesStartBtn" onclick="startMinesGame()">START MINES</button>
+        <div class="mines-grid" id="minesGrid"></div>
+        <div class="result-text" id="minesResult">Click start to play Mines!</div>
     </div>
 
-    <!-- Jackpot Pop-up Modal -->
-    <div class="jackpot-modal" id="jackpotModal">
-        <h2>🎉 BONUS ROUND! 🎉</h2>
-        <p style="margin-bottom: 20px;">You hit the JACKPOT Segment!</p>
-        <button class="btn-spin" style="width: 70%;" onclick="claimJackpot()">CLAIM 5X REWARD</button>
+    <!-- Game 3: Color Prediction -->
+    <div id="color-panel" class="game-panel">
+        <div class="input-group">
+            <label>Bet Amount ($)</label>
+            <input type="number" id="colorBet" value="50">
+        </div>
+        <label style="font-size:0.75rem; color:#94a3b8; display:block; text-align:left; margin-bottom:5px;">Select Color (Green 2X | Violet 4.5X | Red 2X)</label>
+        <div class="color-btns">
+            <button class="color-btn btn-green" onclick="playColor('green')">Green</button>
+            <button class="color-btn btn-violet" onclick="playColor('violet')">Violet</button>
+            <button class="color-btn btn-red" onclick="playColor('red')">Red</button>
+        </div>
+        <div class="result-text" id="colorResult">Pick a color to predict!</div>
     </div>
 </div>
 
 <script>
-    // --- Audio Engine (Web Audio API) ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    function playBeep(freq, duration) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.frequency.value = freq;
-        osc.type = 'triangle';
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-    }
-
-    // --- State Variables ---
-    const canvas = document.getElementById("wheelCanvas");
-    const ctx = canvas.getContext("2d");
-    const segments = ["100", "200", "JACKPOT", "0", "500", "50", "2X WIN", "0"];
-    const colors = ["#ef4444", "#3b82f6", "#f59e0b", "#6b7280", "#10b981", "#8b5cf6", "#ec4899", "#475569"];
-    
-    let currentAngle = 0;
-    let isSpinning = false;
-    let isAutoSpinning = false;
     let balance = 1000;
-    let autoInterval = null;
-    let lastTickAngle = 0;
 
-    function drawWheel() {
-        const numSegments = segments.length;
-        const arcSize = (2 * Math.PI) / numSegments;
-        const radius = canvas.width / 2;
+    function updateBalance() {
+        document.getElementById("balance").innerText = balance;
+    }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
 
-        ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(currentAngle);
-
-        for (let i = 0; i < numSegments; i++) {
-            const angle = i * arcSize;
-            ctx.beginPath();
-            ctx.fillStyle = colors[i % colors.length];
-            ctx.moveTo(0, 0);
-            ctx.arc(0, 0, radius, angle, angle + arcSize);
-            ctx.lineTo(0, 0);
-            ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = "#0f172a";
-            ctx.stroke();
-
-            // Text
-            ctx.save();
-            ctx.rotate(angle + arcSize / 2);
-            ctx.textAlign = "right";
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "bold 12px Segoe UI";
-            ctx.fillText(segments[i], radius - 10, 4);
-            ctx.restore();
+        if(tabName === 'crash') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('crash-panel').classList.add('active');
+        } else if(tabName === 'mines') {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('mines-panel').classList.add('active');
+            initMinesGrid(false);
+        } else if(tabName === 'color') {
+            document.querySelectorAll('.tab-btn')[2].classList.add('active');
+            document.getElementById('color-panel').classList.add('active');
         }
-        ctx.restore();
-
-        // Pointer
-        ctx.fillStyle = "#fbbf24";
-        ctx.beginPath();
-        ctx.moveTo(radius - 10, 5);
-        ctx.lineTo(radius + 10, 5);
-        ctx.lineTo(radius, 22);
-        ctx.fill();
     }
 
-    function setBet(type) {
-        let betInput = document.getElementById("betAmount");
-        let currentBet = parseInt(betInput.value) || 50;
+    // Crash Game
+    let crashInterval = null;
+    let currentMultiplier = 1.00;
+    let isCrashing = false;
 
-        if (type === 'half') currentBet = Math.max(10, Math.floor(currentBet / 2));
-        if (type === 'double') currentBet = Math.min(balance, currentBet * 2);
-        if (type === 'max') currentBet = balance;
-
-        betInput.value = currentBet;
-    }
-
-    function spinWheel() {
-        if (isSpinning) return;
-
-        let bet = parseInt(document.getElementById("betAmount").value);
-        if (isNaN(bet) || bet <= 0) {
-            document.getElementById("statusText").innerText = "Invalid bet!";
-            stopAutoSpin();
+    function startCrashGame() {
+        if(isCrashing) {
+            clearInterval(crashInterval);
+            let bet = parseInt(document.getElementById("crashBet").value);
+            let winnings = Math.floor(bet * currentMultiplier);
+            balance += winnings;
+            updateBalance();
+            document.getElementById("crashResult").innerHTML = `<span style="color:#4ade80;">Cashed out at ${currentMultiplier.toFixed(2)}x! Won $${winnings}</span>`;
+            document.getElementById("crashBtn").innerText = "START FLIGHT";
+            isCrashing = false;
             return;
         }
-        if (bet > balance) {
-            document.getElementById("statusText").innerText = "Insufficient Balance!";
-            stopAutoSpin();
+
+        let bet = parseInt(document.getElementById("crashBet").value);
+        if(isNaN(bet) || bet <= 0 || bet > balance) {
+            document.getElementById("crashResult").innerText = "Invalid bet amount!";
             return;
         }
 
         balance -= bet;
-        document.getElementById("balance").innerText = balance;
-        isSpinning = true;
-        document.getElementById("statusText").innerText = "Spinning...";
+        updateBalance();
+        isCrashing = true;
+        currentMultiplier = 1.00;
+        document.getElementById("crashBtn").innerText = "CASHOUT";
+        document.getElementById("crashResult").innerText = "Rocket flying...";
 
-        const spinVelocity = Math.random() * 10 + 25;
-        let speed = spinVelocity * (Math.PI / 180);
+        let crashPoint = (Math.random() * 3 + 1.1).toFixed(2);
 
-        function animate() {
-            if (speed > 0.002) {
-                currentAngle += speed;
-                speed *= 0.985;
+        crashInterval = setInterval(() => {
+            currentMultiplier += 0.05;
+            document.getElementById("crashMultiplier").innerText = currentMultiplier.toFixed(2) + "x";
 
-                // Sound Ticks
-                if (Math.abs(currentAngle - lastTickAngle) > 0.4) {
-                    playBeep(400, 0.05);
-                    lastTickAngle = currentAngle;
-                }
-
-                drawWheel();
-                requestAnimationFrame(animate);
-            } else {
-                isSpinning = false;
-                calculatePrize(bet);
+            if(currentMultiplier >= parseFloat(crashPoint)) {
+                clearInterval(crashInterval);
+                isCrashing = false;
+                document.getElementById("crashBtn").innerText = "START FLIGHT";
+                document.getElementById("crashResult").innerHTML = `<span style="color:#f87171;">CRASHED at ${crashPoint}x! Lost $${bet}</span>`;
             }
-        }
-        animate();
+        }, 150);
     }
 
-    function calculatePrize(bet) {
-        const numSegments = segments.length;
-        const arcSize = (2 * Math.PI) / numSegments;
+    // Mines Game
+    let minePosition = -1;
+    let minesActive = false;
 
-        let normalizedAngle = (1.5 * Math.PI - (currentAngle % (2 * Math.PI))) % (2 * Math.PI);
-        if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+    function initMinesGrid(clickable) {
+        const grid = document.getElementById("minesGrid");
+        grid.innerHTML = "";
+        for(let i=0; i<12; i++) {
+            let cell = document.createElement("div");
+            cell.className = "mine-cell";
+            cell.innerText = "?";
+            if(clickable) {
+                cell.onclick = () => handleMineClick(i, cell);
+            }
+            grid.appendChild(cell);
+        }
+    }
 
-        const index = Math.floor(normalizedAngle / arcSize);
-        const resultLabel = segments[index];
-
-        let winAmount = 0;
-
-        if (resultLabel === "JACKPOT") {
-            playBeep(800, 0.3);
-            document.getElementById("jackpotModal").style.display = "flex";
-            addHistory("JACKPOT HIT", bet, 0);
+    function startMinesGame() {
+        let bet = parseInt(document.getElementById("minesBet").value);
+        if(isNaN(bet) || bet <= 0 || bet > balance) {
+            document.getElementById("minesResult").innerText = "Invalid bet amount!";
             return;
-        } else if (resultLabel === "2X WIN") {
-            winAmount = bet * 2;
+        }
+        balance -= bet;
+        updateBalance();
+        minesActive = true;
+        minePosition = Math.floor(Math.random() * 12);
+        initMinesGrid(true);
+        document.getElementById("minesResult").innerText = "Choose a tile carefully!";
+    }
+
+    function handleMineClick(index, cell) {
+        if(!minesActive) return;
+        minesActive = false;
+        let bet = parseInt(document.getElementById("minesBet").value);
+
+        if(index === minePosition) {
+            cell.classList.add('revealed', 'boom');
+            cell.innerText = "💣";
+            document.getElementById("minesResult").innerHTML = `<span style="color:#f87171;">Boom! You hit a mine. Lost $${bet}</span>`;
         } else {
-            winAmount = parseInt(resultLabel);
+            cell.classList.add('revealed', 'gem');
+            cell.innerText = "💎";
+            let reward = bet * 2;
+            balance += reward;
+            updateBalance();
+            document.getElementById("minesResult").innerHTML = `<span style="color:#4ade80;">Safe! Won $${reward}</span>`;
+        }
+    }
+
+    // Color Prediction Game
+    function playColor(choice) {
+        let bet = parseInt(document.getElementById("colorBet").value);
+        if(isNaN(bet) || bet <= 0 || bet > balance) {
+            document.getElementById("colorResult").innerText = "Invalid bet amount!";
+            return;
         }
 
-        if (winAmount > 0) {
-            balance += winAmount;
-            playBeep(600, 0.2);
-            document.getElementById("statusText").innerText = `🎉 Won $${winAmount}!`;
-            addHistory(`WIN ($${winAmount})`, bet, winAmount);
+        balance -= bet;
+        updateBalance();
+
+        const colorsList = ['green', 'green', 'red', 'red', 'violet'];
+        let outcome = colorsList[Math.floor(Math.random() * colorsList.length)];
+
+        if(choice === outcome) {
+            let multiplier = (outcome === 'violet') ? 4.5 : 2.0;
+            let win = Math.floor(bet * multiplier);
+            balance += win;
+            updateBalance();
+            document.getElementById("colorResult").innerHTML = `<span style="color:#4ade80;">Outcome: ${outcome.toUpperCase()}! Won $${win}</span>`;
         } else {
-            playBeep(200, 0.2);
-            document.getElementById("statusText").innerText = "❌ No Luck!";
-            addHistory("LOSS", bet, 0);
-        }
-
-        document.getElementById("balance").innerText = balance;
-
-        if (isAutoSpinning) {
-            setTimeout(spinWheel, 1000);
+            document.getElementById("colorResult").innerHTML = `<span style="color:#f87171;">Outcome: ${outcome.toUpperCase()}. You lost!</span>`;
         }
     }
 
-    function toggleAutoSpin() {
-        if (isAutoSpinning) {
-            stopAutoSpin();
-        } else {
-            isAutoSpinning = true;
-            document.getElementById("autoBtn").innerText = "STOP";
-            document.getElementById("autoBtn").classList.add("active");
-            spinWheel();
-        }
-    }
-
-    function stopAutoSpin() {
-        isAutoSpinning = false;
-        document.getElementById("autoBtn").innerText = "AUTO";
-        document.getElementById("autoBtn").classList.remove("active");
-    }
-
-    function addHistory(status, bet, win) {
-        const historyLog = document.getElementById("historyLog");
-        const item = document.createElement("div");
-        item.className = "history-item";
-        
-        const isWin = win > 0 || status.includes("JACKPOT");
-        item.innerHTML = `
-            <span>Bet: $${bet} | ${status}</span>
-            <span class="${isWin ? 'win-text' : 'loss-text'}">${isWin ? '+$' + win : '-$' + bet}</span>
-        `;
-        historyLog.prepend(item);
-    }
-
-    function claimJackpot() {
-        let bet = parseInt(document.getElementById("betAmount").value);
-        let jackpotReward = bet * 5;
-        balance += jackpotReward;
-        document.getElementById("balance").innerText = balance;
-        document.getElementById("jackpotModal").style.display = "none";
-        document.getElementById("statusText").innerText = `💥 Claimed $${jackpotReward} Jackpot!`;
-        if (isAutoSpinning) setTimeout(spinWheel, 1000);
-    }
-
-    drawWheel();
+    initMinesGrid(false);
 </script>
 
 </body>
