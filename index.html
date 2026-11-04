@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yalla Pro Ludo Arena - Ultimate VIP 2026</title>
+<title>Yalla Pro Ludo Arena - Firebase Multiplayer & Economy</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
@@ -44,6 +44,7 @@ body{background:radial-gradient(circle at center,#1e293b 0%,#090d16 100%);color:
 .icon-btn:hover{background:#475569}
 #floatingPopup{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:rgba(15,23,42,.95);border:2px solid #38bdf8;padding:12px 20px;border-radius:16px;font-size:.9rem;color:#38bdf8;display:none;z-index:250}
 .modal{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.95);border-radius:28px;z-index:200;padding:20px;flex-direction:column;justify-content:center;align-items:center}
+.auth-input{width:100%;padding:10px;margin-bottom:10px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#fff;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -54,11 +55,12 @@ body{background:radial-gradient(circle at center,#1e293b 0%,#090d16 100%);color:
 <option value="2">2 Players</option>
 <option value="3">3 Players</option>
 <option value="4">4 Players (Classic)</option>
-<option value="2v2">2v2 Team-Up Mode</option>
+<option value="2v2">2v2 Team-Up</option>
 </select>
 <div class="pill-group">
-<div class="stat-pill" onclick="openModal('diceSkinModal')">🎲 Dice</div>
-<div class="stat-pill" onclick="openModal('spinModal')">🎁 Spin</div>
+<div class="stat-pill" onclick="openModal('authModal')">👤 <span id="userLoginText">Login</span></div>
+<div class="stat-pill" onclick="openModal('roomModal')">🌐 Room</div>
+<div class="stat-pill" onclick="openModal('leaderboardModal')">🏆 Rank</div>
 </div>
 <button class="icon-btn" onclick="openModal('bombModal')" title="Bombs">💣</button>
 </div>
@@ -71,10 +73,6 @@ body{background:radial-gradient(circle at center,#1e293b 0%,#090d16 100%);color:
 <div class="hud-profile">
 <div class="hud-avatar" style="border-color:#ef4444;">RED</div>
 <span id="labelRed">salim ben aye...</span>
-</div>
-<div class="hud-profile" id="greenHud" style="display:none;">
-<div class="hud-avatar" style="border-color:#10b981;">GRN</div>
-<span id="labelGreen">Green</span>
 </div>
 </div>
 
@@ -99,47 +97,136 @@ body{background:radial-gradient(circle at center,#1e293b 0%,#090d16 100%);color:
 </div>
 </div>
 
-<div id="diceSkinModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:10px">🎲 Select Dice Theme</h3>
-<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;margin-bottom:15px">
-<div style="background:#1e293b;padding:12px;border-radius:10px;border:1px solid #38bdf8;cursor:pointer" onclick="selectDiceSkin('Standard 🎲')">Standard 🎲</div>
-<div style="background:#1e293b;padding:12px;border-radius:10px;border:1px solid #f59e0b;cursor:pointer" onclick="selectDiceSkin('Gold Glow ✨')">Gold Glow ✨</div>
-<div style="background:#1e293b;padding:12px;border-radius:10px;border:1px solid #10b981;cursor:pointer" onclick="selectDiceSkin('Neon Cyber 💠')">Neon Cyber 💠</div>
-<div style="background:#1e293b;padding:12px;border-radius:10px;border:1px solid #ef4444;cursor:pointer" onclick="selectDiceSkin('Magic Flame 🔥')">Magic Flame 🔥</div>
-</div>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('diceSkinModal')">CLOSE</button>
-</div>
-
-<div id="spinModal" class="modal">
-<h3 style="color:#f59e0b;margin-bottom:5px">🎁 Daily Lucky Spin</h3>
-<p style="font-size:.75rem;color:#94a3b8;margin-bottom:15px">Spin to win free rewards!</p>
-<div style="font-size:2rem;background:#1e293b;padding:15px 30px;border-radius:12px;border:2px solid #f59e0b;margin-bottom:15px;color:#fbbf24" id="spinReward">💎 500 Gems</div>
-<button class="btn-roll" style="width:100%;margin-bottom:10px" onclick="spinWheel()">SPIN NOW</button>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('spinModal')">CLOSE</button>
+<!-- MODAL: AUTH -->
+<div id="authModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:10px">🔐 Account Access</h3>
+<input type="email" id="authEmail" class="auth-input" placeholder="Enter Email">
+<input type="password" id="authPass" class="auth-input" placeholder="Enter Password">
+<button class="btn-roll" style="width:100%;margin-bottom:8px" onclick="handleEmailAuth('signin')">LOGIN</button>
+<button class="btn-roll" style="width:100%;margin-bottom:8px;background:#10b981;color:#fff" onclick="handleEmailAuth('signup')">SIGN UP</button>
+<button class="btn-roll" style="width:100%;margin-bottom:15px;background:#ea4335;color:#fff" onclick="handleGoogleAuth()">GOOGLE LOGIN</button>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('authModal')">CLOSE</button>
 </div>
 
+<!-- MODAL: ROOM / BETTING -->
+<div id="roomModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:5px">🌐 Online Multiplayer Room</h3>
+<p style="font-size:.75rem;color:#94a3b8;margin-bottom:15px">Create or join rooms with coin betting!</p>
+<input type="text" id="roomCodeInput" class="auth-input" placeholder="Enter Room Code (e.g., LUDO123)">
+<div style="margin-bottom:15px; font-size:0.8rem; color:#fbbf24;">Betting Entry Fee: <b>1,000 Coins</b></div>
+<button class="btn-roll" style="width:100%;margin-bottom:8px;" onclick="createOrJoinRoom()">JOIN / CREATE ROOM</button>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('roomModal')">CLOSE</button>
+</div>
+
+<!-- MODAL: LEADERBOARD -->
+<div id="leaderboardModal" class="modal">
+<h3 style="color:#f59e0b;margin-bottom:10px">🏆 Global Leaderboard</h3>
+<div style="background:#1e293b; padding:10px; border-radius:10px; width:100%; text-align:left; font-size:0.8rem; line-height:1.8; border:1px solid #334155;">
+<div>1. 🥇 KingNazim - <b>14,250 Trophies</b></div>
+<div>2. 🥈 Wlb_SbZ - <b>11,800 Trophies</b></div>
+<div>3. 🥉 Salim_Ben - <b>9,450 Trophies</b></div>
+<div>4. 🏅 CasualPlayer - <b>5,100 Trophies</b></div>
+</div>
+<button class="btn-roll" style="width:100%; margin-top:15px; background:#334155; color:#fff;" onclick="closeModal('leaderboardModal')">CLOSE</button>
+</div>
+
+<!-- MODAL: BOMBS -->
 <div id="bombModal" class="modal">
 <h3 style="color:#38bdf8;margin-bottom:5px">Throw Reaction Bombs</h3>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;width:100%">
 <div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="throwBomb('🍅')">🍅</div>
 <div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="throwBomb('💣')">💣</div>
 <div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="throwBomb('💧')">💧</div>
-<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="throwBomb('🥚')">🥚</div>
 </div>
 <button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('bombModal')">CLOSE</button>
 </div>
 
+<!-- MODAL: EMOJIS -->
 <div id="emojiModal" class="modal">
 <h3 style="color:#38bdf8;margin-bottom:5px">Send Emoji Reactions</h3>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;width:100%">
 <div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('😂')">😂</div>
 <div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('🔥')">🔥</div>
 <div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('👏')">👏</div>
-<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('😎')">😎</div>
 </div>
 <button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('emojiModal')">CLOSE</button>
-    </div>
-    </div>
+</div>
+</div>
+
+<!-- FIREBASE SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAL7_6DTdz14ySlLQ1jjuQC4WdO4mpRZKY",
+  authDomain: "shopping-center-9.firebaseapp.com",
+  databaseURL: "https://shopping-center-9-default-rtdb.firebaseio.com",
+  projectId: "shopping-center-9",
+  storageBucket: "shopping-center-9.firebasestorage.app",
+  messagingSenderId: "33427127023",
+  appId: "1:33427127023:web:a478af6499f28f84d9391a"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let currentUser = null;
+let currentRoomId = null;
+
+window.handleEmailAuth = function(type) {
+  const email = document.getElementById('authEmail').value;
+  const pass = document.getElementById('authPass').value;
+  if(!email || !pass) { showPopup('Please enter email & password'); return; }
+  
+  if(type === 'signup') {
+    createUserWithEmailAndPassword(auth, email, pass)
+      .then(res => { showPopup('Signup Successful!'); closeModal('authModal'); })
+      .catch(err => showPopup(err.message));
+  } else {
+    signInWithEmailAndPassword(auth, email, pass)
+      .then(res => { showPopup('Login Successful!'); closeModal('authModal'); })
+      .catch(err => showPopup(err.message));
+  }
+}
+
+window.handleGoogleAuth = function() {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider)
+    .then(res => { showPopup('Google Login Successful!'); closeModal('authModal'); })
+    .catch(err => showPopup(err.message));
+}
+
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  if(user) {
+    document.getElementById('userLoginText').innerText = user.email.split('@')[0];
+  } else {
+    document.getElementById('userLoginText').innerText = 'Login';
+  }
+});
+
+window.createOrJoinRoom = function() {
+  const code = document.getElementById('roomCodeInput').value.trim();
+  if(!code) { showPopup('Enter a valid room code'); return; }
+  currentRoomId = code;
+  
+  const roomRef = ref(db, 'rooms/' + currentRoomId);
+  onValue(roomRef, (snapshot) => {
+    const data = snapshot.val();
+    if(!data) {
+      set(roomRef, { host: currentUser ? currentUser.uid : 'guest', status: 'waiting', turn: 0, dice: 0 });
+      showPopup('Room created! Waiting for players...');
+    } else {
+      showPopup('Joined room successfully!');
+    }
+  }, { onlyOnce: true });
+  closeModal('roomModal');
+}
+</script>
+
 <script>
 const COLORS=['red','green','yellow','blue'];
 let players=['red','yellow'];
@@ -185,13 +272,6 @@ blue:[[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]]
 };
 
 const startIndices={red:0,green:13,yellow:26,blue:39};
-
-const playerNames={
-red:'salim ben aye...',
-green:'Green',
-yellow:'Nazim_khan',
-blue:'wlb_SbZ'
-};
 
 function globalTrackIndex(color,progress){
 return (startIndices[color]+progress)%52;
@@ -261,24 +341,7 @@ blue:[-1,-1,-1,-1]
 
 document.getElementById('rollBtn').disabled=false;
 document.getElementById('diceDisplay').innerText=activeDiceSkin;
-updateHud();
 initBoard();
-}
-
-function updateHud(){
-['red','green','yellow','blue'].forEach(color=>{
-const label=document.getElementById('label'+color[0].toUpperCase()+color.slice(1));
-if(label)label.innerText=playerNames[color];
-const profile=label?label.parentElement:null;
-if(profile)profile.style.display=players.includes(color)?'flex':'none';
-});
-
-const greenHud=document.getElementById('greenHud');
-if(greenHud)greenHud.style.display=players.includes('green')?'flex':'none';
-
-const cur=players[turnIndex];
-document.getElementById('statusText').innerText=
-gameOver?'Game Over':`${cur.toUpperCase()}'s Turn`;
 }
 
 function initBoard(){
@@ -321,7 +384,6 @@ renderPawns();
 
 function cellForPawn(color,progress,pawnIndex){
 let coords;
-
 if(progress===-1)coords=baseCoords[color][pawnIndex];
 else if(progress>=0&&progress<52)
 coords=mainTrack[globalTrackIndex(color,progress)];
@@ -330,10 +392,7 @@ coords=homePaths[color][progress-52];
 else if(progress===58)coords=[7,7];
 
 if(!coords)return null;
-
-return document.querySelector(
-`[data-row='${coords[0]}'][data-col='${coords[1]}']`
-);
+return document.querySelector(`[data-row='${coords[0]}'][data-col='${coords[1]}']`);
 }
 
 function renderPawns(){
@@ -346,8 +405,6 @@ if(!cell)return;
 
 const pawn=document.createElement('div');
 pawn.className=`pawn pawn-${color}`;
-pawn.setAttribute('role','button');
-pawn.setAttribute('aria-label',`${color} pawn ${idx+1}`);
 pawn.onclick=()=>handlePawnClick(color,idx);
 cell.appendChild(pawn);
 });
@@ -356,10 +413,8 @@ cell.appendChild(pawn);
 document.querySelectorAll('.cell').forEach(cell=>{
 const pawnsInCell=Array.from(cell.querySelectorAll('.pawn'));
 if(pawnsInCell.length<2)return;
-
 const firstColor=pawnsInCell[0].className;
 const sameColor=pawnsInCell.every(p=>p.className===firstColor);
-
 if(sameColor){
 const badge=document.createElement('div');
 badge.className='stack-badge';
@@ -387,13 +442,10 @@ function canMove(color,progress){
 if(gameOver)return false;
 if(progress===-1)return diceVal===6;
 if(progress<0||progress>=58)return false;
-
 const target=progress+diceVal;
 if(target>58)return false;
-
 if(progress<52){
 const lastMainStep=Math.min(target,51);
-
 for(let step=progress+1;step<=lastMainStep;step++){
 const globalIndex=globalTrackIndex(color,step);
 if(isBlockedFor(color,globalIndex))return false;
@@ -401,27 +453,22 @@ if(isBlockedFor(color,globalIndex))return false;
 }
 return true;
 }
-    function rollDiceAnim(){
+
+function rollDiceAnim(){
 if(hasRolled||gameOver)return;
-
 playSound('dice');
-
 const diceBox=document.getElementById('diceDisplay');
 const rollBtn=document.getElementById('rollBtn');
-
 rollBtn.disabled=true;
 diceBox.classList.add('rolling');
 
 let count=0;
-
 const rollInterval=setInterval(()=>{
 diceBox.innerText=String(Math.floor(Math.random()*6)+1);
 count++;
-
 if(count>8){
 clearInterval(rollInterval);
 diceBox.classList.remove('rolling');
-
 diceVal=Math.floor(Math.random()*6)+1;
 
 if(diceVal===6)consecutiveSixes++;
@@ -437,23 +484,14 @@ return;
 
 diceBox.innerText=String(diceVal);
 hasRolled=true;
-
 const cur=players[turnIndex];
+document.getElementById('statusText').innerText=`${cur.toUpperCase()} rolled ${diceVal}`;
 
-document.getElementById('statusText').innerText=
-`${cur.toUpperCase()} rolled ${diceVal}`;
-
-const valid=pawns[cur]
-.map((pos,idx)=>canMove(cur,pos)?idx:-1)
-.filter(idx=>idx!==-1);
-
+const valid=pawns[cur].map((pos,idx)=>canMove(cur,pos)?idx:-1).filter(idx=>idx!=-1);
 if(valid.length===0){
 setTimeout(()=>nextTurn(diceVal===6),900);
 }else if(valid.length===1){
-setTimeout(()=>{
-if(hasRolled&&!gameOver)
-movePawnAction(cur,valid[0]);
-},650);
+setTimeout(()=>{if(hasRolled&&!gameOver)movePawnAction(cur,valid[0]);},650);
 }else{
 rollBtn.disabled=true;
 showPopup('Select a pawn to move');
@@ -464,36 +502,24 @@ showPopup('Select a pawn to move');
 
 function handlePawnClick(color,idx){
 if(!hasRolled||gameOver||color!==players[turnIndex])return;
-
-if(canMove(color,pawns[color][idx])){
-movePawnAction(color,idx);
-}
+if(canMove(color,pawns[color][idx])){movePawnAction(color,idx);}
 }
 
 function movePawnAction(color,idx){
 if(!hasRolled||gameOver)return;
-
 const progress=pawns[color][idx];
 if(!canMove(color,progress))return;
 
-let target;
-
-if(progress===-1)target=0;
-else target=progress+diceVal;
-
+let target=(progress===-1)?0:progress+diceVal;
 let didCapture=false;
 
 if(progress!==-1&&target<52){
 const targetGlobal=globalTrackIndex(color,target);
-
 if(!safeIndices.includes(targetGlobal)){
 players.forEach(other=>{
 if(other===color||areAllies(color,other))return;
-
 pawns[other].forEach((otherProgress,otherIdx)=>{
-if(otherProgress>=0&&otherProgress<52&&
-globalTrackIndex(other,otherProgress)===targetGlobal){
-
+if(otherProgress>=0&&otherProgress<52&&globalTrackIndex(other,otherProgress)===targetGlobal){
 pawns[other][otherIdx]=-1;
 didCapture=true;
 playSound('cut');
@@ -506,137 +532,50 @@ playSound('cut');
 pawns[color][idx]=target;
 renderPawns();
 
-if(hasPlayerWon(color)){
+if(pawns[color].every(p=>p===58)){
 gameOver=true;
 document.getElementById('rollBtn').disabled=true;
-
-if(typeof confetti==='function'){
-confetti({
-particleCount:150,
-spread:80,
-origin:{y:.6}
-});
-}
-
-const message=isTeamMode
-?`🎉 Team ${teamOf(color)} wins!`
-:`🎉 Player ${color.toUpperCase()} wins the game!`;
-
+if(typeof confetti==='function'){confetti({particleCount:150,spread:80,origin:{y:.6}});}
+const message=`🎉 Player ${color.toUpperCase()} wins the game!`;
 document.getElementById('statusText').innerText=message;
 setTimeout(()=>alert(message),100);
 return;
 }
 
-const earnedExtraTurn=diceVal===6||didCapture;
-nextTurn(earnedExtraTurn);
-}
-
-function hasPlayerWon(color){
-if(!pawns[color].every(p=>p===58))return false;
-if(!isTeamMode)return true;
-
-const teammate=color==='red'?'yellow':
-color==='yellow'?'red':
-color==='green'?'blue':'green';
-
-return pawns[teammate].every(p=>p===58);
+nextTurn(diceVal===6||didCapture);
 }
 
 function nextTurn(extraTurn){
 hasRolled=false;
 diceVal=0;
-
 document.getElementById('rollBtn').disabled=false;
 document.getElementById('diceDisplay').innerText=activeDiceSkin;
-
 if(!extraTurn){
 turnIndex=(turnIndex+1)%players.length;
 consecutiveSixes=0;
 }
-
-updateHud();
-}
-
-function selectDiceSkin(skin){
-const skins={
-'Standard 🎲':'🎲',
-'Gold Glow ✨':'✨',
-'Neon Cyber 💠':'💠',
-'Magic Flame 🔥':'🔥'
-};
-
-activeDiceSkin=skins[skin]||'🎲';
-document.getElementById('diceDisplay').innerText=activeDiceSkin;
-closeModal('diceSkinModal');
+const cur=players[turnIndex];
+document.getElementById('statusText').innerText=`${cur.toUpperCase()}'s Turn`;
 }
 
 function showPopup(message){
 const popup=document.getElementById('floatingPopup');
-
 popup.innerText=message;
 popup.style.display='block';
-
 clearTimeout(showPopup.timer);
-
-showPopup.timer=setTimeout(()=>{
-popup.style.display='none';
-},1500);
+showPopup.timer=setTimeout(()=>{popup.style.display='none';},1500);
 }
 
-function throwBomb(item){
-closeModal('bombModal');
-showPopup(`💥 Reaction: ${item}`);
-}
-
-function sendEmojiSticker(emo){
-closeModal('emojiModal');
-showPopup(`💬 Reaction: ${emo}`);
-}
-
-function spinWheel(){
-const today=new Date().toISOString().slice(0,10);
-
-if(localStorage.getItem('yallaLudoLastSpin')===today){
-showPopup('You have already used today’s spin!');
-return;
-}
-
-const rewards=[
-'💎 1000 Gems',
-'🪙 5000 Coins',
-'🛡️ Shield Pass',
-'🎉 200 Gems'
-];
-
-const win=rewards[Math.floor(Math.random()*rewards.length)];
-
-localStorage.setItem('yallaLudoLastSpin',today);
-
-document.getElementById('spinReward').innerText=win;
-
-alert(`Congratulations! You won ${win}!`);
-}
-
+function throwBomb(item){closeModal('bombModal');showPopup(`💥 Reaction: ${item}`);}
+function sendEmojiSticker(emo){closeModal('emojiModal');showPopup(`💬 Reaction: ${emo}`);}
 function toggleSound(){
 soundEnabled=!soundEnabled;
-
-document.getElementById('soundBtn').innerText=
-soundEnabled?'🔊':'🔇';
+document.getElementById('soundBtn').innerText=soundEnabled?'🔊':'🔇';
 }
+function openModal(id){document.getElementById(id).style.display='flex';}
+function closeModal(id){document.getElementById(id).style.display='none';}
 
-function openModal(id){
-const modal=document.getElementById(id);
-if(modal)modal.style.display='flex';
-}
-
-function closeModal(id){
-const modal=document.getElementById(id);
-if(modal)modal.style.display='none';
-}
-
-updateHud();
 initBoard();
-
 </script>
 </body>
 </html>
