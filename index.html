@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Pro Ludo Arena - Ultimate Customization</title>
+    <title>Yalla Pro Ludo Arena - Ultimate VIP 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * {
@@ -53,6 +53,10 @@
             font-size: 0.7rem;
             cursor: pointer;
             font-weight: bold;
+        }
+        .pill-group {
+            display: flex;
+            gap: 4px;
         }
         .stat-pill {
             background: rgba(245, 158, 11, 0.2);
@@ -248,11 +252,15 @@
 
     <div class="top-header">
         <select class="mode-select" id="gameModeSelect" onchange="changeGameMode()">
-            <option value="2">2 Players (Red/Yellow)</option>
+            <option value="2">2 Players</option>
             <option value="3">3 Players</option>
-            <option value="4">4 Players (Full)</option>
+            <option value="4">4 Players (Classic)</option>
+            <option value="2v2">2v2 Team-Up Mode</option>
         </select>
-        <div class="stat-pill" onclick="openModal('spinModal')">🎁 Spin</div>
+        <div class="pill-group">
+            <div class="stat-pill" onclick="openModal('diceSkinModal')">🎲 Dice</div>
+            <div class="stat-pill" onclick="openModal('spinModal')">🎁 Spin</div>
+        </div>
         <button class="icon-btn" onclick="openModal('bombModal')" title="Bombs">💣</button>
     </div>
 
@@ -288,11 +296,23 @@
         </div>
         <div style="display: flex; gap: 6px;">
             <button class="icon-btn" onclick="toggleSound()" id="soundBtn">🔊</button>
-            <button class="icon-btn" onclick="openModal('bombModal')">💥</button>
+            <button class="icon-btn" onclick="openModal('emojiModal')">😀</button>
         </div>
     </div>
 
-    <!-- MODAL: Lucky Spin -->
+    <!-- MODAL 1: Custom Dice Skins -->
+    <div id="diceSkinModal" class="modal">
+        <h3 style="color:#38bdf8; margin-bottom: 10px;">🎲 Select Dice Theme</h3>
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; width:100%; margin-bottom:15px;">
+            <div style="background:#1e293b; padding:12px; border-radius:10px; border:1px solid #38bdf8; cursor:pointer;" onclick="selectDiceSkin('Standard 🎲')">Standard 🎲</div>
+            <div style="background:#1e293b; padding:12px; border-radius:10px; border:1px solid #f59e0b; cursor:pointer;" onclick="selectDiceSkin('Gold Glow ✨')">Gold Glow ✨</div>
+            <div style="background:#1e293b; padding:12px; border-radius:10px; border:1px solid #10b981; cursor:pointer;" onclick="selectDiceSkin('Neon Cyber 💠')">Neon Cyber 💠</div>
+            <div style="background:#1e293b; padding:12px; border-radius:10px; border:1px solid #ef4444; cursor:pointer;" onclick="selectDiceSkin('Magic Flame 🔥')">Magic Flame 🔥</div>
+        </div>
+        <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('diceSkinModal')">CLOSE</button>
+    </div>
+
+    <!-- MODAL 2: Lucky Spin -->
     <div id="spinModal" class="modal">
         <h3 style="color:#f59e0b; margin-bottom: 5px;">🎁 Daily Lucky Spin</h3>
         <p style="font-size: 0.75rem; color:#94a3b8; margin-bottom: 15px;">Spin to win free rewards!</p>
@@ -301,7 +321,7 @@
         <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('spinModal')">CLOSE</button>
     </div>
 
-    <!-- MODAL: Bombs -->
+    <!-- MODAL 3: Bombs -->
     <div id="bombModal" class="modal">
         <h3 style="color:#38bdf8; margin-bottom: 5px;">Throw Reaction Bombs</h3>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; width:100%;">
@@ -312,6 +332,18 @@
         </div>
         <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('bombModal')">CLOSE</button>
     </div>
+
+    <!-- MODAL 4: Animated Emojis -->
+    <div id="emojiModal" class="modal">
+        <h3 style="color:#38bdf8; margin-bottom: 5px;">Send Emoji Reactions</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; width:100%;">
+            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendEmojiSticker('😂')">😂</div>
+            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendEmojiSticker('🔥')">🔥</div>
+            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendEmojiSticker('👏')">👏</div>
+            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendEmojiSticker('😎')">😎</div>
+        </div>
+        <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('emojiModal')">CLOSE</button>
+    </div>
 </div>
 
 <script>
@@ -320,6 +352,8 @@
     let diceVal = 0;
     let hasRolled = false;
     let soundEnabled = true;
+    let isTeamMode = false;
+    let activeDiceSkin = '🎲';
 
     function playSound(type) {
         if (!soundEnabled) return;
@@ -375,9 +409,14 @@
 
     function changeGameMode() {
         let val = document.getElementById("gameModeSelect").value;
+        isTeamMode = false;
         if (val === '2') players = ['red', 'yellow'];
         else if (val === '3') players = ['red', 'green', 'yellow'];
         else if (val === '4') players = ['red', 'green', 'yellow', 'blue'];
+        else if (val === '2v2') {
+            players = ['red', 'green', 'yellow', 'blue'];
+            isTeamMode = true;
+        }
         turnIndex = 0;
         pawns = { red: [-1, -1, -1, -1], green: [-1, -1, -1, -1], yellow: [-1, -1, -1, -1], blue: [-1, -1, -1, -1] };
         initBoard();
@@ -442,7 +481,6 @@
             });
         });
 
-        // Blockade badges
         document.querySelectorAll(".cell").forEach(cell => {
             let pawnsInCell = cell.querySelectorAll(".pawn");
             if (pawnsInCell.length >= 2) {
@@ -501,8 +539,13 @@
                     let globalIdx = step % 52;
                     for (let op of players) {
                         if (op !== color) {
+                            if (isTeamMode) {
+                                // Team-up rule: Red & Yellow (Team 1), Green & Blue (Team 2) won't block teammates
+                                if ((color === 'red' && op === 'yellow') || (color === 'yellow' && op === 'red')) continue;
+                                if ((color === 'green' && op === 'blue') || (color === 'blue' && op === 'green')) continue;
+                            }
                             let count = pawns[op].filter(p => p === globalIdx).length;
-                            if (count >= 2) return false; // Blockade blocks passage!
+                            if (count >= 2) return false;
                         }
                     }
                 }
@@ -530,10 +573,14 @@
                 if (newPos < 52 && !safeIndices.includes(newPos)) {
                     players.forEach(opColor => {
                         if (opColor !== color) {
+                            if (isTeamMode) {
+                                if ((color === 'red' && opColor === 'yellow') || (color === 'yellow' && opColor === 'red')) return;
+                                if ((color === 'green' && opColor === 'blue') || (color === 'blue' && opColor === 'green')) return;
+                            }
                             pawns[opColor].forEach((opPos, opIdx) => {
                                 if (opPos === newPos) {
                                     playSound('cut');
-                                    pawns[opColor][opIdx] = -1; // Cut opponent goti!
+                                    pawns[opColor][opIdx] = -1; // Cut enemy!
                                 }
                             });
                         }
@@ -557,7 +604,7 @@
     function nextTurn(extraTurn) {
         hasRolled = false;
         document.getElementById("rollBtn").disabled = false;
-        document.getElementById("diceDisplay").innerText = "🎲";
+        document.getElementById("diceDisplay").innerText = activeDiceSkin;
         if (!extraTurn) {
             turnIndex = (turnIndex + 1) % players.length;
         }
@@ -565,10 +612,24 @@
         document.getElementById("statusText").innerText = `${cur.toUpperCase()}'s Turn`;
     }
 
+    function selectDiceSkin(skin) {
+        activeDiceSkin = skin.split(" ")[1] || '🎲';
+        document.getElementById("diceDisplay").innerText = activeDiceSkin;
+        closeModal('diceSkinModal');
+    }
+
     function throwBomb(item) {
         closeModal('bombModal');
         let popup = document.getElementById("floatingPopup");
         popup.innerText = `💥 Hit with ${item}`;
+        popup.style.display = "block";
+        setTimeout(() => popup.style.display = "none", 1500);
+    }
+
+    function sendEmojiSticker(emo) {
+        closeModal('emojiModal');
+        let popup = document.getElementById("floatingPopup");
+        popup.innerText = `💬 Reaction: ${emo}`;
         popup.style.display = "block";
         setTimeout(() => popup.style.display = "none", 1500);
     }
