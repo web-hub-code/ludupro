@@ -1,656 +1,642 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yalla Pro Ludo Arena - Ultimate VIP 2026</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 10px;
-        }
-        .app-container {
-            width: 100%;
-            max-width: 440px;
-            background: rgba(30, 41, 59, 0.92);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(0, 240, 255, 0.3);
-            border-radius: 28px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 240, 255, 0.15);
-            padding: 12px;
-            text-align: center;
-            position: relative;
-        }
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(15, 23, 42, 0.8);
-            padding: 6px 12px;
-            border-radius: 20px;
-            margin-bottom: 8px;
-            font-size: 0.75rem;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .mode-select {
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: #38bdf8;
-            padding: 3px 8px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .pill-group {
-            display: flex;
-            gap: 4px;
-        }
-        .stat-pill {
-            background: rgba(245, 158, 11, 0.2);
-            border: 1px solid #f59e0b;
-            padding: 3px 8px;
-            border-radius: 12px;
-            color: #fbbf24;
-            font-weight: bold;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
-        .player-hud {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-            padding: 0 4px;
-            font-size: 0.75rem;
-        }
-        .hud-profile {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(15, 23, 42, 0.8);
-            padding: 4px 10px;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .hud-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #38bdf8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 0.8rem;
-            border: 2px solid #fbbf24;
-        }
-        /* Glossy Board */
-        .board {
-            width: 100%;
-            aspect-ratio: 1;
-            background: #e2e8f0;
-            border: 4px solid #334155;
-            display: grid;
-            grid-template-columns: repeat(15, 1fr);
-            grid-template-rows: repeat(15, 1fr);
-            gap: 1px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        }
-        .cell {
-            background: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            font-size: 0.55rem;
-        }
-        .cell.red-base { background: #ef4444; }
-        .cell.green-base { background: #10b981; }
-        .cell.yellow-base { background: #f59e0b; }
-        .cell.blue-base { background: #3b82f6; }
-        .cell.red-path { background: #fca5a5; }
-        .cell.green-path { background: #6ee7b7; }
-        .cell.yellow-path { background: #fde047; }
-        .cell.blue-path { background: #93c5fd; }
-        .cell.safe { background: #f1f5f9; font-size: 0.7rem; }
-        .cell.center-home { background: #6366f1; }
-
-        /* 3D Glossy Pawns */
-        .pawn {
-            width: 80%;
-            height: 80%;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.6);
-            border: 2px solid #fff;
-            z-index: 10;
-        }
-        .pawn-red { background: radial-gradient(circle at 30% 30%, #f87171, #dc2626); }
-        .pawn-green { background: radial-gradient(circle at 30% 30%, #34d399, #059669); }
-        .pawn-yellow { background: radial-gradient(circle at 30% 30%, #facc15, #d97706); }
-        .pawn-blue { background: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb); }
-
-        .stack-badge {
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            background: #000;
-            color: #fff;
-            font-size: 0.5rem;
-            padding: 1px 3px;
-            border-radius: 50%;
-            border: 1px solid #fff;
-            z-index: 15;
-        }
-
-        /* Bottom Controls */
-        .bottom-action-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(15, 23, 42, 0.85);
-            padding: 8px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .dice-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .dice-box {
-            font-size: 1.8rem;
-            background: #1e293b;
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 2px solid #38bdf8;
-            color: #38bdf8;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-            transition: transform 0.3s ease;
-        }
-        .dice-box.rolling { transform: rotate(360deg) scale(1.1); }
-        .btn-roll {
-            padding: 8px 18px;
-            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
-            border: none;
-            border-radius: 12px;
-            color: #000;
-            font-weight: bold;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
-        }
-        .btn-roll:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .icon-btn {
-            background: #334155;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            color: #fff;
-            font-size: 0.9rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .icon-btn:hover { background: #475569; }
-
-        #floatingPopup {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(15, 23, 42, 0.95);
-            border: 2px solid #38bdf8;
-            padding: 12px 20px;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            color: #38bdf8;
-            display: none;
-            z-index: 250;
-        }
-        .modal {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            border-radius: 28px;
-            z-index: 200;
-            padding: 20px;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yalla Pro Ludo Arena - Ultimate VIP 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background:radial-gradient(circle at center,#1e293b 0%,#090d16 100%);color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px}
+.app-container{width:100%;max-width:440px;background:rgba(30,41,59,.92);backdrop-filter:blur(20px);border:2px solid rgba(0,240,255,.3);border-radius:28px;box-shadow:0 25px 50px rgba(0,0,0,.8),0 0 30px rgba(0,240,255,.15);padding:12px;text-align:center;position:relative}
+.top-header{display:flex;justify-content:space-between;align-items:center;background:rgba(15,23,42,.8);padding:6px 12px;border-radius:20px;margin-bottom:8px;font-size:.75rem;border:1px solid rgba(255,255,255,.05)}
+.mode-select{background:#1e293b;border:1px solid #334155;color:#38bdf8;padding:3px 8px;border-radius:8px;font-size:.7rem;cursor:pointer;font-weight:bold}
+.pill-group{display:flex;gap:4px}
+.stat-pill{background:rgba(245,158,11,.2);border:1px solid #f59e0b;padding:3px 8px;border-radius:12px;color:#fbbf24;font-weight:bold;font-size:.7rem;cursor:pointer}
+.player-hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 4px;font-size:.75rem}
+.hud-profile{display:flex;align-items:center;gap:8px;background:rgba(15,23,42,.8);padding:4px 10px;border-radius:16px;border:1px solid rgba(255,255,255,.05)}
+.hud-avatar{width:28px;height:28px;border-radius:50%;background:#38bdf8;display:flex;justify-content:center;align-items:center;font-weight:bold;font-size:.8rem;border:2px solid #fbbf24}
+.board{width:100%;aspect-ratio:1;background:#e2e8f0;border:4px solid #334155;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);gap:1px;border-radius:12px;margin-bottom:8px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.cell{background:#fff;display:flex;justify-content:center;align-items:center;position:relative;font-size:.55rem}
+.cell.red-base{background:#ef4444}
+.cell.green-base{background:#10b981}
+.cell.yellow-base{background:#f59e0b}
+.cell.blue-base{background:#3b82f6}
+.cell.red-path{background:#fca5a5}
+.cell.green-path{background:#6ee7b7}
+.cell.yellow-path{background:#fde047}
+.cell.blue-path{background:#93c5fd}
+.cell.safe{background:#f1f5f9;font-size:.7rem}
+.cell.center-home{background:#6366f1}
+.pawn{width:80%;height:80%;border-radius:50%;cursor:pointer;box-shadow:0 3px 6px rgba(0,0,0,.5),inset 0 2px 3px rgba(255,255,255,.6);border:2px solid #fff;z-index:10}
+.pawn-red{background:radial-gradient(circle at 30% 30%,#f87171,#dc2626)}
+.pawn-green{background:radial-gradient(circle at 30% 30%,#34d399,#059669)}
+.pawn-yellow{background:radial-gradient(circle at 30% 30%,#facc15,#d97706)}
+.pawn-blue{background:radial-gradient(circle at 30% 30%,#60a5fa,#2563eb)}
+.stack-badge{position:absolute;bottom:-2px;right:-2px;background:#000;color:#fff;font-size:.5rem;padding:1px 3px;border-radius:50%;border:1px solid #fff;z-index:15}
+.bottom-action-bar{display:flex;justify-content:space-between;align-items:center;background:rgba(15,23,42,.85);padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.05)}
+.dice-container{display:flex;align-items:center;gap:10px}
+.dice-box{font-size:1.8rem;background:#1e293b;width:45px;height:45px;border-radius:12px;display:flex;justify-content:center;align-items:center;border:2px solid #38bdf8;color:#38bdf8;box-shadow:0 0 10px rgba(56,189,248,.3);transition:transform .3s ease}
+.dice-box.rolling{transform:rotate(360deg) scale(1.1)}
+.btn-roll{padding:8px 18px;background:linear-gradient(135deg,#38bdf8 0%,#0284c7 100%);border:none;border-radius:12px;color:#000;font-weight:bold;font-size:.85rem;cursor:pointer;box-shadow:0 4px 12px rgba(56,189,248,.4)}
+.btn-roll:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn{background:#334155;border:none;width:36px;height:36px;border-radius:50%;color:#fff;font-size:.9rem;cursor:pointer;display:flex;justify-content:center;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,.3)}
+.icon-btn:hover{background:#475569}
+#floatingPopup{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:rgba(15,23,42,.95);border:2px solid #38bdf8;padding:12px 20px;border-radius:16px;font-size:.9rem;color:#38bdf8;display:none;z-index:250}
+.modal{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.95);border-radius:28px;z-index:200;padding:20px;flex-direction:column;justify-content:center;align-items:center}
+</style>
 </head>
 <body>
-
 <div class="app-container">
-    <div id="floatingPopup">Message</div>
-
-    <div class="top-header">
-        <select class="mode-select" id="gameModeSelect" onchange="changeGameMode()">
-            <option value="2">2 Players</option>
-            <option value="3">3 Players</option>
-            <option value="4">4 Players (Classic)</option>
-            <option value="2v2">2v2 Team-Up Mode</option>
-        </select>
-        <div class="pill-group">
-            <div class="stat-pill" onclick="openModal('diceSkinModal')">🎲 Dice</div>
-            <div class="stat-pill" onclick="openModal('spinModal')">🎁 Spin</div>
-        </div>
-        <button class="icon-btn" onclick="openModal('bombModal')" title="Bombs">💣</button>
-    </div>
-
-    <!-- Top Opponent HUD -->
-    <div class="player-hud">
-        <div class="hud-profile">
-            <div class="hud-avatar" style="border-color:#3b82f6;">BLUE</div>
-            <span id="labelBlue">wlb_SbZ</span>
-        </div>
-        <div class="hud-profile">
-            <div class="hud-avatar" style="border-color:#ef4444;">RED</div>
-            <span id="labelRed">salim ben aye...</span>
-        </div>
-    </div>
-
-    <!-- 15x15 Ludo Board -->
-    <div class="board" id="ludoBoard"></div>
-
-    <!-- Bottom User HUD -->
-    <div class="player-hud">
-        <div class="hud-profile">
-            <div class="hud-avatar" style="border-color:#f59e0b;">YEL</div>
-            <span id="labelYellow">Nazim_khan</span>
-        </div>
-        <div style="font-size: 0.7rem; color: #4ade80; font-weight: bold;" id="statusText">Your Turn!</div>
-    </div>
-
-    <!-- Bottom Action Bar -->
-    <div class="bottom-action-bar">
-        <div class="dice-container">
-            <div class="dice-box" id="diceDisplay">🎲</div>
-            <button class="btn-roll" id="rollBtn" onclick="rollDiceAnim()">ROLL</button>
-        </div>
-        <div style="display: flex; gap: 6px;">
-            <button class="icon-btn" onclick="toggleSound()" id="soundBtn">🔊</button>
-            <button class="icon-btn" onclick="openModal('emojiModal')">😀</button>
-        </div>
-    </div>
-
-    <!-- MODAL 1: Custom Dice Skins -->
-    <div id="diceSkinModal" class="modal">
-        <h3 style="color:#38bdf8; margin-bottom: 10px;">🎲 Select Dice Theme</h3>
-        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; width:100%; margin-bottom:15px;">
-            <div style="background:#1e293b; padding:12px; border-radius:10px; border:1px solid #38bdf8; cursor:pointer;" onclick="selectDiceSkin('Standard 🎲')">Standard 🎲</div>
-            <div style="background:#1e293b; padding:12px; border-radius:10px; border:1px solid #f59e0b; cursor:pointer;" onclick="selectDiceSkin('Gold Glow ✨')">Gold Glow ✨</div>
-            <div style="background:#1e293b; padding:12px; border-radius:10px; border:1px solid #10b981; cursor:pointer;" onclick="selectDiceSkin('Neon Cyber 💠')">Neon Cyber 💠</div>
-            <div style="background:#1e293b; padding:12px; border-radius:10px; border:1px solid #ef4444; cursor:pointer;" onclick="selectDiceSkin('Magic Flame 🔥')">Magic Flame 🔥</div>
-        </div>
-        <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('diceSkinModal')">CLOSE</button>
-    </div>
-
-    <!-- MODAL 2: Lucky Spin -->
-    <div id="spinModal" class="modal">
-        <h3 style="color:#f59e0b; margin-bottom: 5px;">🎁 Daily Lucky Spin</h3>
-        <p style="font-size: 0.75rem; color:#94a3b8; margin-bottom: 15px;">Spin to win free rewards!</p>
-        <div style="font-size: 2rem; background: #1e293b; padding: 15px 30px; border-radius: 12px; border: 2px solid #f59e0b; margin-bottom: 15px; color:#fbbf24;" id="spinReward">💎 500 Gems</div>
-        <button class="btn-roll" style="width:100%; margin-bottom:10px;" onclick="spinWheel()">SPIN NOW</button>
-        <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('spinModal')">CLOSE</button>
-    </div>
-
-    <!-- MODAL 3: Bombs -->
-    <div id="bombModal" class="modal">
-        <h3 style="color:#38bdf8; margin-bottom: 5px;">Throw Reaction Bombs</h3>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; width:100%;">
-            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="throwBomb('🍅')">🍅</div>
-            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="throwBomb('💣')">💣</div>
-            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="throwBomb('💧')">💧</div>
-            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="throwBomb('🥚')">🥚</div>
-        </div>
-        <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('bombModal')">CLOSE</button>
-    </div>
-
-    <!-- MODAL 4: Animated Emojis -->
-    <div id="emojiModal" class="modal">
-        <h3 style="color:#38bdf8; margin-bottom: 5px;">Send Emoji Reactions</h3>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; width:100%;">
-            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendEmojiSticker('😂')">😂</div>
-            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendEmojiSticker('🔥')">🔥</div>
-            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendEmojiSticker('👏')">👏</div>
-            <div style="background:#1e293b; padding:10px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendEmojiSticker('😎')">😎</div>
-        </div>
-        <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('emojiModal')">CLOSE</button>
-    </div>
+<div id="floatingPopup">Message</div>
+<div class="top-header">
+<select class="mode-select" id="gameModeSelect" onchange="changeGameMode()">
+<option value="2">2 Players</option>
+<option value="3">3 Players</option>
+<option value="4">4 Players (Classic)</option>
+<option value="2v2">2v2 Team-Up Mode</option>
+</select>
+<div class="pill-group">
+<div class="stat-pill" onclick="openModal('diceSkinModal')">🎲 Dice</div>
+<div class="stat-pill" onclick="openModal('spinModal')">🎁 Spin</div>
+</div>
+<button class="icon-btn" onclick="openModal('bombModal')" title="Bombs">💣</button>
 </div>
 
+<div class="player-hud">
+<div class="hud-profile">
+<div class="hud-avatar" style="border-color:#3b82f6;">BLUE</div>
+<span id="labelBlue">wlb_SbZ</span>
+</div>
+<div class="hud-profile">
+<div class="hud-avatar" style="border-color:#ef4444;">RED</div>
+<span id="labelRed">salim ben aye...</span>
+</div>
+<div class="hud-profile" id="greenHud" style="display:none;">
+<div class="hud-avatar" style="border-color:#10b981;">GRN</div>
+<span id="labelGreen">Green</span>
+</div>
+</div>
+
+<div class="board" id="ludoBoard"></div>
+
+<div class="player-hud">
+<div class="hud-profile">
+<div class="hud-avatar" style="border-color:#f59e0b;">YEL</div>
+<span id="labelYellow">Nazim_khan</span>
+</div>
+<div style="font-size:.7rem;color:#4ade80;font-weight:bold" id="statusText">Your Turn!</div>
+</div>
+
+<div class="bottom-action-bar">
+<div class="dice-container">
+<div class="dice-box" id="diceDisplay">🎲</div>
+<button class="btn-roll" id="rollBtn" onclick="rollDiceAnim()">ROLL</button>
+</div>
+<div style="display:flex;gap:6px">
+<button class="icon-btn" onclick="toggleSound()" id="soundBtn">🔊</button>
+<button class="icon-btn" onclick="openModal('emojiModal')">😀</button>
+</div>
+</div>
+
+<div id="diceSkinModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:10px">🎲 Select Dice Theme</h3>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;margin-bottom:15px">
+<div style="background:#1e293b;padding:12px;border-radius:10px;border:1px solid #38bdf8;cursor:pointer" onclick="selectDiceSkin('Standard 🎲')">Standard 🎲</div>
+<div style="background:#1e293b;padding:12px;border-radius:10px;border:1px solid #f59e0b;cursor:pointer" onclick="selectDiceSkin('Gold Glow ✨')">Gold Glow ✨</div>
+<div style="background:#1e293b;padding:12px;border-radius:10px;border:1px solid #10b981;cursor:pointer" onclick="selectDiceSkin('Neon Cyber 💠')">Neon Cyber 💠</div>
+<div style="background:#1e293b;padding:12px;border-radius:10px;border:1px solid #ef4444;cursor:pointer" onclick="selectDiceSkin('Magic Flame 🔥')">Magic Flame 🔥</div>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('diceSkinModal')">CLOSE</button>
+</div>
+
+<div id="spinModal" class="modal">
+<h3 style="color:#f59e0b;margin-bottom:5px">🎁 Daily Lucky Spin</h3>
+<p style="font-size:.75rem;color:#94a3b8;margin-bottom:15px">Spin to win free rewards!</p>
+<div style="font-size:2rem;background:#1e293b;padding:15px 30px;border-radius:12px;border:2px solid #f59e0b;margin-bottom:15px;color:#fbbf24" id="spinReward">💎 500 Gems</div>
+<button class="btn-roll" style="width:100%;margin-bottom:10px" onclick="spinWheel()">SPIN NOW</button>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('spinModal')">CLOSE</button>
+</div>
+
+<div id="bombModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:5px">Throw Reaction Bombs</h3>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;width:100%">
+<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="throwBomb('🍅')">🍅</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="throwBomb('💣')">💣</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="throwBomb('💧')">💧</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="throwBomb('🥚')">🥚</div>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('bombModal')">CLOSE</button>
+</div>
+
+<div id="emojiModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:5px">Send Emoji Reactions</h3>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;width:100%">
+<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('😂')">😂</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('🔥')">🔥</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('👏')">👏</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('😎')">😎</div>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff" onclick="closeModal('emojiModal')">CLOSE</button>
+    </div>
+    </div>
 <script>
-    let players = ['red', 'yellow'];
-    let turnIndex = 0;
-    let diceVal = 0;
-    let hasRolled = false;
-    let soundEnabled = true;
-    let isTeamMode = false;
-    let activeDiceSkin = '🎲';
+const COLORS=['red','green','yellow','blue'];
+let players=['red','yellow'];
+let turnIndex=0;
+let diceVal=0;
+let hasRolled=false;
+let soundEnabled=true;
+let isTeamMode=false;
+let activeDiceSkin='🎲';
+let consecutiveSixes=0;
+let gameOver=false;
+let audioContext=null;
 
-    function playSound(type) {
-        if (!soundEnabled) return;
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination);
-            if (type === 'dice') {
-                osc.frequency.setValueAtTime(300, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                osc.start(); osc.stop(ctx.currentTime + 0.15);
-            } else if (type === 'cut') {
-                osc.frequency.setValueAtTime(150, ctx.currentTime);
-                osc.frequency.linearRampToValueAtTime(80, ctx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                osc.start(); osc.stop(ctx.currentTime + 0.3);
-            }
-        } catch(e) {}
-    }
+let pawns={
+red:[-1,-1,-1,-1],
+green:[-1,-1,-1,-1],
+yellow:[-1,-1,-1,-1],
+blue:[-1,-1,-1,-1]
+};
 
-    let pawns = {
-        red: [-1, -1, -1, -1],
-        green: [-1, -1, -1, -1],
-        yellow: [-1, -1, -1, -1],
-        blue: [-1, -1, -1, -1]
-    };
+const baseCoords={
+red:[[1,1],[1,4],[4,1],[4,4]],
+green:[[1,10],[1,13],[4,10],[4,13]],
+yellow:[[10,10],[10,13],[13,10],[13,13]],
+blue:[[10,1],[10,4],[13,1],[13,4]]
+};
 
-    const baseCoords = {
-        red: [[1,1], [1,4], [4,1], [4,4]],
-        green: [[1,10], [1,13], [4,10], [4,13]],
-        yellow: [[10,10], [10,13], [13,10], [13,13]],
-        blue: [[10,1], [10,4], [13,1], [13,4]]
-    };
+const mainTrack=[
+[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],
+[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],
+[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],
+[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],
+[7,0],[6,0]
+];
 
-    const mainTrack = [
-        [6,1], [6,2], [6,3], [6,4], [6,5], [5,6], [4,6], [3,6], [2,6], [1,6], [0,6],
-        [0,7], [0,8], [1,8], [2,8], [3,8], [4,8], [5,8], [6,9], [6,10], [6,11], [6,12], [6,13], [6,14],
-        [7,14], [8,14], [8,13], [8,12], [8,11], [8,10], [8,9], [9,8], [10,8], [11,8], [12,8], [13,8], [14,8],
-        [14,7], [14,6], [13,6], [12,6], [11,6], [10,6], [9,6], [8,5], [8,4], [8,3], [8,2], [8,1], [8,0],
-        [7,0], [6,0]
-    ];
+const safeIndices=[0,8,13,21,26,34,39,47];
 
-    const safeIndices = [0, 8, 13, 21, 26, 34, 39, 47];
-    const homePaths = {
-        red: [[7,1], [7,2], [7,3], [7,4], [7,5], [7,6]],
-        green: [[1,7], [2,7], [3,7], [4,7], [5,7], [6,7]],
-        yellow: [[7,13], [7,12], [7,11], [7,10], [7,9], [7,8]],
-        blue: [[13,7], [12,7], [11,7], [10,7], [9,7], [8,7]]
-    };
-    const startIndices = { red: 0, green: 13, yellow: 26, blue: 39 };
+const homePaths={
+red:[[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],
+green:[[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
+yellow:[[7,13],[7,12],[7,11],[7,10],[7,9],[7,8]],
+blue:[[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]]
+};
 
-    function changeGameMode() {
-        let val = document.getElementById("gameModeSelect").value;
-        isTeamMode = false;
-        if (val === '2') players = ['red', 'yellow'];
-        else if (val === '3') players = ['red', 'green', 'yellow'];
-        else if (val === '4') players = ['red', 'green', 'yellow', 'blue'];
-        else if (val === '2v2') {
-            players = ['red', 'green', 'yellow', 'blue'];
-            isTeamMode = true;
-        }
-        turnIndex = 0;
-        pawns = { red: [-1, -1, -1, -1], green: [-1, -1, -1, -1], yellow: [-1, -1, -1, -1], blue: [-1, -1, -1, -1] };
-        initBoard();
-    }
+const startIndices={red:0,green:13,yellow:26,blue:39};
 
-    function initBoard() {
-        const board = document.getElementById("ludoBoard");
-        board.innerHTML = "";
-        for (let r = 0; r < 15; r++) {
-            for (let c = 0; c < 15; c++) {
-                let cell = document.createElement("div");
-                cell.className = "cell";
-                cell.dataset.row = r; cell.dataset.col = c;
-                if (r < 6 && c < 6) cell.classList.add("red-base");
-                else if (r < 6 && c > 8) cell.classList.add("green-base");
-                else if (r > 8 && c > 8) cell.classList.add("yellow-base");
-                else if (r > 8 && c < 6) cell.classList.add("blue-base");
-                else if (r === 6 && c === 1) cell.classList.add("red-path");
-                else if (r === 1 && c === 8) cell.classList.add("green-path");
-                else if (r === 8 && c === 13) cell.classList.add("yellow-path");
-                else if (r === 13 && c === 6) cell.classList.add("blue-path");
-                else if ((r === 6 && c === 2) || (r === 2 && c === 8) || (r === 8 && c === 12) || (r === 12 && c === 6) || (r === 6 && c === 6) || (r === 6 && c === 8) || (r === 8 && c === 6) || (r === 8 && c === 8)) {
-                    cell.classList.add("safe");
-                    cell.innerText = "⭐";
-                }
-                else if (r >= 6 && r <= 8 && c >= 6 && c <= 8) cell.classList.add("center-home");
-                board.appendChild(cell);
-            }
-        }
-        renderPawns();
-    }
+const playerNames={
+red:'salim ben aye...',
+green:'Green',
+yellow:'Nazim_khan',
+blue:'wlb_SbZ'
+};
 
-    function renderPawns() {
-        document.querySelectorAll(".pawn").forEach(p => p.remove());
-        document.querySelectorAll(".stack-badge").forEach(b => b.remove());
+function globalTrackIndex(color,progress){
+return (startIndices[color]+progress)%52;
+}
 
-        let coordMap = {};
-        players.forEach(color => {
-            pawns[color].forEach((pos, idx) => {
-                let cell;
-                if (pos === -1) {
-                    let [r, c] = baseCoords[color][idx];
-                    cell = document.querySelector(`[data-row='${r}'][data-col='${c}']`);
-                } else if (pos >= 0 && pos < 52) {
-                    let [r, c] = mainTrack[pos];
-                    cell = document.querySelector(`[data-row='${r}'][data-col='${c}']`);
-                } else if (pos >= 52 && pos < 58) {
-                    let [r, c] = homePaths[color][pos - 52];
-                    cell = document.querySelector(`[data-row='${r}'][data-col='${c}']`);
-                } else if (pos === 58) {
-                    let [r, c] = [7, 7];
-                    cell = document.querySelector(`[data-row='${r}'][data-col='${c}']`);
-                }
-                if (cell) {
-                    let key = `${cell.dataset.row}-${cell.dataset.col}`;
-                    coordMap[key] = (coordMap[key] || 0) + 1;
-                    let p = document.createElement("div");
-                    p.className = `pawn pawn-${color}`;
-                    p.onclick = () => handlePawnClick(color, idx);
-                    cell.appendChild(p);
-                }
-            });
-        });
+function teamOf(color){
+return (color==='red'||color==='yellow')?1:2;
+}
 
-        document.querySelectorAll(".cell").forEach(cell => {
-            let pawnsInCell = cell.querySelectorAll(".pawn");
-            if (pawnsInCell.length >= 2) {
-                let firstClass = pawnsInCell[0].className;
-                let sameColor = Array.from(pawnsInCell).every(p => p.className === firstClass);
-                if (sameColor) {
-                    let badge = document.createElement("div");
-                    badge.className = "stack-badge";
-                    badge.innerText = pawnsInCell.length;
-                    cell.appendChild(badge);
-                }
-            }
-        });
-    }
+function areAllies(a,b){
+return isTeamMode&&teamOf(a)===teamOf(b);
+}
 
-    function rollDiceAnim() {
-        if (hasRolled) return;
-        playSound('dice');
-        let diceBox = document.getElementById("diceDisplay");
-        diceBox.classList.add("rolling");
-        let count = 0;
-        let rollInterval = setInterval(() => {
-            diceBox.innerText = Math.floor(Math.random() * 6) + 1;
-            count++;
-            if (count > 8) {
-                clearInterval(rollInterval);
-                diceBox.classList.remove("rolling");
-                diceVal = Math.floor(Math.random() * 6) + 1;
-                diceBox.innerText = diceVal;
-                hasRolled = true;
-                document.getElementById("rollBtn").disabled = true;
+function playSound(type){
+if(!soundEnabled)return;
+try{
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+if(!AudioCtx)return;
+if(!audioContext)audioContext=new AudioCtx();
+if(audioContext.state==='suspended')audioContext.resume();
 
-                let cur = players[turnIndex];
-                document.getElementById("statusText").innerText = `${cur.toUpperCase()} rolled ${diceVal}`;
+const osc=audioContext.createOscillator();
+const gain=audioContext.createGain();
+const now=audioContext.currentTime;
 
-                let validIndices = [];
-                pawns[cur].forEach((pos, idx) => {
-                    if (canMove(cur, pos)) validIndices.push(idx);
-                });
+osc.connect(gain);
+gain.connect(audioContext.destination);
 
-                if (validIndices.length === 0) {
-                    setTimeout(() => nextTurn(false), 1200);
-                } else if (validIndices.length === 1) {
-                    setTimeout(() => movePawnAction(cur, validIndices[0]), 700);
-                }
-            }
-        }, 80);
-    }
+if(type==='dice'){
+osc.frequency.setValueAtTime(300,now);
+osc.frequency.exponentialRampToValueAtTime(150,now+.15);
+gain.gain.setValueAtTime(.2,now);
+gain.gain.exponentialRampToValueAtTime(.001,now+.16);
+osc.start(now);
+osc.stop(now+.16);
+}else if(type==='cut'){
+osc.frequency.setValueAtTime(150,now);
+osc.frequency.linearRampToValueAtTime(80,now+.3);
+gain.gain.setValueAtTime(.3,now);
+gain.gain.exponentialRampToValueAtTime(.001,now+.31);
+osc.start(now);
+osc.stop(now+.31);
+}
+}catch(e){}
+}
 
-    function canMove(color, pos) {
-        if (pos === -1 && diceVal === 6) return true;
-        if (pos >= 0 && pos + diceVal <= 58) {
-            let targetPos = pos + diceVal;
-            if (targetPos < 52) {
-                for (let step = pos + 1; step <= targetPos; step++) {
-                    let globalIdx = step % 52;
-                    for (let op of players) {
-                        if (op !== color) {
-                            if (isTeamMode) {
-                                // Team-up rule: Red & Yellow (Team 1), Green & Blue (Team 2) won't block teammates
-                                if ((color === 'red' && op === 'yellow') || (color === 'yellow' && op === 'red')) continue;
-                                if ((color === 'green' && op === 'blue') || (color === 'blue' && op === 'green')) continue;
-                            }
-                            let count = pawns[op].filter(p => p === globalIdx).length;
-                            if (count >= 2) return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
-    }
+function changeGameMode(){
+const val=document.getElementById('gameModeSelect').value;
+isTeamMode=val==='2v2';
 
-    function handlePawnClick(color, idx) {
-        if (!hasRolled || color !== players[turnIndex]) return;
-        let pos = pawns[color][idx];
-        if (canMove(color, pos)) {
-            movePawnAction(color, idx);
-        }
-    }
+if(val==='2')players=['red','yellow'];
+else if(val==='3')players=['red','green','yellow'];
+else players=['red','green','yellow','blue'];
 
-    function movePawnAction(color, idx) {
-        let pos = pawns[color][idx];
-        if (pos === -1 && diceVal === 6) {
-            pawns[color][idx] = startIndices[color];
-        } else if (pos >= 0) {
-            let newPos = pos + diceVal;
-            if (newPos <= 58) {
-                if (newPos < 52 && !safeIndices.includes(newPos)) {
-                    players.forEach(opColor => {
-                        if (opColor !== color) {
-                            if (isTeamMode) {
-                                if ((color === 'red' && opColor === 'yellow') || (color === 'yellow' && opColor === 'red')) return;
-                                if ((color === 'green' && opColor === 'blue') || (color === 'blue' && opColor === 'green')) return;
-                            }
-                            pawns[opColor].forEach((opPos, opIdx) => {
-                                if (opPos === newPos) {
-                                    playSound('cut');
-                                    pawns[opColor][opIdx] = -1; // Cut enemy!
-                                }
-                            });
-                        }
-                    });
-                }
-                pawns[color][idx] = newPos;
-            }
-        }
+turnIndex=0;
+diceVal=0;
+hasRolled=false;
+consecutiveSixes=0;
+gameOver=false;
 
-        renderPawns();
-        if (pawns[color].every(p => p === 58)) {
-            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-            alert(`🎉 Player ${color.toUpperCase()} WON THE GAME!`);
-            return;
-        }
+pawns={
+red:[-1,-1,-1,-1],
+green:[-1,-1,-1,-1],
+yellow:[-1,-1,-1,-1],
+blue:[-1,-1,-1,-1]
+};
 
-        let extra = (diceVal === 6);
-        nextTurn(extra);
-    }
+document.getElementById('rollBtn').disabled=false;
+document.getElementById('diceDisplay').innerText=activeDiceSkin;
+updateHud();
+initBoard();
+}
 
-    function nextTurn(extraTurn) {
-        hasRolled = false;
-        document.getElementById("rollBtn").disabled = false;
-        document.getElementById("diceDisplay").innerText = activeDiceSkin;
-        if (!extraTurn) {
-            turnIndex = (turnIndex + 1) % players.length;
-        }
-        let cur = players[turnIndex];
-        document.getElementById("statusText").innerText = `${cur.toUpperCase()}'s Turn`;
-    }
+function updateHud(){
+['red','green','yellow','blue'].forEach(color=>{
+const label=document.getElementById('label'+color[0].toUpperCase()+color.slice(1));
+if(label)label.innerText=playerNames[color];
+const profile=label?label.parentElement:null;
+if(profile)profile.style.display=players.includes(color)?'flex':'none';
+});
 
-    function selectDiceSkin(skin) {
-        activeDiceSkin = skin.split(" ")[1] || '🎲';
-        document.getElementById("diceDisplay").innerText = activeDiceSkin;
-        closeModal('diceSkinModal');
-    }
+const greenHud=document.getElementById('greenHud');
+if(greenHud)greenHud.style.display=players.includes('green')?'flex':'none';
 
-    function throwBomb(item) {
-        closeModal('bombModal');
-        let popup = document.getElementById("floatingPopup");
-        popup.innerText = `💥 Hit with ${item}`;
-        popup.style.display = "block";
-        setTimeout(() => popup.style.display = "none", 1500);
-    }
+const cur=players[turnIndex];
+document.getElementById('statusText').innerText=
+gameOver?'Game Over':`${cur.toUpperCase()}'s Turn`;
+}
 
-    function sendEmojiSticker(emo) {
-        closeModal('emojiModal');
-        let popup = document.getElementById("floatingPopup");
-        popup.innerText = `💬 Reaction: ${emo}`;
-        popup.style.display = "block";
-        setTimeout(() => popup.style.display = "none", 1500);
-    }
+function initBoard(){
+const board=document.getElementById('ludoBoard');
+board.innerHTML='';
 
-    function spinWheel() {
-        let rewards = ["💎 1000 Gems", "🪙 5000 Coins", "🛡️ Shield Pass", "🎉 200 Gems"];
-        let win = rewards[Math.floor(Math.random() * rewards.length)];
-        document.getElementById("spinReward").innerText = win;
-        alert(`Congratulations! You won ${win}!`);
-    }
+for(let r=0;r<15;r++){
+for(let c=0;c<15;c++){
+const cell=document.createElement('div');
+cell.className='cell';
+cell.dataset.row=r;
+cell.dataset.col=c;
 
-    function toggleSound() {
-        soundEnabled = !soundEnabled;
-        document.getElementById("soundBtn").innerText = soundEnabled ? "🔊" : "🔇";
-    }
+if(r<6&&c<6)cell.classList.add('red-base');
+else if(r<6&&c>8)cell.classList.add('green-base');
+else if(r>8&&c>8)cell.classList.add('yellow-base');
+else if(r>8&&c<6)cell.classList.add('blue-base');
 
-    function openModal(id) { document.getElementById(id).style.display = "flex"; }
-    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+const trackIndex=mainTrack.findIndex(([tr,tc])=>tr===r&&tc===c);
 
-    initBoard();
+if(trackIndex>=0){
+if(safeIndices.includes(trackIndex)){
+cell.classList.add('safe');
+cell.innerText='⭐';
+}
+if(trackIndex===startIndices.red)cell.classList.add('red-path');
+if(trackIndex===startIndices.green)cell.classList.add('green-path');
+if(trackIndex===startIndices.yellow)cell.classList.add('yellow-path');
+if(trackIndex===startIndices.blue)cell.classList.add('blue-path');
+}
+
+if(r>=6&&r<=8&&c>=6&&c<=8){
+cell.classList.add('center-home');
+}
+board.appendChild(cell);
+}
+}
+renderPawns();
+}
+
+function cellForPawn(color,progress,pawnIndex){
+let coords;
+
+if(progress===-1)coords=baseCoords[color][pawnIndex];
+else if(progress>=0&&progress<52)
+coords=mainTrack[globalTrackIndex(color,progress)];
+else if(progress>=52&&progress<58)
+coords=homePaths[color][progress-52];
+else if(progress===58)coords=[7,7];
+
+if(!coords)return null;
+
+return document.querySelector(
+`[data-row='${coords[0]}'][data-col='${coords[1]}']`
+);
+}
+
+function renderPawns(){
+document.querySelectorAll('.pawn,.stack-badge').forEach(el=>el.remove());
+
+players.forEach(color=>{
+pawns[color].forEach((progress,idx)=>{
+const cell=cellForPawn(color,progress,idx);
+if(!cell)return;
+
+const pawn=document.createElement('div');
+pawn.className=`pawn pawn-${color}`;
+pawn.setAttribute('role','button');
+pawn.setAttribute('aria-label',`${color} pawn ${idx+1}`);
+pawn.onclick=()=>handlePawnClick(color,idx);
+cell.appendChild(pawn);
+});
+});
+
+document.querySelectorAll('.cell').forEach(cell=>{
+const pawnsInCell=Array.from(cell.querySelectorAll('.pawn'));
+if(pawnsInCell.length<2)return;
+
+const firstColor=pawnsInCell[0].className;
+const sameColor=pawnsInCell.every(p=>p.className===firstColor);
+
+if(sameColor){
+const badge=document.createElement('div');
+badge.className='stack-badge';
+badge.innerText=String(pawnsInCell.length);
+cell.appendChild(badge);
+}
+});
+}
+
+function countAtGlobal(color,globalIndex){
+return pawns[color].filter(progress=>
+progress>=0&&progress<52&&
+globalTrackIndex(color,progress)===globalIndex
+).length;
+}
+
+function isBlockedFor(color,globalIndex){
+return players.some(other=>
+other!==color&&!areAllies(color,other)&&
+countAtGlobal(other,globalIndex)>=2
+);
+}
+
+function canMove(color,progress){
+if(gameOver)return false;
+if(progress===-1)return diceVal===6;
+if(progress<0||progress>=58)return false;
+
+const target=progress+diceVal;
+if(target>58)return false;
+
+if(progress<52){
+const lastMainStep=Math.min(target,51);
+
+for(let step=progress+1;step<=lastMainStep;step++){
+const globalIndex=globalTrackIndex(color,step);
+if(isBlockedFor(color,globalIndex))return false;
+}
+}
+return true;
+}
+    function rollDiceAnim(){
+if(hasRolled||gameOver)return;
+
+playSound('dice');
+
+const diceBox=document.getElementById('diceDisplay');
+const rollBtn=document.getElementById('rollBtn');
+
+rollBtn.disabled=true;
+diceBox.classList.add('rolling');
+
+let count=0;
+
+const rollInterval=setInterval(()=>{
+diceBox.innerText=String(Math.floor(Math.random()*6)+1);
+count++;
+
+if(count>8){
+clearInterval(rollInterval);
+diceBox.classList.remove('rolling');
+
+diceVal=Math.floor(Math.random()*6)+1;
+
+if(diceVal===6)consecutiveSixes++;
+else consecutiveSixes=0;
+
+if(consecutiveSixes===3){
+diceBox.innerText='6';
+showPopup('Three sixes! Turn forfeited.');
+consecutiveSixes=0;
+setTimeout(()=>nextTurn(false),1000);
+return;
+}
+
+diceBox.innerText=String(diceVal);
+hasRolled=true;
+
+const cur=players[turnIndex];
+
+document.getElementById('statusText').innerText=
+`${cur.toUpperCase()} rolled ${diceVal}`;
+
+const valid=pawns[cur]
+.map((pos,idx)=>canMove(cur,pos)?idx:-1)
+.filter(idx=>idx!==-1);
+
+if(valid.length===0){
+setTimeout(()=>nextTurn(diceVal===6),900);
+}else if(valid.length===1){
+setTimeout(()=>{
+if(hasRolled&&!gameOver)
+movePawnAction(cur,valid[0]);
+},650);
+}else{
+rollBtn.disabled=true;
+showPopup('Select a pawn to move');
+}
+}
+},80);
+}
+
+function handlePawnClick(color,idx){
+if(!hasRolled||gameOver||color!==players[turnIndex])return;
+
+if(canMove(color,pawns[color][idx])){
+movePawnAction(color,idx);
+}
+}
+
+function movePawnAction(color,idx){
+if(!hasRolled||gameOver)return;
+
+const progress=pawns[color][idx];
+if(!canMove(color,progress))return;
+
+let target;
+
+if(progress===-1)target=0;
+else target=progress+diceVal;
+
+let didCapture=false;
+
+if(progress!==-1&&target<52){
+const targetGlobal=globalTrackIndex(color,target);
+
+if(!safeIndices.includes(targetGlobal)){
+players.forEach(other=>{
+if(other===color||areAllies(color,other))return;
+
+pawns[other].forEach((otherProgress,otherIdx)=>{
+if(otherProgress>=0&&otherProgress<52&&
+globalTrackIndex(other,otherProgress)===targetGlobal){
+
+pawns[other][otherIdx]=-1;
+didCapture=true;
+playSound('cut');
+}
+});
+});
+}
+}
+
+pawns[color][idx]=target;
+renderPawns();
+
+if(hasPlayerWon(color)){
+gameOver=true;
+document.getElementById('rollBtn').disabled=true;
+
+if(typeof confetti==='function'){
+confetti({
+particleCount:150,
+spread:80,
+origin:{y:.6}
+});
+}
+
+const message=isTeamMode
+?`🎉 Team ${teamOf(color)} wins!`
+:`🎉 Player ${color.toUpperCase()} wins the game!`;
+
+document.getElementById('statusText').innerText=message;
+setTimeout(()=>alert(message),100);
+return;
+}
+
+const earnedExtraTurn=diceVal===6||didCapture;
+nextTurn(earnedExtraTurn);
+}
+
+function hasPlayerWon(color){
+if(!pawns[color].every(p=>p===58))return false;
+if(!isTeamMode)return true;
+
+const teammate=color==='red'?'yellow':
+color==='yellow'?'red':
+color==='green'?'blue':'green';
+
+return pawns[teammate].every(p=>p===58);
+}
+
+function nextTurn(extraTurn){
+hasRolled=false;
+diceVal=0;
+
+document.getElementById('rollBtn').disabled=false;
+document.getElementById('diceDisplay').innerText=activeDiceSkin;
+
+if(!extraTurn){
+turnIndex=(turnIndex+1)%players.length;
+consecutiveSixes=0;
+}
+
+updateHud();
+}
+
+function selectDiceSkin(skin){
+const skins={
+'Standard 🎲':'🎲',
+'Gold Glow ✨':'✨',
+'Neon Cyber 💠':'💠',
+'Magic Flame 🔥':'🔥'
+};
+
+activeDiceSkin=skins[skin]||'🎲';
+document.getElementById('diceDisplay').innerText=activeDiceSkin;
+closeModal('diceSkinModal');
+}
+
+function showPopup(message){
+const popup=document.getElementById('floatingPopup');
+
+popup.innerText=message;
+popup.style.display='block';
+
+clearTimeout(showPopup.timer);
+
+showPopup.timer=setTimeout(()=>{
+popup.style.display='none';
+},1500);
+}
+
+function throwBomb(item){
+closeModal('bombModal');
+showPopup(`💥 Reaction: ${item}`);
+}
+
+function sendEmojiSticker(emo){
+closeModal('emojiModal');
+showPopup(`💬 Reaction: ${emo}`);
+}
+
+function spinWheel(){
+const today=new Date().toISOString().slice(0,10);
+
+if(localStorage.getItem('yallaLudoLastSpin')===today){
+showPopup('You have already used today’s spin!');
+return;
+}
+
+const rewards=[
+'💎 1000 Gems',
+'🪙 5000 Coins',
+'🛡️ Shield Pass',
+'🎉 200 Gems'
+];
+
+const win=rewards[Math.floor(Math.random()*rewards.length)];
+
+localStorage.setItem('yallaLudoLastSpin',today);
+
+document.getElementById('spinReward').innerText=win;
+
+alert(`Congratulations! You won ${win}!`);
+}
+
+function toggleSound(){
+soundEnabled=!soundEnabled;
+
+document.getElementById('soundBtn').innerText=
+soundEnabled?'🔊':'🔇';
+}
+
+function openModal(id){
+const modal=document.getElementById(id);
+if(modal)modal.style.display='flex';
+}
+
+function closeModal(id){
+const modal=document.getElementById(id);
+if(modal)modal.style.display='none';
+}
+
+updateHud();
+initBoard();
+
 </script>
-
 </body>
 </html>
