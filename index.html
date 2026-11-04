@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Multi-Game Casino Arena</title>
+    <title>Mega Multi-Game Casino Arena</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,32 +12,62 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background: #090d16;
+            background: var(--bg-main, #090d16);
             color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 15px;
+            transition: 0.3s;
+        }
+        .theme-cyber {
+            --bg-main: #050515;
+            --card-bg: linear-gradient(180deg, #180033 0%, #090014 100%);
+            --border-color: #00f0ff;
+            --accent: #00f0ff;
+        }
+        .theme-gold {
+            --bg-main: #090d16;
+            --card-bg: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+            --border-color: #f59e0b;
+            --accent: #fbbf24;
         }
         .app-card {
             width: 100%;
-            max-width: 440px;
-            background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
-            border: 2px solid #f59e0b;
+            max-width: 450px;
+            background: var(--card-bg, linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%));
+            border: 2px solid var(--border-color, #f59e0b);
             border-radius: 20px;
             box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
             padding: 15px;
             text-align: center;
             position: relative;
         }
-        .header h1 {
-            color: #fbbf24;
-            font-size: 1.2rem;
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
-            margin-bottom: 5px;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
-        /* VIP & Stats Bar */
+        .header h1 {
+            color: var(--accent, #fbbf24);
+            font-size: 1.1rem;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        .top-tools {
+            display: flex;
+            gap: 6px;
+        }
+        .tool-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
         .stats-bar {
             display: flex;
             justify-content: space-between;
@@ -69,29 +100,31 @@
             cursor: pointer;
             font-weight: bold;
         }
-        /* Navigation Tabs */
         .game-tabs {
             display: flex;
-            gap: 4px;
-            margin-bottom: 12px;
+            gap: 2px;
+            margin-bottom: 10px;
             background: #020617;
             padding: 4px;
             border-radius: 10px;
+            overflow-x: auto;
         }
         .tab-btn {
             flex: 1;
-            padding: 8px 4px;
+            min-width: 50px;
+            padding: 6px 2px;
             background: transparent;
             border: none;
             color: #94a3b8;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             font-weight: bold;
             cursor: pointer;
             border-radius: 6px;
             transition: 0.2s;
+            white-space: nowrap;
         }
         .tab-btn.active {
-            background: #f59e0b;
+            background: var(--border-color, #f59e0b);
             color: #000;
         }
         .game-panel {
@@ -100,7 +133,7 @@
             border: 1px solid #1e293b;
             border-radius: 12px;
             padding: 12px;
-            min-height: 230px;
+            min-height: 240px;
         }
         .game-panel.active {
             display: block;
@@ -143,68 +176,79 @@
             min-height: 22px;
             color: #4ade80;
         }
-        /* Mines Grid */
-        .mines-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin: 8px 0;
+        canvas {
+            background: #020617;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto;
         }
-        .mine-cell {
-            aspect-ratio: 1;
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 6px;
+        /* Coin Flip Visual */
+        .coin {
+            width: 60px;
+            height: 60px;
+            background: #f59e0b;
+            border-radius: 50%;
+            margin: 10px auto;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 0.9rem;
-            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #000;
+            border: 3px solid #fef08a;
+            transition: transform 0.5s;
         }
-        .mine-cell.revealed { background: #0f172a; border-color: #475569; }
-        .mine-cell.gem { color: #4ade80; }
-        .mine-cell.boom { color: #f87171; }
-        /* Color Buttons */
-        .color-btns {
+        .flex-btns {
             display: flex;
             gap: 6px;
             margin-bottom: 8px;
         }
-        .color-btn {
+        .flex-btn {
             flex: 1;
-            padding: 9px;
+            padding: 8px;
+            background: #334155;
             border: none;
             border-radius: 6px;
+            color: #fff;
             font-weight: bold;
             cursor: pointer;
-            color: #fff;
-            font-size: 0.85rem;
         }
-        .btn-green { background: #10b981; }
-        .btn-violet { background: #8b5cf6; }
-        .btn-red { background: #ef4444; }
-        /* Live Leaderboard Ticker */
-        .leaderboard-ticker {
-            margin-top: 10px;
-            background: #020617;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 6px;
-            font-size: 0.7rem;
-            color: #cbd5e1;
-            white-space: nowrap;
-            overflow: hidden;
+        /* History & Quests */
+        .history-list {
+            max-height: 120px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 0.75rem;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+        .quests-box {
+            text-align: left;
+            font-size: 0.75rem;
+        }
+        .quest-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #1e293b;
         }
     </style>
 </head>
-<body>
+<body class="theme-gold">
 
 <div class="app-card">
     <div class="header">
-        <h1>ADVANCED CASINO ARENA</h1>
+        <h1>MEGA CASINO ARENA</h1>
+        <div class="top-tools">
+            <button class="tool-btn" onclick="toggleMute()" id="muteBtn">🔊 Sound</button>
+            <button class="tool-btn" onclick="toggleTheme()">🎨 Theme</button>
+        </div>
     </div>
 
-    <!-- VIP & Stats Header -->
     <div class="stats-bar">
         <span>VIP: <span id="vipTier" class="vip-badge">Bronze</span></span>
         <span>XP: <span id="xpCount">0</span>/500</span>
@@ -215,66 +259,111 @@
         <button class="btn-daily" onclick="claimDailyBonus()">Daily Bonus</button>
     </div>
 
-    <!-- Navigation Tabs -->
     <div class="game-tabs">
-        <button class="tab-btn active" onclick="switchTab('crash')">🚀 Crash</button>
-        <button class="tab-btn" onclick="switchTab('mines')">💣 Mines</button>
-        <button class="tab-btn" onclick="switchTab('color')">🎯 Color</button>
+        <button class="tab-btn active" onclick="switchTab('wheel')">🎡 Wheel</button>
+        <button class="tab-btn" onclick="switchTab('crash')">🚀 Crash</button>
+        <button class="tab-btn" onclick="switchTab('plinko')">⚪ Plinko</button>
+        <button class="tab-btn" onclick="switchTab('dice')">🎲 Dice</button>
+        <button class="tab-btn" onclick="switchTab('coin')">🪙 Coin</button>
+        <button class="tab-btn" onclick="switchTab('quests')">🎯 Quests</button>
+        <button class="tab-btn" onclick="switchTab('history')">📜 History</button>
     </div>
 
-    <!-- Game 1: Crash -->
-    <div id="crash-panel" class="game-panel active">
+    <!-- 1. Wheel -->
+    <div id="wheel-panel" class="game-panel active">
+        <canvas id="wheelCanvas" width="150" height="150"></canvas>
+        <div class="input-group" style="margin-top: 5px;">
+            <label>Bet Amount ($)</label>
+            <input type="number" id="wheelBet" value="50">
+        </div>
+        <button class="btn-main" onclick="spinWheel()">SPIN WHEEL</button>
+        <div class="result-text" id="wheelResult">Spin for multipliers!</div>
+    </div>
+
+    <!-- 2. Crash -->
+    <div id="crash-panel" class="game-panel">
         <div style="font-size: 1.8rem; color: #fbbf24; margin: 10px 0; font-weight: bold;" id="crashMultiplier">1.00x</div>
         <div class="input-group">
             <label>Bet Amount ($)</label>
             <input type="number" id="crashBet" value="50">
         </div>
         <button class="btn-main" id="crashBtn" onclick="startCrashGame()">START FLIGHT</button>
-        <div class="result-text" id="crashResult">Place bet & start rocket!</div>
+        <div class="result-text" id="crashResult">Place bet & launch!</div>
     </div>
 
-    <!-- Game 2: Mines -->
-    <div id="mines-panel" class="game-panel">
+    <!-- 3. Plinko -->
+    <div id="plinko-panel" class="game-panel">
+        <canvas id="plinkoCanvas" width="220" height="150"></canvas>
+        <div class="input-group" style="margin-top: 5px;">
+            <label>Bet Amount ($)</label>
+            <input type="number" id="plinkoBet" value="50">
+        </div>
+        <button class="btn-main" onclick="dropPlinkoBall()">DROP BALL</button>
+        <div class="result-text" id="plinkoResult">Drop ball into multipliers!</div>
+    </div>
+
+    <!-- 4. Dice Roll -->
+    <div id="dice-panel" class="game-panel">
+        <div style="font-size: 1.8rem; color: #fbbf24; margin: 10px 0; font-weight: bold;" id="diceRollValue">--</div>
         <div class="input-group">
             <label>Bet Amount ($)</label>
-            <input type="number" id="minesBet" value="50">
+            <input type="number" id="diceBet" value="50">
         </div>
-        <button class="btn-main" id="minesStartBtn" onclick="startMinesGame()">START MINES</button>
-        <div class="mines-grid" id="minesGrid"></div>
-        <div class="result-text" id="minesResult">Click start to play Mines!</div>
+        <div class="flex-btns">
+            <button class="flex-btn" style="background:#ef4444;" onclick="playDice('under')">Under 50 (2X)</button>
+            <button class="flex-btn" style="background:#10b981;" onclick="playDice('over')">Over 50 (2X)</button>
+        </div>
+        <div class="result-text" id="diceResult">Predict High or Low!</div>
     </div>
 
-    <!-- Game 3: Color Prediction -->
-    <div id="color-panel" class="game-panel">
+    <!-- 5. Coin Flip -->
+    <div id="coin-panel" class="game-panel">
+        <div class="coin" id="coinVisual">H</div>
         <div class="input-group">
             <label>Bet Amount ($)</label>
-            <input type="number" id="colorBet" value="50">
+            <input type="number" id="coinBet" value="50">
         </div>
-        <label style="font-size:0.7rem; color:#94a3b8; display:block; text-align:left; margin-bottom:4px;">Select Color (Green 2X | Violet 4.5X | Red 2X)</label>
-        <div class="color-btns">
-            <button class="color-btn btn-green" onclick="playColor('green')">Green</button>
-            <button class="color-btn btn-violet" onclick="playColor('violet')">Violet</button>
-            <button class="color-btn btn-red" onclick="playColor('red')">Red</button>
+        <div class="flex-btns">
+            <button class="flex-btn" onclick="playCoin('Heads')">HEADS</button>
+            <button class="flex-btn" onclick="playCoin('Tails')">TAILS</button>
         </div>
-        <div class="result-text" id="colorResult">Pick a color to predict!</div>
+        <div class="result-text" id="coinResult">Heads or Tails?</div>
     </div>
 
-    <!-- Live Leaderboard Ticker -->
-    <div class="leaderboard-ticker" id="tickerText">
-        🏆 Live Wins: Player_77 won $450 | Alex_99 won $1,200 | Zeeshan won $300
+    <!-- 6. Daily Quests -->
+    <div id="quests-panel" class="game-panel">
+        <div class="quests-box">
+            <div class="quest-item">
+                <span>Play 3 Games</span>
+                <span id="quest1Status">0/3 ($100 Reward)</span>
+            </div>
+            <div class="quest-item">
+                <span>Reach $1500 Balance</span>
+                <span id="quest2Status">Incomplete ($250 Reward)</span>
+            </div>
+        </div>
+        <div class="result-text" id="questResult">Complete daily tasks!</div>
+    </div>
+
+    <!-- 7. History & Analytics -->
+    <div id="history-panel" class="game-panel">
+        <div class="history-list" id="historyContainer">
+            <div style="color:#64748b; text-align:center;">No bets recorded yet.</div>
+        </div>
     </div>
 </div>
 
 <script>
-    // --- State & LocalStorage Management ---
-    let balance = parseInt(localStorage.getItem("casino_balance")) || 1000;
-    let xp = parseInt(localStorage.getItem("casino_xp")) || 0;
-    let lastClaimTime = parseInt(localStorage.getItem("casino_last_claim")) || 0;
+    let balance = parseInt(localStorage.getItem("m_balance")) || 1000;
+    let xp = parseInt(localStorage.getItem("m_xp")) || 0;
+    let isMuted = false;
+    let history = JSON.parse(localStorage.getItem("m_history")) || [];
+    let gamesPlayedCount = 0;
 
     function saveState() {
-        localStorage.setItem("casino_balance", balance);
-        localStorage.setItem("casino_xp", xp);
-        localStorage.setItem("casino_last_claim", lastClaimTime);
+        localStorage.setItem("m_balance", balance);
+        localStorage.setItem("m_xp", xp);
+        localStorage.setItem("m_history", JSON.stringify(history));
         updateUI();
     }
 
@@ -287,6 +376,9 @@
         else if (xp >= 1000) tier = "Gold";
         else if (xp >= 500) tier = "Silver";
         document.getElementById("vipTier").innerText = tier;
+
+        checkQuests();
+        renderHistory();
     }
 
     function addXP(amount) {
@@ -294,9 +386,9 @@
         saveState();
     }
 
-    // --- Web Audio API Sound Engine ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
+        if (isMuted) return;
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -324,18 +416,55 @@
         gain.connect(audioCtx.destination);
     }
 
-    // --- Daily Bonus System ---
+    function toggleMute() {
+        isMuted = !isMuted;
+        document.getElementById("muteBtn").innerText = isMuted ? "🔇 Muted" : "🔊 Sound";
+    }
+
+    function toggleTheme() {
+        if(document.body.classList.contains("theme-gold")) {
+            document.body.className = "theme-cyber";
+        } else {
+            document.body.className = "theme-gold";
+        }
+    }
+
+    function logHistory(game, bet, result, win) {
+        gamesPlayedCount++;
+        history.unshift({ game, bet, result, win });
+        if(history.length > 15) history.pop();
+        saveState();
+    }
+
+    function renderHistory() {
+        const container = document.getElementById("historyContainer");
+        if(history.length === 0) return;
+        container.innerHTML = "";
+        history.forEach(h => {
+            const div = document.createElement("div");
+            div.className = "history-item";
+            div.innerHTML = `
+                <span>${h.game} ($${h.bet})</span>
+                <span style="color:${h.win > 0 ? '#4ade80' : '#f87171'};">${h.win > 0 ? '+$'+h.win : '-$'+h.bet}</span>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function checkQuests() {
+        document.getElementById("quest1Status").innerText = `${Math.min(gamesPlayedCount, 3)}/3 ${gamesPlayedCount>=3 ? '✅ (Claimed)' : ''}`;
+        if(gamesPlayedCount === 3) { balance += 100; gamesPlayedCount = 4; saveState(); }
+        
+        if(balance >= 1500) {
+            document.getElementById("quest2Status").innerText = "Completed ✅ (+$250)";
+        }
+    }
+
     function claimDailyBonus() {
         playSound('click');
-        let now = Date.now();
-        if (now - lastClaimTime < 86400000) {
-            alert("Daily bonus already claimed! Come back tomorrow.");
-            return;
-        }
-        lastClaimTime = now;
         balance += 250;
         saveState();
-        alert("🎉 Successfully claimed $250 Daily Bonus!");
+        alert("🎉 Claimed $250 Daily Bonus!");
     }
 
     function switchTab(tabName) {
@@ -343,163 +472,164 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
 
-        if(tabName === 'crash') {
-            document.querySelectorAll('.tab-btn')[0].classList.add('active');
-            document.getElementById('crash-panel').classList.add('active');
-        } else if(tabName === 'mines') {
-            document.querySelectorAll('.tab-btn')[1].classList.add('active');
-            document.getElementById('mines-panel').classList.add('active');
-            initMinesGrid(false);
-        } else if(tabName === 'color') {
-            document.querySelectorAll('.tab-btn')[2].classList.add('active');
-            document.getElementById('color-panel').classList.add('active');
-        }
+        const targetPanel = document.getElementById(`${tabName}-panel`);
+        if(targetPanel) targetPanel.classList.add('active');
+
+        const tabBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabName));
+        if(tabBtn) tabBtn.classList.add('active');
+
+        if(tabName === 'wheel') drawWheel();
+        if(tabName === 'plinko') drawPlinko();
     }
 
-    // --- 1. Crash Game ---
-    let crashInterval = null;
-    let currentMultiplier = 1.00;
-    let isCrashing = false;
+    // --- 1. Wheel Game ---
+    const wheelCanvas = document.getElementById("wheelCanvas");
+    const wheelCtx = wheelCanvas.getContext("2d");
+    const segments = ["100", "200", "500", "0", "2000", "50", "JACKPOT", "0"];
+    const colors = ["#ef4444", "#3b82f6", "#10b981", "#6b7280", "#f59e0b", "#8b5cf6", "#ec4899", "#475569"];
+    let currentAngle = 0;
+    let isSpinningWheel = false;
 
+    function drawWheel() {
+        const radius = wheelCanvas.width / 2;
+        const arcSize = (2 * Math.PI) / segments.length;
+        wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+        wheelCtx.save();
+        wheelCtx.translate(radius, radius);
+        wheelCtx.rotate(currentAngle);
+
+        for (let i = 0; i < segments.length; i++) {
+            const angle = i * arcSize;
+            wheelCtx.beginPath();
+            wheelCtx.fillStyle = colors[i];
+            wheelCtx.moveTo(0, 0);
+            wheelCtx.arc(0, 0, radius, angle, angle + arcSize);
+            wheelCtx.fill();
+            wheelCtx.save();
+            wheelCtx.rotate(angle + arcSize / 2);
+            wheelCtx.textAlign = "right";
+            wheelCtx.fillStyle = "#fff";
+            wheelCtx.font = "bold 9px Segoe UI";
+            wheelCtx.fillText(segments[i], radius - 8, 3);
+            wheelCtx.restore();
+        }
+        wheelCtx.restore();
+    }
+
+    function spinWheel() {
+        if (isSpinningWheel) return;
+        let bet = parseInt(document.getElementById("wheelBet").value);
+        if (isNaN(bet) || bet <= 0 || bet > balance) return;
+        balance -= bet; saveState();
+        isSpinningWheel = true;
+        let speed = (Math.random() * 10 + 20) * (Math.PI / 180);
+
+        function anim() {
+            if (speed > 0.002) {
+                currentAngle += speed; speed *= 0.985;
+                drawWheel(); requestAnimationFrame(anim);
+            } else {
+                isSpinningWheel = false;
+                let normalized = (1.5 * Math.PI - (currentAngle % (2 * Math.PI))) % (2 * Math.PI);
+                if (normalized < 0) normalized += 2 * Math.PI;
+                let index = Math.floor(normalized / ((2 * Math.PI) / segments.length));
+                let prize = segments[index] === "JACKPOT" ? bet * 5 : parseInt(segments[index]);
+                balance += prize; addXP(10);
+                playSound(prize > 0 ? 'win' : 'loss');
+                logHistory("Wheel", bet, segments[index], prize);
+                document.getElementById("wheelResult").innerText = prize > 0 ? `Won $${prize}!` : "No Luck!";
+            }
+        }
+        anim();
+    }
+
+    // --- 2. Crash Game ---
+    let crashInterval = null, currentMultiplier = 1.00, isCrashing = false;
     function startCrashGame() {
-        playSound('click');
         if(isCrashing) {
             clearInterval(crashInterval);
             let bet = parseInt(document.getElementById("crashBet").value);
             let winnings = Math.floor(bet * currentMultiplier);
-            balance += winnings;
-            addXP(Math.floor(bet / 5));
-            playSound('win');
-            document.getElementById("crashResult").innerHTML = `<span style="color:#4ade80;">Cashed out at ${currentMultiplier.toFixed(2)}x! Won $${winnings}</span>`;
+            balance += winnings; addXP(15); playSound('win');
+            logHistory("Crash", bet, `${currentMultiplier.toFixed(2)}x`, winnings);
+            document.getElementById("crashResult").innerText = `Cashed out at ${currentMultiplier.toFixed(2)}x! (+$${winnings})`;
             document.getElementById("crashBtn").innerText = "START FLIGHT";
-            isCrashing = false;
-            saveState();
-            return;
+            isCrashing = false; saveState(); return;
         }
-
         let bet = parseInt(document.getElementById("crashBet").value);
-        if(isNaN(bet) || bet <= 0 || bet > balance) {
-            document.getElementById("crashResult").innerText = "Invalid bet amount!";
-            return;
-        }
-
-        balance -= bet;
-        saveState();
-        isCrashing = true;
-        currentMultiplier = 1.00;
+        if(isNaN(bet) || bet <= 0 || bet > balance) return;
+        balance -= bet; saveState();
+        isCrashing = true; currentMultiplier = 1.00;
         document.getElementById("crashBtn").innerText = "CASHOUT";
-        document.getElementById("crashResult").innerText = "Rocket flying...";
-
         let crashPoint = (Math.random() * 3 + 1.1).toFixed(2);
-
         crashInterval = setInterval(() => {
             currentMultiplier += 0.05;
             document.getElementById("crashMultiplier").innerText = currentMultiplier.toFixed(2) + "x";
-
             if(currentMultiplier >= parseFloat(crashPoint)) {
-                clearInterval(crashInterval);
-                isCrashing = false;
-                playSound('loss');
+                clearInterval(crashInterval); isCrashing = false; playSound('loss');
+                logHistory("Crash", bet, "Crashed", 0);
                 document.getElementById("crashBtn").innerText = "START FLIGHT";
-                document.getElementById("crashResult").innerHTML = `<span style="color:#f87171;">CRASHED at ${crashPoint}x! Lost $${bet}</span>`;
+                document.getElementById("crashResult").innerText = `CRASHED at ${crashPoint}x!`;
             }
         }, 150);
     }
 
-    // --- 2. Mines Game ---
-    let minePosition = -1;
-    let minesActive = false;
-
-    function initMinesGrid(clickable) {
-        const grid = document.getElementById("minesGrid");
-        grid.innerHTML = "";
-        for(let i=0; i<12; i++) {
-            let cell = document.createElement("div");
-            cell.className = "mine-cell";
-            cell.innerText = "?";
-            if(clickable) {
-                cell.onclick = () => handleMineClick(i, cell);
+    // --- 3. Plinko Game ---
+    const pCanvas = document.getElementById("plinkoCanvas");
+    const pCtx = pCanvas.getContext("2d");
+    function drawPlinko() {
+        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+        pCtx.fillStyle = "#fbbf24";
+        for(let r=0; r<4; r++) {
+            for(let c=0; c<=r+2; c++) {
+                pCtx.beginPath();
+                pCtx.arc(110 - (r*15) + (c*30), 20 + (r*30), 3, 0, Math.PI*2);
+                pCtx.fill();
             }
-            grid.appendChild(cell);
         }
     }
-
-    function startMinesGame() {
-        playSound('click');
-        let bet = parseInt(document.getElementById("minesBet").value);
-        if(isNaN(bet) || bet <= 0 || bet > balance) {
-            document.getElementById("minesResult").innerText = "Invalid bet amount!";
-            return;
-        }
-        balance -= bet;
-        saveState();
-        minesActive = true;
-        minePosition = Math.floor(Math.random() * 12);
-        initMinesGrid(true);
-        document.getElementById("minesResult").innerText = "Choose a tile carefully!";
+    function dropPlinkoBall() {
+        let bet = parseInt(document.getElementById("plinkoBet").value);
+        if(isNaN(bet) || bet <= 0 || bet > balance) return;
+        balance -= bet; saveState();
+        let mults = [0.2, 1.5, 5.0, 1.5, 0.2];
+        let resIdx = Math.floor(Math.random() * mults.length);
+        let win = Math.floor(bet * mults[resIdx]);
+        balance += win; addXP(10); playSound(win >= bet ? 'win' : 'loss');
+        logHistory("Plinko", bet, `${mults[resIdx]}x`, win);
+        document.getElementById("plinkoResult").innerText = `Landed on ${mults[resIdx]}x! (+$${win})`;
     }
 
-    function handleMineClick(index, cell) {
-        if(!minesActive) return;
-        minesActive = false;
-        let bet = parseInt(document.getElementById("minesBet").value);
-
-        if(index === minePosition) {
-            cell.classList.add('revealed', 'boom');
-            cell.innerText = "💣";
-            playSound('loss');
-            document.getElementById("minesResult").innerHTML = `<span style="color:#f87171;">Boom! You hit a mine. Lost $${bet}</span>`;
-        } else {
-            cell.classList.add('revealed', 'gem');
-            cell.innerText = "💎";
-            let reward = bet * 2;
-            balance += reward;
-            addXP(Math.floor(bet / 4));
-            playSound('win');
-            saveState();
-            document.getElementById("minesResult").innerHTML = `<span style="color:#4ade80;">Safe! Won $${reward}</span>`;
-        }
+    // --- 4. Dice Roll ---
+    function playDice(type) {
+        let bet = parseInt(document.getElementById("diceBet").value);
+        if(isNaN(bet) || bet <= 0 || bet > balance) return;
+        balance -= bet; saveState();
+        let roll = Math.floor(Math.random() * 100) + 1;
+        document.getElementById("diceRollValue").innerText = roll;
+        let isWin = (type === 'under' && roll < 50) || (type === 'over' && roll >= 50);
+        let win = isWin ? bet * 2 : 0;
+        if(isWin) { balance += win; addXP(10); playSound('win'); } else playSound('loss');
+        logHistory("Dice", bet, `${roll}`, win);
+        document.getElementById("diceResult").innerText = isWin ? `Won $${win}!` : `Lost $${bet}`;
     }
 
-    // --- 3. Color Prediction Game ---
-    function playColor(choice) {
-        playSound('click');
-        let bet = parseInt(document.getElementById("colorBet").value);
-        if(isNaN(bet) || bet <= 0 || bet > balance) {
-            document.getElementById("colorResult").innerText = "Invalid bet amount!";
-            return;
-        }
-
-        balance -= bet;
-        saveState();
-
-        const colorsList = ['green', 'green', 'red', 'red', 'violet'];
-        let outcome = colorsList[Math.floor(Math.random() * colorsList.length)];
-
-        if(choice === outcome) {
-            let multiplier = (outcome === 'violet') ? 4.5 : 2.0;
-            let win = Math.floor(bet * multiplier);
-            balance += win;
-            addXP(Math.floor(bet / 3));
-            playSound('win');
-            saveState();
-            document.getElementById("colorResult").innerHTML = `<span style="color:#4ade80;">Outcome: ${outcome.toUpperCase()}! Won $${win}</span>`;
-        } else {
-            playSound('loss');
-            document.getElementById("colorResult").innerHTML = `<span style="color:#f87171;">Outcome: ${outcome.toUpperCase()}. You lost!</span>`;
-        }
+    // --- 5. Coin Flip ---
+    function playCoin(choice) {
+        let bet = parseInt(document.getElementById("coinBet").value);
+        if(isNaN(bet) || bet <= 0 || bet > balance) return;
+        balance -= bet; saveState();
+        let outcome = Math.random() > 0.5 ? 'Heads' : 'Tails';
+        document.getElementById("coinVisual").innerText = outcome === 'Heads' ? 'H' : 'T';
+        let isWin = choice === outcome;
+        let win = isWin ? bet * 2 : 0;
+        if(isWin) { balance += win; addXP(10); playSound('win'); } else playSound('loss');
+        logHistory("Coin", bet, outcome, win);
+        document.getElementById("coinResult").innerText = isWin ? `Won $${win}!` : `Lost $${bet}`;
     }
-
-    // Simulated Live Leaderboard Ticker updates
-    const tickerNames = ["Zeeshan", "Bilal", "Ali_99", "Hamza_X", "Khan_Pro", "Ahmed_786"];
-    setInterval(() => {
-        let randomName = tickerNames[Math.floor(Math.random() * tickerNames.length)];
-        let randomWin = Math.floor(Math.random() * 1500) + 100;
-        document.getElementById("tickerText").innerText = `🏆 Live Wins: ${randomName} just won $${randomWin} in Crash!`;
-    }, 5000);
 
     updateUI();
-    initMinesGrid(false);
+    drawWheel();
 </script>
 
 </body>
