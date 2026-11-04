@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animated Slot & Wheel Prototype</title>
+    <title>Advanced Slot & Wheel Casino Engine</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,13 +21,14 @@
         }
         .app-card {
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
             background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
             border: 2px solid #f59e0b;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
             padding: 20px;
             text-align: center;
+            position: relative;
         }
         .header h1 {
             color: #fbbf24;
@@ -38,9 +39,13 @@
             background: #0284c7;
             padding: 10px;
             border-radius: 10px;
-            margin: 15px 0;
+            margin: 12px 0;
             font-size: 1.2rem;
             font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
         }
         canvas {
             background: #020617;
@@ -49,11 +54,41 @@
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
             margin: 10px 0;
         }
-        .controls {
-            margin-top: 15px;
+        .bet-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .bet-input {
+            flex: 2;
+            padding: 8px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .btn-small {
+            flex: 1;
+            padding: 8px;
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #fbbf24;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-small:hover { background: #475569; }
+        .action-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
         }
         .btn-spin {
-            width: 100%;
+            flex: 2;
             padding: 14px;
             background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
             border: none;
@@ -63,50 +98,136 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-            transition: transform 0.1s;
         }
-        .btn-spin:active {
-            transform: scale(0.98);
+        .btn-auto {
+            flex: 1;
+            padding: 14px;
+            background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-auto.active {
+            background: #ef4444;
         }
         .result {
-            margin-top: 15px;
-            font-size: 1.1rem;
-            min-height: 30px;
+            margin-top: 12px;
+            font-size: 1rem;
+            min-height: 28px;
             color: #4ade80;
+            font-weight: bold;
         }
+        .history-panel {
+            margin-top: 15px;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 80px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 0.8rem;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #0f172a;
+        }
+        .win-text { color: #4ade80; }
+        .loss-text { color: #f87171; }
+        .jackpot-modal {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            border-radius: 20px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .jackpot-modal h2 { color: #fbbf24; font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px #f59e0b; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
     <div class="header">
-        <h1>WHEEL SPIN SIMULATION</h1>
+        <h1>ADVANCED WHEEL ENGINE</h1>
     </div>
 
     <div class="balance-box">
-        Balance: $<span id="balance">1000</span>
+        <span>Balance:</span>
+        <span>$<span id="balance">1000</span></span>
     </div>
 
-    <!-- Animated Wheel Canvas -->
-    <canvas id="wheelCanvas" width="260" height="260"></canvas>
+    <!-- Canvas Wheel -->
+    <canvas id="wheelCanvas" width="240" height="240"></canvas>
 
-    <div class="controls">
-        <button class="btn-spin" onclick="spinWheel()">SPIN ($50)</button>
+    <!-- Bet Multiplier Controls -->
+    <div class="bet-controls">
+        <input type="number" id="betAmount" class="bet-input" value="50" min="10">
+        <button class="btn-small" onclick="setBet('half')">1/2</button>
+        <button class="btn-small" onclick="setBet('double')">2X</button>
+        <button class="btn-small" onclick="setBet('max')">MAX</button>
     </div>
 
-    <div class="result" id="statusText">Press SPIN to start!</div>
+    <!-- Spin & Auto Controls -->
+    <div class="action-controls">
+        <button class="btn-spin" id="spinBtn" onclick="spinWheel()">SPIN</button>
+        <button class="btn-auto" id="autoBtn" onclick="toggleAutoSpin()">AUTO</button>
+    </div>
+
+    <div class="result" id="statusText">Set bet & press SPIN!</div>
+
+    <!-- Live History Log -->
+    <div class="history-panel" id="historyLog">
+        <div style="color:#64748b; text-align:center;">History log ready...</div>
+    </div>
+
+    <!-- Jackpot Pop-up Modal -->
+    <div class="jackpot-modal" id="jackpotModal">
+        <h2>🎉 BONUS ROUND! 🎉</h2>
+        <p style="margin-bottom: 20px;">You hit the JACKPOT Segment!</p>
+        <button class="btn-spin" style="width: 70%;" onclick="claimJackpot()">CLAIM 5X REWARD</button>
+    </div>
 </div>
 
 <script>
+    // --- Audio Engine (Web Audio API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playBeep(freq, duration) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.value = freq;
+        osc.type = 'triangle';
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // --- State Variables ---
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
-    
-    const segments = ["100", "200", "500", "0", "1000", "50", "2000", "0"];
-    const colors = ["#ef4444", "#3b82f6", "#10b981", "#6b7280", "#f59e0b", "#8b5cf6", "#ec4899", "#475569"];
+    const segments = ["100", "200", "JACKPOT", "0", "500", "50", "2X WIN", "0"];
+    const colors = ["#ef4444", "#3b82f6", "#f59e0b", "#6b7280", "#10b981", "#8b5cf6", "#ec4899", "#475569"];
     
     let currentAngle = 0;
     let isSpinning = false;
+    let isAutoSpinning = false;
     let balance = 1000;
+    let autoInterval = null;
+    let lastTickAngle = 0;
 
     function drawWheel() {
         const numSegments = segments.length;
@@ -131,74 +252,160 @@
             ctx.strokeStyle = "#0f172a";
             ctx.stroke();
 
-            // Text Rendering
+            // Text
             ctx.save();
             ctx.rotate(angle + arcSize / 2);
             ctx.textAlign = "right";
             ctx.fillStyle = "#ffffff";
-            ctx.font = "bold 14px Segoe UI";
-            ctx.fillText("$" + segments[i], radius - 15, 5);
+            ctx.font = "bold 12px Segoe UI";
+            ctx.fillText(segments[i], radius - 10, 4);
             ctx.restore();
         }
-
         ctx.restore();
 
-        // Pointer Arrow (Top)
+        // Pointer
         ctx.fillStyle = "#fbbf24";
         ctx.beginPath();
-        ctx.moveTo(radius - 12, 5);
-        ctx.lineTo(radius + 12, 5);
-        ctx.lineTo(radius, 25);
+        ctx.moveTo(radius - 10, 5);
+        ctx.lineTo(radius + 10, 5);
+        ctx.lineTo(radius, 22);
         ctx.fill();
+    }
+
+    function setBet(type) {
+        let betInput = document.getElementById("betAmount");
+        let currentBet = parseInt(betInput.value) || 50;
+
+        if (type === 'half') currentBet = Math.max(10, Math.floor(currentBet / 2));
+        if (type === 'double') currentBet = Math.min(balance, currentBet * 2);
+        if (type === 'max') currentBet = balance;
+
+        betInput.value = currentBet;
     }
 
     function spinWheel() {
         if (isSpinning) return;
-        if (balance < 50) {
-            document.getElementById("statusText").innerText = "Insufficient balance!";
+
+        let bet = parseInt(document.getElementById("betAmount").value);
+        if (isNaN(bet) || bet <= 0) {
+            document.getElementById("statusText").innerText = "Invalid bet!";
+            stopAutoSpin();
+            return;
+        }
+        if (bet > balance) {
+            document.getElementById("statusText").innerText = "Insufficient Balance!";
+            stopAutoSpin();
             return;
         }
 
-        balance -= 50;
+        balance -= bet;
         document.getElementById("balance").innerText = balance;
         isSpinning = true;
         document.getElementById("statusText").innerText = "Spinning...";
 
-        const spinAngle = Math.random() * 10 + 25; // Random velocity
-        let speed = spinAngle * (Math.PI / 180);
+        const spinVelocity = Math.random() * 10 + 25;
+        let speed = spinVelocity * (Math.PI / 180);
 
         function animate() {
             if (speed > 0.002) {
                 currentAngle += speed;
-                speed *= 0.985; // Deceleration
+                speed *= 0.985;
+
+                // Sound Ticks
+                if (Math.abs(currentAngle - lastTickAngle) > 0.4) {
+                    playBeep(400, 0.05);
+                    lastTickAngle = currentAngle;
+                }
+
                 drawWheel();
                 requestAnimationFrame(animate);
             } else {
                 isSpinning = false;
-                calculatePrize();
+                calculatePrize(bet);
             }
         }
         animate();
     }
 
-    function calculatePrize() {
+    function calculatePrize(bet) {
         const numSegments = segments.length;
         const arcSize = (2 * Math.PI) / numSegments;
 
-        // Normalize angle relative to top pointer
         let normalizedAngle = (1.5 * Math.PI - (currentAngle % (2 * Math.PI))) % (2 * Math.PI);
         if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
 
         const index = Math.floor(normalizedAngle / arcSize);
-        const prize = parseInt(segments[index]);
+        const resultLabel = segments[index];
 
-        if (prize > 0) {
-            balance += prize;
-            document.getElementById("statusText").innerText = `🎉 You won $${prize}!`;
+        let winAmount = 0;
+
+        if (resultLabel === "JACKPOT") {
+            playBeep(800, 0.3);
+            document.getElementById("jackpotModal").style.display = "flex";
+            addHistory("JACKPOT HIT", bet, 0);
+            return;
+        } else if (resultLabel === "2X WIN") {
+            winAmount = bet * 2;
         } else {
-            document.getElementById("statusText").innerText = "❌ Better luck next time!";
+            winAmount = parseInt(resultLabel);
         }
+
+        if (winAmount > 0) {
+            balance += winAmount;
+            playBeep(600, 0.2);
+            document.getElementById("statusText").innerText = `🎉 Won $${winAmount}!`;
+            addHistory(`WIN ($${winAmount})`, bet, winAmount);
+        } else {
+            playBeep(200, 0.2);
+            document.getElementById("statusText").innerText = "❌ No Luck!";
+            addHistory("LOSS", bet, 0);
+        }
+
         document.getElementById("balance").innerText = balance;
+
+        if (isAutoSpinning) {
+            setTimeout(spinWheel, 1000);
+        }
+    }
+
+    function toggleAutoSpin() {
+        if (isAutoSpinning) {
+            stopAutoSpin();
+        } else {
+            isAutoSpinning = true;
+            document.getElementById("autoBtn").innerText = "STOP";
+            document.getElementById("autoBtn").classList.add("active");
+            spinWheel();
+        }
+    }
+
+    function stopAutoSpin() {
+        isAutoSpinning = false;
+        document.getElementById("autoBtn").innerText = "AUTO";
+        document.getElementById("autoBtn").classList.remove("active");
+    }
+
+    function addHistory(status, bet, win) {
+        const historyLog = document.getElementById("historyLog");
+        const item = document.createElement("div");
+        item.className = "history-item";
+        
+        const isWin = win > 0 || status.includes("JACKPOT");
+        item.innerHTML = `
+            <span>Bet: $${bet} | ${status}</span>
+            <span class="${isWin ? 'win-text' : 'loss-text'}">${isWin ? '+$' + win : '-$' + bet}</span>
+        `;
+        historyLog.prepend(item);
+    }
+
+    function claimJackpot() {
+        let bet = parseInt(document.getElementById("betAmount").value);
+        let jackpotReward = bet * 5;
+        balance += jackpotReward;
+        document.getElementById("balance").innerText = balance;
+        document.getElementById("jackpotModal").style.display = "none";
+        document.getElementById("statusText").innerText = `💥 Claimed $${jackpotReward} Jackpot!`;
+        if (isAutoSpinning) setTimeout(spinWheel, 1000);
     }
 
     drawWheel();
