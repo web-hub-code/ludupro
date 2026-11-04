@@ -2,7 +2,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yalla Pro Ludo Arena - Ultimate Global Edition</title>
+<title>Yalla Pro Ludo Arena - Ultimate PWA Edition</title>
+<!-- PWA Manifest Link -->
+<link rel="manifest" href="data:application/manifest+json;charset=utf-8,{
+  'name': 'Yalla Pro Ludo Arena',
+  'short_name': 'LudoPro',
+  'start_url': '.',
+  'display': 'standalone',
+  'background_color': '#0f172a',
+  'theme_color': '#38bdf8',
+  'icons': [{
+    'src': 'https://cdn-icons-png.flaticon.com/512/808/808439.png',
+    'sizes': '192x192',
+    'type': 'image/png'
+  }]
+}">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
@@ -49,6 +63,13 @@ body{background:radial-gradient(circle at center,#0f172a 0%,#020617 100%);color:
 #floatingPopup{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:rgba(15,23,42,.95);border:2px solid #38bdf8;padding:12px 20px;border-radius:16px;font-size:.9rem;color:#38bdf8;display:none;z-index:250}
 .modal{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.96);backdrop-filter:blur(15px);border-radius:28px;z-index:300;padding:20px;flex-direction:column;justify-content:center;align-items:center}
 .auth-input{width:100%;padding:10px;margin-bottom:10px;background:rgba(30,41,59,0.8);border:1px solid #334155;border-radius:10px;color:#fff;font-size:.9rem}
+
+@keyframes flyUp {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  50% { opacity: 1; transform: translateY(-150px) scale(1.2); }
+  100% { transform: translateY(-300px) scale(1); opacity: 0; }
+}
+.flying-gift { position: absolute; font-size: 2.5rem; animation: flyUp 1.5s ease-in-out forwards; z-index: 400; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -59,20 +80,21 @@ body{background:radial-gradient(circle at center,#0f172a 0%,#020617 100%);color:
 <!-- TOP HEADER -->
 <div class="top-header">
 <div class="pill-group">
-<div class="stat-pill" onclick="openModal('authModal')">🔐 Auth</div>
-<div class="stat-pill" onclick="openModal('leaderboardModal')">🏆 Ranks</div>
+<div class="stat-pill" onclick="openModal('profileModal')">👤 Profile</div>
+<div class="stat-pill" onclick="openModal('friendsModal')">👥 Friends</div>
+<div class="stat-pill" onclick="openModal('missionsModal')">🎯 Missions</div>
 </div>
 <div class="pill-group">
-<div class="stat-pill" onclick="openModal('spinModal')">🎁 Spin</div>
-<div class="stat-pill" onclick="openModal('privateModal')">🔑 Room</div>
+<div class="stat-pill" onclick="openModal('shopModal')">🎲 Shop</div>
+<div class="stat-pill" onclick="installPWA()" style="background:rgba(16,185,129,0.2);border-color:#10b981;color:#34d399;">📥 Install</div>
 </div>
 <button class="icon-btn" onclick="openModal('giftModal')" title="Gifts">💎</button>
 </div>
 
-<!-- YALLA VOICE ROOM SEATS -->
+<!-- VOICE SEATS -->
 <div class="mic-seats">
-<div class="mic-seat active" onclick="toggleSeatMic(this)">👤<span class="mic-badge">🔊</span></div>
-<div class="mic-seat active" onclick="toggleSeatMic(this)">👤<span class="mic-badge">🔊</span></div>
+<div class="mic-seat active" onclick="toggleSeatMic(this)">🎙️<span class="mic-badge">🔊</span></div>
+<div class="mic-seat active" onclick="toggleSeatMic(this)">🎙️<span class="mic-badge">🔊</span></div>
 <div class="mic-seat" onclick="toggleSeatMic(this)">➕<span class="mic-badge">❌</span></div>
 <div class="mic-seat" onclick="toggleSeatMic(this)">➕<span class="mic-badge">❌</span></div>
 </div>
@@ -86,61 +108,75 @@ body{background:radial-gradient(circle at center,#0f172a 0%,#020617 100%);color:
 </div>
 <div style="display:flex;gap:6px">
 <button class="icon-btn" onclick="toggleSound()" id="soundBtn">🔊</button>
+<button class="icon-btn" onclick="openModal('chatModal')">💬</button>
 <button class="icon-btn" onclick="openModal('emojiModal')">😀</button>
 </div>
 </div>
 
-<!-- MODAL 1: FIREBASE AUTH -->
-<div id="authModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:10px">🔐 Firebase Portal</h3>
-<input type="email" id="authEmail" class="auth-input" placeholder="Email Address">
-<input type="password" id="authPass" class="auth-input" placeholder="Password">
-<button class="btn-roll" style="width:100%;margin-bottom:8px;" onclick="handleEmailAuth('signin')">LOGIN</button>
-<button class="btn-roll" style="width:100%;margin-bottom:8px;background:#10b981;color:#fff;" onclick="handleEmailAuth('signup')">SIGN UP</button>
-<button class="btn-roll" style="width:100%;margin-bottom:12px;background:#ea4335;color:#fff;" onclick="handleGoogleAuth()">GOOGLE LOGIN</button>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('authModal')">CLOSE</button>
+<!-- MODAL 1: PROFILE -->
+<div id="profileModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:10px">👤 Player Profile</h3>
+<div style="background:#1e293b;padding:15px;border-radius:12px;width:100%;margin-bottom:15px;text-align:left;border:1px solid #334155;">
+<p><strong>Name:</strong> <span id="profileName">Guest_User</span></p>
+<p style="margin-top:8px;color:#fbbf24;"><strong>Coins:</strong> <span id="userCoins">5,000</span> 🪙</p>
+<p style="color:#38bdf8;"><strong>Gems:</strong> <span id="userGems">200</span> 💎</p>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('profileModal')">CLOSE</button>
 </div>
 
-<!-- MODAL 2: LEADERBOARD -->
-<div id="leaderboardModal" class="modal">
-<h3 style="color:#f59e0b;margin-bottom:10px">🏆 Global Hall of Fame</h3>
-<div style="background:#1e293b; padding:10px; border-radius:10px; width:100%; text-align:left; font-size:0.8rem; line-height:1.8; margin-bottom:15px; border:1px solid #334155;" id="leaderboardBox">
-🥇 1. Player_One — 45,200 XP<br>
-🥈 2. Master_Ludo — 38,900 XP<br>
-🥉 3. Pro_Gamer — 31,400 XP
+<!-- MODAL 2: FRIENDS & DIRECT CHALLENGE -->
+<div id="friendsModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:10px">👥 Friends & Direct Play</h3>
+<div style="background:#1e293b;padding:10px;border-radius:10px;width:100%;text-align:left;font-size:0.8rem;margin-bottom:15px;border:1px solid #334155;">
+🟢 Ali_Khan (Online) — <button style="background:#10b981;border:none;color:#fff;padding:2px 8px;border-radius:6px;cursor:pointer;" onclick="challengeFriend('Ali_Khan')">Challenge</button><br><br>
+⚪ Zohaib_Pro (Offline)
 </div>
-<button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('leaderboardModal')">CLOSE</button>
-</div>
-
-<!-- MODAL 3: PRIVATE ROOM CODE -->
-<div id="privateModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:10px">🔑 Private Table Room</h3>
-<input type="text" id="passcodeBox" class="auth-input" placeholder="Enter Room Passcode">
-<button class="btn-roll" style="width:100%;margin-bottom:10px;" onclick="createPrivateRoom()">CREATE / JOIN TABLE</button>
-<button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('privateModal')">CLOSE</button>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('friendsModal')">CLOSE</button>
 </div>
 
-<!-- MODAL 4: LUCKY SPIN -->
-<div id="spinModal" class="modal">
-<h3 style="color:#f59e0b;margin-bottom:5px">🎁 Daily Lucky Jackpot</h3>
-<p style="font-size:.75rem;color:#94a3b8;margin-bottom:15px">Spin the wheel to win rewards!</p>
-<div style="font-size:2rem;background:#1e293b;padding:15px 30px;border-radius:12px;border:2px solid #f59e0b;margin-bottom:15px;color:#fbbf24">💎 2,000 Gems</div>
-<button class="btn-roll" style="width:100%;margin-bottom:10px" onclick="spinWheel()">SPIN NOW</button>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('spinModal')">CLOSE</button>
+<!-- MODAL 3: DAILY MISSIONS -->
+<div id="missionsModal" class="modal">
+<h3 style="color:#f59e0b;margin-bottom:10px">🎯 Daily Missions</h3>
+<div style="background:#1e293b;padding:10px;border-radius:10px;width:100%;text-align:left;font-size:0.8rem;margin-bottom:15px;border:1px solid #334155;">
+🏆 Win 2 Matches (Progress: 1/2) — <span style="color:#fbbf24;">Reward: 500 Coins</span><br><br>
+🎁 Send 3 Gifts (Progress: 0/3) — <span style="color:#fbbf24;">Reward: 100 Gems</span>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('missionsModal')">CLOSE</button>
+</div>
+
+<!-- MODAL 4: DICE SHOP -->
+<div id="shopModal" class="modal">
+<h3 style="color:#fbbf24;margin-bottom:10px">🎲 Magic Dice Skins</h3>
+<div style="display:grid;grid-template-columns:1fr;gap:8px;width:100%;margin-bottom:15px">
+<button class="btn-roll" style="background:#1e293b;color:#fbbf24;border:1px solid #f59e0b;" onclick="buyDiceSkin('🔥', 1000)">🔥 Fire Dice (1,000 Coins)</button>
+<button class="btn-roll" style="background:#1e293b;color:#38bdf8;border:1px solid #38bdf8;" onclick="buyDiceSkin('💎', 500)">💎 Diamond Dice (500 Gems)</button>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('shopModal')">CLOSE</button>
 </div>
 
 <!-- MODAL 5: GIFTS -->
 <div id="giftModal" class="modal">
 <h3 style="color:#fbbf24;margin-bottom:10px">💎 Send Yalla Gifts</h3>
 <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; margin-bottom:15px;">
-<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendGift('🌹 Rose')">🌹<br><span style="font-size:0.6rem;">50 Coins</span></div>
-<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendGift('👑 Crown')">👑<br><span style="font-size:0.6rem;">500 Gems</span></div>
-<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendGift('🚀 Rocket')">🚀<br><span style="font-size:0.6rem;">1000 Gems</span></div>
+<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendFlyingGift('🌹')">🌹<br><span style="font-size:0.6rem;">50 Coins</span></div>
+<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendFlyingGift('👑')">👑<br><span style="font-size:0.6rem;">500 Gems</span></div>
+<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendFlyingGift('🚀')">🚀<br><span style="font-size:0.6rem;">1000 Gems</span></div>
 </div>
 <button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('giftModal')">CLOSE</button>
 </div>
 
-<!-- MODAL 6: EMOJIS -->
+<!-- MODAL 6: CHAT -->
+<div id="chatModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:10px">💬 Live Room Chat</h3>
+<div id="chatHistory" style="background:#1e293b;height:120px;border-radius:8px;padding:8px;width:100%;overflow-y:auto;text-align:left;font-size:0.75rem;margin-bottom:10px;border:1px solid #334155;">
+<span style="color:#94a3b8;">System: Welcome to Ludo Arena!</span>
+</div>
+<input type="text" id="chatMsgInput" class="auth-input" placeholder="Type a message...">
+<button class="btn-roll" style="width:100%;margin-bottom:8px;" onclick="sendCustomChat()">SEND</button>
+<button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('chatModal')">CLOSE</button>
+</div>
+
+<!-- MODAL 7: EMOJIS -->
 <div id="emojiModal" class="modal">
 <h3 style="color:#38bdf8;margin-bottom:5px">Send Emoji Reactions</h3>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;width:100%">
@@ -153,51 +189,37 @@ body{background:radial-gradient(circle at center,#0f172a 0%,#020617 100%);color:
 
 </div>
 
-<!-- FIREBASE SDKs & REALTIME INTEGRATION -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAL7_6DTdz14ySlLQ1jjuQC4WdO4mpRZKY",
-  authDomain: "shopping-center-9.firebaseapp.com",
-  databaseURL: "https://shopping-center-9-default-rtdb.firebaseio.com",
-  projectId: "shopping-center-9",
-  storageBucket: "shopping-center-9.firebasestorage.app",
-  messagingSenderId: "33427127023",
-  appId: "1:33427127023:web:a478af6499f28f84d9391a"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-
-window.handleEmailAuth = function(type) {
-  let email = document.getElementById('authEmail').value;
-  let pass = document.getElementById('authPass').value;
-  if(!email || !pass) { alert('Enter email & password'); return; }
-  if(type === 'signup') {
-    createUserWithEmailAndPassword(auth, email, pass).then(()=> { alert('Signup Successful!'); closeModal('authModal'); }).catch(e => alert(e.message));
-  } else {
-    signInWithEmailAndPassword(auth, email, pass).then(()=> { alert('Login Successful!'); closeModal('authModal'); }).catch(e => alert(e.message));
-  }
-}
-
-window.handleGoogleAuth = function() {
-  signInWithPopup(auth, new GoogleAuthProvider()).then(()=> { alert('Google Login Successful!'); closeModal('authModal'); }).catch(e => alert(e.message));
-}
-</script>
-
+<!-- SCRIPT LOGIC -->
 <script>
 let players=['red','yellow'];
 let turnIndex=0;
 let diceVal=0;
 let hasRolled=false;
 let soundEnabled=true;
-let audioContext=null;
 let activeDiceSkin='🎲';
 let gameOver=false;
+let userCoins = 5000;
+let userGems = 200;
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+function installPWA(){
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        alert('App installation started!');
+      }
+      deferredPrompt = null;
+    });
+  } else {
+    alert('App already installed or browser does not support direct installation. Use browser menu "Add to Home Screen".');
+  }
+}
 
 let pawns={
 red:[-1,-1,-1,-1],
@@ -234,26 +256,6 @@ const startIndices={red:0,green:13,yellow:26,blue:39};
 
 function globalTrackIndex(color, progress){
   return (startIndices[color] + progress) % 52;
-}
-
-function playSound(type){
-  if(!soundEnabled) return;
-  try{
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if(!AudioCtx) return;
-    if(!audioContext) audioContext = new AudioCtx();
-    if(audioContext.state === 'suspended') audioContext.resume();
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const now = audioContext.currentTime;
-    osc.connect(gain); gain.connect(audioContext.destination);
-    if(type === 'dice'){
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
-      gain.gain.setValueAtTime(0.2, now);
-      osc.start(now); osc.stop(now + 0.16);
-    }
-  }catch(e){}
 }
 
 function initBoard(){
@@ -304,7 +306,6 @@ function renderPawns(){
 
 function rollDiceAnim(){
   if(hasRolled || gameOver) return;
-  playSound('dice');
   let diceBox = document.getElementById('diceDisplay');
   diceBox.classList.add('rolling');
   setTimeout(() => {
@@ -332,8 +333,10 @@ function movePawn(color, idx){
   renderPawns();
   if(pawns[color].every(x => x === 58)){
     gameOver = true;
+    userCoins += 2000;
+    document.getElementById('userCoins').innerText = userCoins;
     if(typeof confetti === 'function') confetti({particleCount: 150, spread: 80, origin: {y: 0.6}});
-    alert(`🎉 Player ${color.toUpperCase()} WON!`);
+    alert(`🎉 Player ${color.toUpperCase()} WON! +2,000 Coins added!`);
     return;
   }
   nextTurn(diceVal === 6);
@@ -345,15 +348,18 @@ function nextTurn(extra){
   if(!extra) turnIndex = (turnIndex + 1) % players.length;
 }
 
-function createPrivateRoom(){
-  let code = document.getElementById('passcodeBox').value.trim();
-  if(!code){ alert('Enter room passcode'); return; }
-  closeModal('privateModal');
-  alert(`Private Table Created! Code: ${code}`);
+function challengeFriend(name){
+  alert(`Direct challenge sent to ${name}! Waiting for accept...`);
+  closeModal('friendsModal');
 }
 
-function spinWheel(){
-  alert('Won 2,000 Gems Jackpot!');
+function buyDiceSkin(skin, cost){
+  userCoins -= cost;
+  activeDiceSkin = skin;
+  document.getElementById('diceDisplay').innerText = activeDiceSkin;
+  document.getElementById('userCoins').innerText = userCoins;
+  closeModal('shopModal');
+  alert(`Equipped new dice skin: ${skin}`);
 }
 
 function toggleSeatMic(seat){
@@ -362,9 +368,37 @@ function toggleSeatMic(seat){
   badge.innerText = seat.classList.contains('active') ? '🔊' : '❌';
 }
 
-function sendGift(g){ closeModal('giftModal'); alert(`Sent ${g}!`); }
-function sendEmojiSticker(e){ closeModal('emojiModal'); alert(`Reaction: ${e}`); }
-function toggleSound(){ soundEnabled = !soundEnabled; document.getElementById('soundBtn').innerText = soundEnabled ? '🔊' : '🔇'; }
+function sendFlyingGift(giftSymbol){
+  closeModal('giftModal');
+  let container = document.getElementById('appContainer');
+  let giftEl = document.createElement('div');
+  giftEl.className = 'flying-gift';
+  giftEl.innerText = giftSymbol;
+  giftEl.style.left = `${Math.random() * 80 + 10}%`;
+  giftEl.style.bottom = '50px';
+  container.appendChild(giftEl);
+  setTimeout(() => giftEl.remove(), 1500);
+}
+
+function sendCustomChat(){
+  let input = document.getElementById('chatMsgInput');
+  if(!input.value.trim()) return;
+  let history = document.getElementById('chatHistory');
+  history.innerHTML += `<br><b>You:</b> ${input.value}`;
+  history.scrollTop = history.scrollHeight;
+  input.value = '';
+}
+
+function sendEmojiSticker(e){ 
+  closeModal('emojiModal'); 
+  alert(`Reaction sent: ${e}`); 
+}
+
+function toggleSound(){ 
+  soundEnabled = !soundEnabled; 
+  document.getElementById('soundBtn').innerText = soundEnabled ? '🔊' : '🔇'; 
+}
+
 function openModal(id){ document.getElementById(id).style.display = 'flex'; }
 function closeModal(id){ document.getElementById(id).style.display = 'none'; }
 
