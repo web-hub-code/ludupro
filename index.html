@@ -2,261 +2,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yalla Pro Ludo Arena - Professional Edition</title>
-<link rel="manifest" href="data:application/manifest+json;charset=utf-8,{
-  'name': 'Yalla Pro Ludo Arena',
-  'short_name': 'LudoPro',
-  'start_url': '.',
-  'display': 'standalone',
-  'background_color': '#0f172a',
-  'theme_color': '#38bdf8',
-  'icons': [{
-    'src': 'https://cdn-icons-png.flaticon.com/512/808/808439.png',
-    'sizes': '192x192',
-    'type': 'image/png'
-  }]
-}">
+<title>Yalla Pro Ludo - Enterprise Edition</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-body{background:radial-gradient(circle at center,#0f172a 0%,#020617 100%);color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px}
-.app-container{width:100%;max-width:440px;background:rgba(30,41,59,.92);backdrop-filter:blur(25px);border:2px solid rgba(56,189,248,0.4);border-radius:28px;box-shadow:0 25px 50px rgba(0,0,0,.9),0 0 40px rgba(56,189,248,0.2);padding:12px;text-align:center;position:relative;overflow:hidden}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+body{background:radial-gradient(circle at center,#090d16 0%,#02040a 100%);color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px}
+.app-container{width:100%;max-width:440px;background:rgba(15,23,42,.95);backdrop-filter:blur(30px);border:1px solid rgba(56,189,248,0.2);border-radius:32px;box-shadow:0 30px 60px rgba(0,0,0,.9),0 0 50px rgba(56,189,248,0.1);padding:14px;text-align:center;position:relative;overflow:hidden;min-height:750px;display:flex;flex-direction:column;justify-content:space-between}
 
-.top-header{display:flex;justify-content:space-between;align-items:center;background:rgba(15,23,42,.85);padding:6px 12px;border-radius:20px;margin-bottom:8px;font-size:.75rem;border:1px solid rgba(255,255,255,.05)}
-.mic-seats{display:flex;justify-content:space-around;background:rgba(15,23,42,0.85);padding:6px;border-radius:18px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05)}
-.mic-seat{width:34px;height:34px;border-radius:50%;background:#334155;border:2px solid #38bdf8;display:flex;justify-content:center;align-items:center;font-size:0.8rem;cursor:pointer;position:relative}
-.mic-seat.active{border-color:#10b981;box-shadow:0 0 8px rgba(16,185,129,0.5)}
-.mic-badge{position:absolute;bottom:-2px;right:-2px;font-size:0.5rem;background:#000;padding:1px 3px;border-radius:50%}
+/* Top Header Profile Bar */
+.top-profile-bar{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9));padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.08)}
+.user-info{display:flex;align-items:center;gap:8px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0284c7);display:flex;justify-content:center;align-items:center;font-weight:bold;font-size:0.9rem;border:2px solid #38bdf8}
+.user-details{text-align:left}
+.user-name{font-size:0.8rem;font-weight:bold;color:#f8fafc}
+.user-level{font-size:0.65rem;color:#38bdf8}
 
-.pill-group{display:flex;gap:4px}
-.stat-pill{background:rgba(245,158,11,.2);border:1px solid #f59e0b;padding:3px 8px;border-radius:12px;color:#fbbf24;font-weight:bold;font-size:.7rem;cursor:pointer}
+.currency-badges{display:flex;gap:6px}
+.badge{background:rgba(0,0,0,0.4);padding:4px 8px;border-radius:12px;font-size:0.75rem;font-weight:bold;display:flex;align-items:center;gap:4px;border:1px solid rgba(255,255,255,0.05)}
+.badge.coins{color:#fbbf24;border-color:rgba(251,191,36,0.3)}
+.badge.gems{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
 
-.board{width:100%;aspect-ratio:1;background:#e2e8f0;border:4px solid #334155;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);gap:1px;border-radius:12px;margin-bottom:8px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+/* Main Content Area */
+.main-content{flex-grow:1;display:flex;flex-direction:column;justify-content:center;align-items:center;margin:10px 0}
+.board{width:100%;aspect-ratio:1;background:#e2e8f0;border:4px solid #1e293b;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);gap:1px;border-radius:16px;box-shadow:0 15px 35px rgba(0,0,0,.7)}
 .cell{background:#fff;display:flex;justify-content:center;align-items:center;position:relative;font-size:.55rem}
 .cell.red-base{background:#ef4444}
-.cell.green-base{background:#10b981}
 .cell.yellow-base{background:#f59e0b}
-.cell.blue-base{background:#3b82f6}
-.cell.safe{background:#f1f5f9;font-size:.7rem}
+.cell.safe{background:#f1f5f9}
 .cell.center-home{background:#6366f1}
 
 .pawn{width:80%;height:80%;border-radius:50%;cursor:pointer;box-shadow:0 3px 6px rgba(0,0,0,.5),inset 0 2px 3px rgba(255,255,255,.6);border:2px solid #fff;z-index:10}
 .pawn-red{background:radial-gradient(circle at 30% 30%,#f87171,#dc2626)}
-.pawn-green{background:radial-gradient(circle at 30% 30%,#34d399,#059669)}
 .pawn-yellow{background:radial-gradient(circle at 30% 30%,#facc15,#d97706)}
-.pawn-blue{background:radial-gradient(circle at 30% 30%,#60a5fa,#2563eb)}
 
-.bottom-action-bar{display:flex;justify-content:space-between;align-items:center;background:rgba(15,23,42,.85);padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.05)}
-.dice-container{display:flex;align-items:center;gap:10px}
-.dice-box{font-size:1.8rem;background:#1e293b;width:45px;height:45px;border-radius:12px;display:flex;justify-content:center;align-items:center;border:2px solid #38bdf8;color:#38bdf8;box-shadow:0 0 10px rgba(56,189,248,.3);transition:transform .3s ease}
-.dice-box.rolling{transform:rotate(360deg) scale(1.1)}
-.btn-roll{padding:8px 18px;background:linear-gradient(135deg,#38bdf8 0%,#0284c7 100%);border:none;border-radius:12px;color:#000;font-weight:bold;font-size:.85rem;cursor:pointer;box-shadow:0 4px 12px rgba(56,189,248,.4)}
-.btn-roll:disabled{opacity:.5;cursor:not-allowed}
-.icon-btn{background:#334155;border:none;width:36px;height:36px;border-radius:50%;color:#fff;font-size:.9rem;cursor:pointer;display:flex;justify-content:center;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,.3)}
-.icon-btn:hover{background:#475569}
+/* Game Control Bar */
+.game-control-bar{display:flex;justify-content:space-between;align-items:center;background:rgba(30,41,59,0.7);padding:10px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.05);margin-bottom:10px}
+.dice-box{font-size:1.6rem;background:#0f172a;width:42px;height:42px;border-radius:12px;display:flex;justify-content:center;align-items:center;border:2px solid #38bdf8;color:#38bdf8}
+.btn-roll{padding:8px 20px;background:linear-gradient(135deg,#38bdf8 0%,#0284c7 100%);border:none;border-radius:14px;color:#000;font-weight:bold;font-size:0.85rem;cursor:pointer;box-shadow:0 4px 15px rgba(56,189,248,0.4)}
 
-.modal{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.96);backdrop-filter:blur(15px);border-radius:28px;z-index:300;padding:20px;flex-direction:column;justify-content:center;align-items:center}
-.auth-input{width:100%;padding:10px;margin-bottom:10px;background:rgba(30,41,59,0.8);border:1px solid #334155;border-radius:10px;color:#fff;font-size:.9rem}
+/* Bottom Navigation Tabs */
+.bottom-nav{display:flex;justify-content:space-around;background:rgba(15,23,42,0.9);padding:8px;border-radius:20px;border:1px solid rgba(255,255,255,0.05)}
+.nav-item{background:none;border:none;color:#94a3b8;font-size:0.75rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:0.2s}
+.nav-item.active{color:#38bdf8}
+.nav-item span{font-size:1.1rem}
 
-@keyframes flyUp {
-  0% { transform: translateY(0) scale(0.5); opacity: 0; }
-  50% { opacity: 1; transform: translateY(-150px) scale(1.2); }
-  100% { transform: translateY(-300px) scale(1); opacity: 0; }
-}
-.flying-gift { position: absolute; font-size: 2.5rem; animation: flyUp 1.5s ease-in-out forwards; z-index: 400; pointer-events: none; }
+/* Modals */
+.modal{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(9,13,22,0.95);backdrop-filter:blur(20px);border-radius:32px;z-index:300;padding:24px;flex-direction:column;justify-content:center;align-items:center}
+.auth-input{width:100%;padding:12px;margin-bottom:12px;background:rgba(30,41,59,0.9);border:1px solid #334155;border-radius:14px;color:#fff;font-size:0.9rem}
 </style>
 </head>
 <body>
 
-<div class="app-container" id="appContainer">
+<div class="app-container">
 
-<!-- TOP HEADER -->
-<div class="top-header">
-<div class="pill-group">
-<div class="stat-pill" onclick="openModal('dailyModal')">🎁 Bonus</div>
-<div class="stat-pill" onclick="openModal('referModal')">🤝 Refer</div>
-<div class="stat-pill" onclick="openModal('faqModal')">❓ FAQ</div>
+<!-- TOP PROFILE BAR -->
+<div class="top-profile-bar">
+<div class="user-info">
+<div class="avatar" id="userAvatar">YP</div>
+<div class="user-details">
+<div class="user-name" id="userNameDisplay">Guest Player</div>
+<div class="user-level">⭐ VIP Level 1</div>
 </div>
-<div class="pill-group">
-<div class="stat-pill" onclick="openModal('legalModal')">⚖️ Legal</div>
-<div class="stat-pill" onclick="installPWA()" style="background:rgba(16,185,129,0.2);border-color:#10b981;color:#34d399;">📥 App</div>
 </div>
-<button class="icon-btn" onclick="openModal('giftModal')" title="Gifts">💎</button>
+<div class="currency-badges">
+<div class="badge coins"><span id="coinsCount">5,000</span> 🪙</div>
+<div class="badge gems"><span id="gemsCount">200</span> 💎</div>
 </div>
-
-<!-- VOICE SEATS -->
-<div class="mic-seats">
-<div class="mic-seat active" onclick="toggleSeatMic(this)">🎙️<span class="mic-badge">🔊</span></div>
-<div class="mic-seat active" onclick="toggleSeatMic(this)">🎙️<span class="mic-badge">🔊</span></div>
-<div class="mic-seat" onclick="toggleSeatMic(this)">🤖<span class="mic-badge">AI</span></div>
-<div class="mic-seat" onclick="toggleSeatMic(this)">➕<span class="mic-badge">❌</span></div>
 </div>
 
+<!-- MAIN CONTENT / BOARD -->
+<div class="main-content">
 <div class="board" id="ludoBoard"></div>
+</div>
 
-<div class="bottom-action-bar">
-<div class="dice-container">
+<!-- GAME CONTROL BAR -->
+<div class="game-control-bar">
+<div style="display:flex;align-items:center;gap:10px">
 <div class="dice-box" id="diceDisplay">🎲</div>
-<button class="btn-roll" id="rollBtn" onclick="rollDiceAnim()">ROLL</button>
+<button class="btn-roll" onclick="rollDice()">ROLL DICE</button>
 </div>
-<div style="display:flex;gap:6px">
-<button class="icon-btn" onclick="openModal('chatModal')">💬</button>
-<button class="icon-btn" onclick="openModal('emojiModal')">😀</button>
-</div>
+<div style="font-size:0.7rem;color:#94a3b8" id="turnIndicator">Room: Not Joined</div>
 </div>
 
-<!-- MODAL 1: DAILY LOGIN BONUS -->
-<div id="dailyModal" class="modal">
-<h3 style="color:#fbbf24;margin-bottom:10px">🎁 Daily Login Streak</h3>
-<p style="font-size:0.75rem;color:#94a3b8;margin-bottom:15px">Claim your daily reward to grow your coins!</p>
-<div style="background:#1e293b;padding:15px;border-radius:12px;width:100%;margin-bottom:15px;border:1px solid #334155;">
-<p style="font-size:0.9rem;color:#38bdf8;margin-bottom:10px;">Day 1 Reward: <strong>1,000 Coins</strong></p>
-<button class="btn-roll" style="width:100%;background:#10b981;color:#fff;" onclick="claimDailyReward()">CLAIM REWARD</button>
-</div>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('dailyModal')">CLOSE</button>
+<!-- BOTTOM NAVIGATION BAR -->
+<div class="bottom-nav">
+<button class="nav-item active" onclick="switchTab('game')"><span>🎮</span>Game</button>
+<button class="nav-item" onclick="openModal('roomModal')"><span>🏠</span>Rooms</button>
+<button class="nav-item" onclick="openModal('shopModal')"><span>🛍️</span>Store</button>
+<button class="nav-item" onclick="openModal('authModal')"><span>👤</span>Profile</button>
 </div>
 
-<!-- MODAL 2: REFER & EARN -->
-<div id="referModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:10px">🤝 Refer & Earn Rewards</h3>
-<p style="font-size:0.75rem;color:#94a3b8;margin-bottom:15px">Invite friends and get 5,000 coins per referral!</p>
-<div style="background:#1e293b;padding:12px;border-radius:10px;width:100%;text-align:left;font-size:0.8rem;margin-bottom:15px;border:1px solid #334155;">
-<p style="color:#fbbf24;margin-bottom:5px;">Your Invite Link:</p>
-<input type="text" class="auth-input" value="https://ludopro.app/?ref=user_99" readonly style="font-size:0.7rem;margin-bottom:0;">
-</div>
-<button class="btn-roll" style="width:100%;background:#38bdf8;color:#000;margin-bottom:10px;" onclick="alert('Referral link copied to clipboard!')">COPY LINK</button>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('referModal')">CLOSE</button>
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:15px">🔐 Yalla Pro ID Center</h3>
+<input type="email" id="authEmail" class="auth-input" placeholder="Email Address">
+<input type="password" id="authPass" class="auth-input" placeholder="Password">
+<button class="btn-roll" style="width:100%;margin-bottom:10px;" onclick="handleAuth('signin')">LOGIN</button>
+<button class="btn-roll" style="width:100%;margin-bottom:15px;background:#10b981;color:#fff;" onclick="handleAuth('signup')">CREATE ACCOUNT</button>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('authModal')">CLOSE</button>
 </div>
 
-<!-- MODAL 3: FAQ -->
-<div id="faqModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:10px">❓ Frequently Asked Questions</h3>
-<div style="background:#1e293b;padding:10px;border-radius:10px;width:100%;text-align:left;font-size:0.75rem;margin-bottom:15px;max-height:160px;overflow-y:auto;border:1px solid #334155;line-height:1.6;">
-<p style="color:#fbbf24;margin-bottom:4px;">Q: How do I get free coins?</p>
-<p style="color:#94a3b8;margin-bottom:8px;">A: Claim daily login bonuses, win matches, or invite friends.</p>
-<p style="color:#fbbf24;margin-bottom:4px;">Q: Is my data secure?</p>
-<p style="color:#94a3b8;">A: Yes, all user data is encrypted and protected under our privacy policy.</p>
-</div>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('faqModal')">CLOSE</button>
+<!-- ROOM MODAL -->
+<div id="roomModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:15px">🏠 Online Multiplayer Rooms</h3>
+<input type="text" id="roomInput" class="auth-input" placeholder="Enter Room ID (e.g. 7788)">
+<button class="btn-roll" style="width:100%;margin-bottom:15px;" onclick="joinRoomModal()">JOIN TABLE</button>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('roomModal')">CLOSE</button>
 </div>
 
-<!-- MODAL 4: PRIVACY POLICY & TERMS -->
-<div id="legalModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:10px">⚖️ Privacy Policy & Terms</h3>
-<div style="background:#1e293b;padding:10px;border-radius:10px;width:100%;text-align:left;font-size:0.7rem;margin-bottom:15px;max-height:160px;overflow-y:auto;border:1px solid #334155;line-height:1.5;">
-<p style="color:#fbbf24;font-weight:bold;margin-bottom:4px;">Privacy Policy</p>
-<p style="color:#94a3b8;margin-bottom:8px;">We respect your privacy. Data collected is strictly used for gameplay account synchronization and is never shared with third parties.</p>
-<p style="color:#fbbf24;font-weight:bold;margin-bottom:4px;">Terms of Service</p>
-<p style="color:#94a3b8;">Users must maintain fair play. Any form of cheating or bot manipulation will result in permanent account suspension.</p>
+<!-- STORE MODAL -->
+<div id="shopModal" class="modal">
+<h3 style="color:#fbbf24;margin-bottom:15px">🛍️ VIP Store & Rewards</h3>
+<div style="background:#1e293b;padding:15px;border-radius:16px;width:100%;margin-bottom:15px;border:1px solid #334155;">
+<p style="color:#fbbf24;font-weight:bold;margin-bottom:5px">Daily Bonus Pack</p>
+<p style="font-size:0.75rem;color:#94a3b8;margin-bottom:10px">Claim free daily coins and gems.</p>
+<button class="btn-roll" style="width:100%;background:#10b981;color:#fff" onclick="claimBonus()">CLAIM 2,000 COINS</button>
 </div>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('legalModal')">CLOSE</button>
-</div>
-
-<!-- MODAL 5: GIFTS -->
-<div id="giftModal" class="modal">
-<h3 style="color:#fbbf24;margin-bottom:10px">💎 Send Yalla Gifts</h3>
-<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; margin-bottom:15px;">
-<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendFlyingGift('🌹')">🌹<br><span style="font-size:0.6rem;">50 Coins</span></div>
-<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendFlyingGift('👑')">👑<br><span style="font-size:0.6rem;">500 Gems</span></div>
-<div style="background:#1e293b; padding:12px; border-radius:10px; cursor:pointer; font-size:1.5rem;" onclick="sendFlyingGift('🚀')">🚀<br><span style="font-size:0.6rem;">1000 Gems</span></div>
-</div>
-<button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('giftModal')">CLOSE</button>
-</div>
-
-<!-- MODAL 6: CHAT -->
-<div id="chatModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:10px">💬 Live Room Chat</h3>
-<div id="chatHistory" style="background:#1e293b;height:120px;border-radius:8px;padding:8px;width:100%;overflow-y:auto;text-align:left;font-size:0.75rem;margin-bottom:10px;border:1px solid #334155;">
-<span style="color:#94a3b8;">System: Welcome to Pro Arena!</span>
-</div>
-<input type="text" id="chatMsgInput" class="auth-input" placeholder="Type a message...">
-<button class="btn-roll" style="width:100%;margin-bottom:8px;" onclick="sendCustomChat()">SEND</button>
-<button class="btn-roll" style="width:100%; background:#334155; color:#fff;" onclick="closeModal('chatModal')">CLOSE</button>
-</div>
-
-<!-- MODAL 7: EMOJIS -->
-<div id="emojiModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:5px">Send Emoji Reactions</h3>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;width:100%">
-<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('😂')">😂</div>
-<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('🔥')">🔥</div>
-<div style="background:#1e293b;padding:10px;border-radius:10px;cursor:pointer;font-size:1.5rem" onclick="sendEmojiSticker('👏')">👏</div>
-</div>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('emojiModal')">CLOSE</button>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('shopModal')">CLOSE</button>
 </div>
 
 </div>
 
-<!-- SCRIPT LOGIC -->
-<script>
-let players=['red','yellow'];
-let turnIndex=0;
-let diceVal=0;
-let hasRolled=false;
-let activeDiceSkin='🎲';
-let gameOver=false;
-let userCoins = 5000;
-let deferredPrompt;
+<!-- FIREBASE & GAME LOGIC -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
+const firebaseConfig = {
+  apiKey: "AIzaSyAL7_6DTdz14ySlLQ1jjuQC4WdO4mpRZKY",
+  authDomain: "shopping-center-9.firebaseapp.com",
+  databaseURL: "https://shopping-center-9-default-rtdb.firebaseio.com",
+  projectId: "shopping-center-9",
+  storageBucket: "shopping-center-9.firebasestorage.app",
+  messagingSenderId: "33427127023",
+  appId: "1:33427127023:web:a478af6499f28f84d9391a"
+};
 
-function installPWA(){
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') alert('App installation started!');
-      deferredPrompt = null;
-    });
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let currentRoomId = null;
+let myColor = null;
+
+window.handleAuth = function(type) {
+  let email = document.getElementById('authEmail').value;
+  let pass = document.getElementById('authPass').value;
+  if(!email || !pass) { alert('Enter credentials'); return; }
+  
+  if(type === 'signup') {
+    createUserWithEmailAndPassword(auth, email, pass).then((res) => {
+      alert('Account Created Successfully!');
+      closeModal('authModal');
+    }).catch(e => alert(e.message));
   } else {
-    alert('App already installed or use browser menu "Add to Home Screen".');
+    signInWithEmailAndPassword(auth, email, pass).then((res) => {
+      alert('Login Successful!');
+      closeModal('authModal');
+    }).catch(e => alert(e.message));
   }
 }
 
-function claimDailyReward(){
-  userCoins += 1000;
-  alert('🎉 Daily reward claimed! +1,000 Coins added.');
-  closeModal('dailyModal');
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
+    document.getElementById('userAvatar').innerText = user.email[0].toUpperCase();
+  } else {
+    document.getElementById('userNameDisplay').innerText = "Guest Player";
+    document.getElementById('userAvatar').innerText = "YP";
+  }
+});
+
+window.claimBonus = function() {
+  let coinsEl = document.getElementById('coinsCount');
+  let current = parseInt(coinsEl.innerText.replace(',', '')) + 2000;
+  coinsEl.innerText = current.toLocaleString();
+  alert('Successfully claimed +2,000 Coins!');
+  closeModal('shopModal');
 }
 
-let pawns={
-red:[-1,-1,-1,-1],
-green:[-1,-1,-1,-1],
-yellow:[-1,-1,-1,-1],
-blue:[-1,-1,-1,-1]
-};
-
-const baseCoords={
-red:[[1,1],[1,4],[4,1],[4,4]],
-green:[[1,10],[1,13],[4,10],[4,13]],
-yellow:[[10,10],[10,13],[13,10],[13,13]],
-blue:[[10,1],[10,4],[13,1],[13,4]]
-};
-
-const mainTrack=[
+// Ludo Engine
+const mainTrack = [
 [6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],
 [0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],
 [7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],
 [14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],
 [7,0],[6,0]
 ];
-
 const safeIndices=[0,8,13,21,26,34,39,47];
-const homePaths={
-red:[[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],
-green:[[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
-yellow:[[7,13],[7,12],[7,11],[7,10],[7,9],[7,8]],
-blue:[[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]]
-};
-const startIndices={red:0,green:13,yellow:26,blue:39};
+const baseCoords={ red:[[1,1],[1,4],[4,1],[4,4]], yellow:[[10,10],[10,13],[13,10],[13,13]] };
+const startIndices={ red:0, yellow:26 };
 
-function globalTrackIndex(color, progress){
-  return (startIndices[color] + progress) % 52;
-}
+function globalTrackIndex(color, progress){ return (startIndices[color] + progress) % 52; }
 
-function initBoard(){
+window.initBoard = function(){
   const board = document.getElementById('ludoBoard');
   board.innerHTML = '';
   for(let r=0; r<15; r++){
@@ -266,9 +206,7 @@ function initBoard(){
       cell.dataset.row = r;
       cell.dataset.col = c;
       if(r<6 && c<6) cell.classList.add('red-base');
-      else if(r<6 && c>8) cell.classList.add('green-base');
       else if(r>8 && c>8) cell.classList.add('yellow-base');
-      else if(r>8 && c<6) cell.classList.add('blue-base');
       let trackIndex = mainTrack.findIndex(([tr, tc]) => tr === r && tc === c);
       if(trackIndex >= 0 && safeIndices.includes(trackIndex)){
         cell.classList.add('safe'); cell.innerText = '⭐';
@@ -277,113 +215,72 @@ function initBoard(){
       board.appendChild(cell);
     }
   }
-  renderPawns();
 }
 
-function renderPawns(){
-  document.querySelectorAll('.pawn').forEach(el => el.remove());
-  players.forEach(color => {
-    pawns[color].forEach((progress, idx) => {
-      let coords;
-      if(progress === -1) coords = baseCoords[color][idx];
-      else if(progress >= 0 && progress < 52) coords = mainTrack[globalTrackIndex(color, progress)];
-      else if(progress >= 52 && progress < 58) coords = homePaths[color][progress - 52];
-      else if(progress === 58) coords = [7, 7];
-      if(coords){
-        let cell = document.querySelector(`[data-row='${coords[0]}'][data-col='${coords[1]}']`);
-        if(cell){
-          let p = document.createElement('div');
-          p.className = `pawn pawn-${color}`;
-          p.onclick = () => handlePawnClick(color, idx);
-          cell.appendChild(p);
-        }
-      }
-    });
+window.joinRoomModal = function(){
+  const roomId = document.getElementById('roomInput').value.trim();
+  if(!roomId){ alert('Enter Room ID'); return; }
+  currentRoomId = roomId;
+  document.getElementById('turnIndicator').innerText = `Room: ${roomId}`;
+  closeModal('roomModal');
+
+  const roomRef = ref(db, 'ludo_rooms/' + roomId);
+  onValue(roomRef, (snapshot) => {
+    const data = snapshot.val();
+    if(!data){
+      set(roomRef, { turn: 'red', dice: 1, pawns: { red: [-1,-1,-1,-1], yellow: [-1,-1,-1,-1] } });
+      myColor = 'red';
+    } else {
+      if(!myColor) myColor = data.pawns.yellow.some(p => p !== -1) ? 'yellow' : 'red';
+      updateBoardState(data);
+    }
   });
 }
 
-function rollDiceAnim(){
-  if(hasRolled || gameOver) return;
-  let diceBox = document.getElementById('diceDisplay');
-  diceBox.classList.add('rolling');
-  setTimeout(() => {
-    diceBox.classList.remove('rolling');
-    diceVal = Math.floor(Math.random() * 6) + 1;
-    diceBox.innerText = diceVal;
-    hasRolled = true;
-    let cur = players[turnIndex];
-    let valid = pawns[cur].map((p, i) => (p === -1 && diceVal === 6) || (p >= 0 && p + diceVal <= 58) ? i : -1).filter(i => i !== -1);
-    
-    if(valid.length === 0){ 
-      setTimeout(() => nextTurn(false), 900); 
-    } else if(valid.length === 1){ 
-      setTimeout(() => movePawn(cur, valid[0]), 600); 
-    } else { 
-      alert('Select your pawn to move!'); 
-    }
-  }, 600);
-}
+function updateBoardState(data){
+  document.querySelectorAll('.pawn').forEach(el => el.remove());
+  document.getElementById('diceDisplay').innerText = data.dice || '🎲';
 
-function handlePawnClick(color, idx){
-  if(!hasRolled || color !== players[turnIndex]) return;
-  let p = pawns[color][idx];
-  if((p === -1 && diceVal === 6) || (p >= 0 && p + diceVal <= 58)) movePawn(color, idx);
-}
-
-function movePawn(color, idx){
-  let p = pawns[color][idx];
-  pawns[color][idx] = (p === -1) ? startIndices[color] : p + diceVal;
-  renderPawns();
-  if(pawns[color].every(x => x === 58)){
-    gameOver = true;
-    userCoins += 3000;
-    if(typeof confetti === 'function') confetti({particleCount: 150, spread: 80, origin: {y: 0.6}});
-    alert(`🎉 Player ${color.toUpperCase()} WON the Match! +3,000 Coins added!`);
-    return;
+  if(data.pawns){
+    ['red', 'yellow'].forEach(color => {
+      data.pawns[color].forEach((progress, idx) => {
+        let coords = progress === -1 ? baseCoords[color][idx] : mainTrack[globalTrackIndex(color, progress)];
+        if(coords){
+          let cell = document.querySelector(`[data-row='${coords[0]}'][data-col='${coords[1]}']`);
+          if(cell){
+            let p = document.createElement('div');
+            p.className = `pawn pawn-${color}`;
+            p.onclick = () => handlePawnClick(color, idx, data);
+            cell.appendChild(p);
+          }
+        }
+      });
+    });
   }
-  nextTurn(diceVal === 6);
 }
 
-function nextTurn(extra){
-  hasRolled = false; diceVal = 0;
-  document.getElementById('diceDisplay').innerText = activeDiceSkin;
-  if(!extra) turnIndex = (turnIndex + 1) % players.length;
+window.rollDice = function(){
+  if(!currentRoomId) { alert('Please join a room first via Rooms tab!'); return; }
+  let val = Math.floor(Math.random() * 6) + 1;
+  update(ref(db, 'ludo_rooms/' + currentRoomId), { dice: val });
 }
 
-function toggleSeatMic(seat){
-  seat.classList.toggle('active');
-  let badge = seat.querySelector('.mic-badge');
-  badge.innerText = seat.classList.contains('active') ? '🔊' : '❌';
+window.handlePawnClick = function(color, idx, data){
+  if(color !== myColor || data.turn !== myColor) return;
+  let diceVal = data.dice || 1;
+  let p = data.pawns[color][idx];
+  if((p === -1 && diceVal === 6) || (p >= 0 && p + diceVal < 52)){
+    let newPos = p === -1 ? startIndices[color] : p + diceVal;
+    let updatedPawns = data.pawns;
+    updatedPawns[color][idx] = newPos;
+    let nextTurn = diceVal === 6 ? myColor : (myColor === 'red' ? 'yellow' : 'red');
+    update(ref(db, 'ludo_rooms/' + currentRoomId), { pawns: updatedPawns, turn: nextTurn });
+  }
 }
 
-function sendFlyingGift(giftSymbol){
-  closeModal('giftModal');
-  let container = document.getElementById('appContainer');
-  let giftEl = document.createElement('div');
-  giftEl.className = 'flying-gift';
-  giftEl.innerText = giftSymbol;
-  giftEl.style.left = `${Math.random() * 80 + 10}%`;
-  giftEl.style.bottom = '50px';
-  container.appendChild(giftEl);
-  setTimeout(() => giftEl.remove(), 1500);
-}
-
-function sendCustomChat(){
-  let input = document.getElementById('chatMsgInput');
-  if(!input.value.trim()) return;
-  let history = document.getElementById('chatHistory');
-  history.innerHTML += `<br><b>You:</b> ${input.value}`;
-  history.scrollTop = history.scrollHeight;
-  input.value = '';
-}
-
-function sendEmojiSticker(e){ 
-  closeModal('emojiModal'); 
-  alert(`Reaction sent: ${e}`); 
-}
-
-function openModal(id){ document.getElementById(id).style.display = 'flex'; }
-function closeModal(id){ document.getElementById(id).style.display = 'none'; }
+window.openModal = function(id) { document.getElementById(id).style.display = 'flex'; }
+window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; }
+window.switchTab = function(tab) {}
 
 initBoard();
 </script>
