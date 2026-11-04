@@ -1,9 +1,9 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Pro 3D Casino Arena</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <title>Classic Pro Ludo Game</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,7 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
             color: #fff;
             display: flex;
             justify-content: center;
@@ -20,485 +20,248 @@
             min-height: 100vh;
             padding: 10px;
         }
-        .app-card {
+        .ludo-container {
             width: 100%;
-            max-width: 520px;
+            max-width: 450px;
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(16px);
-            border: 2px solid rgba(0, 240, 255, 0.4);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 240, 255, 0.25);
+            border: 2px solid #f59e0b;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
             padding: 15px;
             text-align: center;
-            position: relative;
-        }
-        #authScreen {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding: 20px 0;
-        }
-        .auth-input {
-            width: 100%;
-            padding: 10px;
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1rem;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
         }
         .header h1 {
-            color: #00f0ff;
-            font-size: 1.1rem;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            color: #fbbf24;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            background: rgba(2, 6, 23, 0.8);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            margin-bottom: 8px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .balance-box {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            padding: 8px 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
-        }
-        .btn-action {
-            background: #10b981;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 0.7rem;
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 2px;
-        }
-        .game-tabs {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 10px;
-            background: rgba(2, 6, 23, 0.9);
-            padding: 4px;
-            border-radius: 10px;
-            overflow-x: auto;
-        }
-        .tab-btn {
-            flex: 1;
-            min-width: 48px;
-            padding: 6px 2px;
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 0.6rem;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 6px;
-            white-space: nowrap;
-        }
-        .tab-btn.active {
-            background: #00f0ff;
-            color: #000;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
-        }
-        .game-panel {
-            display: none;
-            background: rgba(2, 6, 23, 0.7);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 14px;
-            padding: 12px;
-            min-height: 260px;
-        }
-        .game-panel.active { display: block; }
-
-        canvas {
+        .status-bar {
             background: #020617;
-            border-radius: 10px;
-            border: 1px solid #1e293b;
-            display: block;
-            margin: 0 auto 8px auto;
-        }
-        .input-group {
-            margin-bottom: 8px;
-            text-align: left;
-        }
-        .input-group label {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            display: block;
-            margin-bottom: 2px;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 7px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
             font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            border: 1px solid #1e293b;
         }
-        .btn-main {
-            width: 100%;
-            padding: 10px;
-            background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+        /* Simplified 2-Player Ludo Board Grid */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 12px;
+            border: 2px solid #334155;
+            margin-bottom: 12px;
+        }
+        .cell {
+            aspect-ratio: 1;
+            background: #1e293b;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            position: relative;
+        }
+        .cell.safe { background: #334155; }
+        .cell.red-home { background: rgba(239, 68, 68, 0.3); border: 1px solid #ef4444; }
+        .cell.green-home { background: rgba(16, 185, 129, 0.3); border: 1px solid #10b981; }
+
+        /* Pawns */
+        .pawn {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            cursor: pointer;
+            border: 2px solid #fff;
+        }
+        .pawn-red { background: #ef4444; }
+        .pawn-green { background: #10b981; }
+
+        .control-panel {
+            background: #020617;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .dice-box {
+            font-size: 2rem;
+            background: #1e293b;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #f59e0b;
+            color: #fbbf24;
+        }
+        .btn-roll {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             border: none;
             border-radius: 8px;
             color: #000;
+            font-weight: bold;
             font-size: 0.95rem;
-            font-weight: bold;
             cursor: pointer;
-            margin-top: 4px;
-            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
         }
-        .result-text {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            min-height: 22px;
-            color: #4ade80;
-        }
-        /* Tower Climb Grid */
-        .tower-grid {
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 4px;
-            margin: 8px 0;
-        }
-        .tower-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-        }
-        .tower-tile {
-            background: #1e293b;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            cursor: pointer;
-            border: 1px solid #334155;
-        }
+        .btn-roll:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-<div class="app-card">
-    <!-- AUTHENTICATION -->
-    <div id="authScreen">
-        <h1 style="color:#00f0ff; font-size:1.4rem;">PRO CASINO ARENA</h1>
-        <p style="color:#94a3b8; font-size:0.8rem;">Enter your name to unlock Limbo, Tower & Vault</p>
-        <input type="text" id="usernameInput" class="auth-input" placeholder="Enter Username (e.g. Zeeshan)">
-        <button class="btn-main" onclick="loginUser()">ENTER ARENA</button>
+<div class="ludo-container">
+    <div class="header">
+        <h1>CLASSIC LUDO ARENA</h1>
+    </div>
+    
+    <div class="status-bar" id="statusText">
+        Player Red's Turn (Click Roll Dice)
     </div>
 
-    <!-- MAIN DASHBOARD -->
-    <div id="mainDashboard" style="display:none;">
-        <div class="header">
-            <h1>PRO CASINO</h1>
-            <div>
-                <button class="btn-action" style="background:#3b82f6;" onclick="toggleVoice()" id="voiceBtn">🔊 Voice</button>
-                <span id="displayUser" style="font-size:0.7rem; color:#00f0ff; background:rgba(0,240,255,0.1); padding:2px 6px; border-radius:4px;"></span>
-            </div>
-        </div>
-
-        <div class="stats-bar">
-            <span>VIP: <span id="vipTier" style="color:#00f0ff; font-weight:bold;">Bronze</span></span>
-            <span>Vault: $<span id="vaultBalance" style="color:#fbbf24; font-weight:bold;">0</span></span>
-        </div>
-
-        <div class="balance-box">
-            <span>Balance: $<span id="balance">1000</span></span>
-            <div>
-                <button class="btn-action" onclick="claimDaily()">Daily</button>
-                <button class="btn-action" style="background:#f59e0b;" onclick="openVault()">Vault</button>
-            </div>
-        </div>
-
-        <div class="game-tabs">
-            <button class="tab-btn active" onclick="switchTab('limbo')">🚀 Limbo</button>
-            <button class="tab-btn" onclick="switchTab('tower')">🗼 Tower</button>
-            <button class="tab-btn" onclick="switchTab('crash')">✈️ Crash</button>
-            <button class="tab-btn" onclick="switchTab('plinko')">⚪ Plinko</button>
-        </div>
-
-        <!-- 1. LIMBO GAME -->
-        <div id="limbo-panel" class="game-panel active">
-            <div style="font-size: 2rem; color: #00f0ff; margin: 15px 0; font-weight: bold;" id="limboDisplay">2.00x</div>
-            <div class="input-group">
-                <label>Bet Amount ($)</label>
-                <input type="number" id="limboBet" value="50">
-            </div>
-            <div class="input-group">
-                <label>Target Multiplier (x)</label>
-                <input type="number" id="limboTarget" value="2.0" step="0.1">
-            </div>
-            <button class="btn-main" onclick="playLimbo()">PLAY LIMBO</button>
-            <div class="result-text" id="limboResult">Set target & roll!</div>
-        </div>
-
-        <!-- 2. TOWER CLIMB GAME -->
-        <div id="tower-panel" class="game-panel">
-            <div class="input-group">
-                <label>Bet Amount ($)</label>
-                <input type="number" id="towerBet" value="50">
-            </div>
-            <button class="btn-main" id="startTowerBtn" onclick="startTower()">START TOWER CLIMB</button>
-            <div class="tower-grid" id="towerGrid"></div>
-            <div class="result-text" id="towerResult">Climb steps & cash out safely!</div>
-        </div>
-
-        <!-- 3. CRASH GAME -->
-        <div id="crash-panel" class="game-panel">
-            <canvas id="flightCanvas" width="460" height="140"></canvas>
-            <div class="input-group">
-                <label>Bet Amount ($)</label>
-                <input type="number" id="crashBet" value="50">
-            </div>
-            <button class="btn-main" id="crashBtn" onclick="startCrash()">LAUNCH ROCKET</button>
-            <div class="result-text" id="crashResult">Ready for flight...</div>
-        </div>
-
-        <!-- 4. PLINKO GAME -->
-        <div id="plinko-panel" class="game-panel">
-            <canvas id="plinkoCanvas" width="460" height="160"></canvas>
-            <div class="input-group">
-                <label>Bet Amount ($)</label>
-                <input type="number" id="plinkoBet" value="50">
-            </div>
-            <button class="btn-main" onclick="dropPlinko()">DROP BALL</button>
-            <div class="result-text" id="plinkoResult">Drop ball into multipliers!</div>
-        </div>
+    <!-- Ludo Board (7x7 Track Layout for Quick 2-Player Match) -->
+    <div class="board" id="ludoBoard">
+        <!-- Dynamically generated board cells -->
     </div>
 
-    <!-- VAULT MODAL -->
-    <div id="vaultModal" class="modal" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(3,7,18,0.95); border-radius:24px; padding:20px; flex-direction:column; justify-content:center; z-index:100;">
-        <h3 style="color:#00f0ff; margin-bottom:10px;">🏦 Savings Vault</h3>
-        <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:10px;">Lock your funds safely away from impulsive bets!</p>
-        <div class="input-group">
-            <label>Amount ($)</label>
-            <input type="number" id="vaultAmount" value="100" class="auth-input">
+    <div class="control-panel">
+        <div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 3px;">DICE</div>
+            <div class="dice-box" id="diceDisplay">🎲</div>
         </div>
-        <div style="display:flex; gap:6px; margin-top:8px;">
-            <button class="btn-main" style="background:#10b981;" onclick="vaultDeposit()">DEPOSIT</button>
-            <button class="btn-main" style="background:#f59e0b;" onclick="vaultWithdraw()">WITHDRAW</button>
-        </div>
-        <button class="btn-main" style="margin-top:10px; background:#475569;" onclick="closeVault()">CLOSE</button>
+        <button class="btn-roll" id="rollBtn" onclick="rollDice()">ROLL DICE</button>
     </div>
 </div>
 
 <script>
-    let currentUser = localStorage.getItem("u_name") || null;
-    let balance = 1000, vault = 0, rakeback = 0;
-    let voiceEnabled = true;
+    // 2-Player Simplified Track Setup (0 to 23 track index)
+    // Red starts at 0, Green starts at 12
+    let turn = 'red'; // 'red' or 'green'
+    let diceValue = 0;
+    let hasRolled = false;
 
-    function speak(text) {
-        if (!voiceEnabled || !('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
-        let msg = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(msg);
-    }
+    // Pawns data: each player has 2 pawns (-1 means inside base, 0-23 track position, 24 means home)
+    let redPawns = [-1, -1];
+    let greenPawns = [-1, -1];
 
-    function toggleVoice() {
-        voiceEnabled = !voiceEnabled;
-        document.getElementById("voiceBtn").innerText = voiceEnabled ? "🔊 Voice" : "🔇 Muted";
-    }
+    function renderBoard() {
+        const board = document.getElementById("ludoBoard");
+        board.innerHTML = "";
 
-    function loginUser() {
-        let name = document.getElementById("usernameInput").value.trim();
-        if(!name) return;
-        currentUser = name;
-        localStorage.setItem("u_name", currentUser);
-        document.getElementById("authScreen").style.display = "none";
-        document.getElementById("mainDashboard").style.display = "block";
-        document.getElementById("displayUser").innerText = currentUser;
-        speak(`Welcome ${currentUser}`);
-    }
+        // Create 21 Track Cells
+        for (let i = 0; i < 21; i++) {
+            let cell = document.createElement("div");
+            cell.className = "cell";
+            if(i === 0) cell.classList.add("red-home");
+            if(i === 10) cell.classList.add("green-home");
+            if(i === 5 || i === 15) cell.classList.add("safe");
+            cell.innerText = i;
 
-    if(currentUser) {
-        document.getElementById("usernameInput").value = currentUser;
-        loginUser();
-    }
+            // Check if any Red pawn is here
+            redPawns.forEach((pos, idx) => {
+                if(pos === i) {
+                    let p = document.createElement("div");
+                    p.className = "pawn pawn-red";
+                    p.onclick = () => movePawn('red', idx);
+                    cell.appendChild(p);
+                }
+            });
 
-    function updateUI() {
-        document.getElementById("balance").innerText = balance;
-        document.getElementById("vaultBalance").innerText = vault;
-    }
+            // Check if any Green pawn is here
+            greenPawns.forEach((pos, idx) => {
+                if(pos === i) {
+                    let p = document.createElement("div");
+                    p.className = "pawn pawn-green";
+                    p.onclick = () => movePawn('green', idx);
+                    cell.appendChild(p);
+                }
+            });
 
-    function claimDaily() {
-        balance += 250; updateUI();
-        speak("Daily bonus claimed");
-        alert("🎉 Claimed $250 Daily Bonus!");
-    }
-
-    function switchTab(name) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
-        const target = document.getElementById(`${name}-panel`);
-        if(target) target.classList.add('active');
-        const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(name));
-        if(btn) btn.classList.add('active');
-        if(name === 'plinko') drawPlinkoStatic();
-    }
-
-    // --- 1. LIMBO GAME ---
-    function playLimbo() {
-        let bet = parseInt(document.getElementById("limboBet").value);
-        let target = parseFloat(document.getElementById("limboTarget").value);
-        if(isNaN(bet) || bet <= 0 || bet > balance) return;
-        balance -= bet; updateUI();
-
-        let roll = parseFloat((1.0 + Math.random() * 99).toFixed(2));
-        document.getElementById("limboDisplay").innerText = roll + "x";
-
-        let isWin = roll >= target;
-        let win = isWin ? Math.floor(bet * target) : 0;
-        if(isWin) { balance += win; updateUI(); speak("Limbo win!"); }
-        else { speak("Limbo loss"); }
-
-        document.getElementById("limboResult").innerHTML = `<span style="color:${isWin?'#4ade80':'#f87171'};">Roll: ${roll}x - ${isWin?'Won $'+win:'Lost'}</span>`;
-    }
-
-    // --- 2. TOWER CLIMB GAME ---
-    let towerRow = 0, towerActive = false, towerBet = 0;
-    const towerMultipliers = [1.2, 1.5, 2.0, 3.0, 5.0];
-
-    function startTower() {
-        let bet = parseInt(document.getElementById("towerBet").value);
-        if(isNaN(bet) || bet <= 0 || bet > balance) return;
-        balance -= bet; updateUI();
-        towerBet = bet; towerRow = 0; towerActive = true;
-        buildTowerGrid();
-        document.getElementById("startTowerBtn").innerText = "CASHOUT NOW";
-        document.getElementById("towerResult").innerText = "Choose a tile to climb row 1!";
-    }
-
-    function buildTowerGrid() {
-        let grid = document.getElementById("towerGrid");
-        grid.innerHTML = "";
-        for(let r = towerMultipliers.length - 1; r >= 0; r--) {
-            let rowDiv = document.createElement("div");
-            rowDiv.className = "tower-row";
-            for(let c = 0; c < 3; c++) {
-                let tile = document.createElement("div");
-                tile.className = "tower-tile";
-                tile.innerText = `${towerMultipliers[r]}x`;
-                tile.onclick = () => selectTowerTile(r, tile);
-                rowDiv.appendChild(tile);
-            }
-            grid.appendChild(rowDiv);
+            board.appendChild(cell);
         }
     }
 
-    function selectTowerTile(row, tile) {
-        if(!towerActive || row !== towerRow) return;
-        let trapCol = Math.floor(Math.random() * 3);
-        let chosenCol = Array.from(tile.parentElement.children).indexOf(tile);
+    function rollDice() {
+        if(hasRolled) return;
+        diceValue = Math.floor(Math.random() * 6) + 1;
+        document.getElementById("diceDisplay").innerText = diceValue;
+        hasRolled = true;
 
-        if(chosenCol === trapCol) {
-            towerActive = false;
-            tile.style.background = "#ef4444"; tile.innerText = "💥";
-            speak("Tower collapsed!");
-            document.getElementById("startTowerBtn").innerText = "START TOWER CLIMB";
-            document.getElementById("towerResult").innerHTML = `<span style="color:#f87171;">Trap hit! Lost $${towerBet}</span>`;
-        } else {
-            tile.style.background = "#10b981"; tile.innerText = "💎";
-            towerRow++;
-            if(towerRow >= towerMultipliers.length) {
-                towerActive = false;
-                let win = Math.floor(towerBet * towerMultipliers[towerMultipliers.length - 1]);
-                balance += win; updateUI();
-                speak("Tower conquered!");
-                document.getElementById("startTowerBtn").innerText = "START TOWER CLIMB";
-                document.getElementById("towerResult").innerHTML = `<span style="color:#4ade80;">Victory! Won $${win}</span>`;
+        document.getElementById("statusTextinnerText") = `Rolled a ${diceValue}. Click your pawn to move!`;
+        
+        // Auto check if player has any valid moves, otherwise switch turn
+        let validMoves = getValidMoves(turn);
+        if(validMoves === 0) {
+            setTimeout(() => {
+                switchTurn();
+            }, 1200);
+        }
+    }
+
+    function getValidMoves(player) {
+        let pawns = player === 'red' ? redPawns : greenPawns;
+        let count = 0;
+        pawns.forEach(pos => {
+            if(pos === -1 && diceValue === 6) count++;
+            if(pos !== -1 && pos + diceValue <= 20) count++;
+        });
+        return count;
+    }
+
+    function movePawn(player, index) {
+        if(!hasRolled || player !== turn) return;
+        let pawns = player === 'red' ? redPawns : greenPawns;
+        let pos = pawns[index];
+
+        if(pos === -1) {
+            if(diceValue === 6) {
+                pawns[index] = player === 'red' ? 0 : 10; // Start position
+                finishTurn();
             } else {
-                speak("Safe step");
-                document.getElementById("towerResult").innerText = `Safe! Climb row ${towerRow + 1} or cash out.`;
+                alert("You need a 6 to open a pawn!");
+            }
+        } else {
+            let newPos = pos + diceValue;
+            if(newPos <= 20) {
+                pawns[index] = newPos;
+                
+                // Check win condition
+                if(newPos === 20) {
+                    alert(`🎉 Player ${player.toUpperCase()} won a pawn home!`);
+                }
+
+                finishTurn();
+            } else {
+                alert("Exact count needed to reach home!");
             }
         }
     }
 
-    // --- 3. CRASH GAME ---
-    const canvas = document.getElementById("flightCanvas");
-    const ctx = canvas.getContext("2d");
-    let crashAnim = null, mult = 1.0, isFlying = false;
-
-    function startCrash() {
-        if(isFlying) return;
-        let bet = parseInt(document.getElementById("crashBet").value);
-        if(isNaN(bet) || bet <= 0 || bet > balance) return;
-        balance -= bet; updateUI();
-        mult = 1.0; isFlying = true;
-        let crashAt = parseFloat((1.1 + Math.random() * 3).toFixed(2));
-        speak("Rocket airborne");
-
-        crashAnim = setInterval(() => {
-            mult += 0.05;
-            ctx.fillStyle = "#020617"; ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = "#00f0ff"; ctx.font = "bold 22px Segoe UI"; ctx.fillText(mult.toFixed(2) + "x", 20, 40);
-
-            if(mult >= crashAt) {
-                clearInterval(crashAnim); isFlying = false;
-                speak("Crash");
-                document.getElementById("crashResult").innerHTML = `<span style="color:#f87171;">Crashed at ${crashAt}x! Lost $${bet}</span>`;
-            }
-        }, 100);
+    function finishTurn() {
+        hasRolled = false;
+        switchTurn();
     }
 
-    // --- 4. PLINKO GAME ---
-    const pCanvas = document.getElementById("plinkoCanvas");
-    const pCtx = pCanvas.getContext("2d");
-    function drawPlinkoStatic() {
-        pCtx.fillStyle = "#020617"; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);
-        pCtx.fillStyle = "#38bdf8";
-        for(let r=0; r<4; r++) {
-            for(let c=0; c<=r+2; c++) {
-                pCtx.beginPath(); pCtx.arc(230 - (r*18) + (c*36), 30 + (r*30), 4, 0, Math.PI*2); pCtx.fill();
-            }
-        }
-    }
-    function dropPlinko() {
-        let bet = parseInt(document.getElementById("plinkoBet").value);
-        if(isNaN(bet) || bet <= 0 || bet > balance) return;
-        balance -= bet; updateUI();
-        let mults = [0.5, 1.5, 3.0, 1.5, 0.5];
-        let res = mults[Math.floor(Math.random() * mults.length)];
-        let win = Math.floor(bet * res);
-        balance += win; updateUI();
-        speak(`Plinko win ${res}x`);
-        document.getElementById("plinkoResult").innerHTML = `<span style="color:#4ade80;">Landed on ${res}x! Won $${win}</span>`;
+    function switchTurn() {
+        turn = turn === 'red' ? 'green' : 'red';
+        document.getElementById("statusText").innerText = `Player ${turn.toUpperCase()}'s Turn (Roll Dice)`;
+        document.getElementById("diceDisplay").innerText = "🎲";
+        renderBoard();
     }
 
-    // --- VAULT MODAL ---
-    function openVault() { document.getElementById("vaultModal").style.display = "flex"; }
-    function closeVault() { document.getElementById("vaultModal").style.display = "none"; }
-    function vaultDeposit() {
-        let amt = parseInt(document.getElementById("vaultAmount").value);
-        if(amt > 0 && amt <= balance) { balance -= amt; vault += amt; updateUI(); alert("Deposited to Vault!"); closeVault(); }
-    }
-    function vaultWithdraw() {
-        let amt = parseInt(document.getElementById("vaultAmount").value);
-        if(amt > 0 && amt <= vault) { vault -= amt; balance += amt; updateUI(); alert("Withdrawn from Vault!"); closeVault(); }
-    }
-
-    updateUI();
-    drawPlinkoStatic();
+    renderBoard();
 </script>
 
 </body>
