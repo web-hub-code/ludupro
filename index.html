@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Game Casino Arena</title>
+    <title>Advanced Multi-Game Casino Arena</title>
     <style>
         * {
             box-sizing: border-box;
@@ -28,27 +28,52 @@
             box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
             padding: 15px;
             text-align: center;
+            position: relative;
         }
         .header h1 {
             color: #fbbf24;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
+        /* VIP & Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #020617;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+            border: 1px solid #1e293b;
+        }
+        .vip-badge { color: #f59e0b; font-weight: bold; }
         .balance-box {
             background: #0284c7;
             padding: 8px 15px;
             border-radius: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-size: 1.1rem;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
+        .btn-daily {
+            background: #10b981;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        /* Navigation Tabs */
         .game-tabs {
             display: flex;
             gap: 4px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             background: #020617;
             padding: 4px;
             border-radius: 10px;
@@ -74,30 +99,30 @@
             background: #020617;
             border: 1px solid #1e293b;
             border-radius: 12px;
-            padding: 15px;
-            min-height: 250px;
+            padding: 12px;
+            min-height: 230px;
         }
         .game-panel.active {
             display: block;
         }
         .input-group {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: left;
         }
         .input-group label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #94a3b8;
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
         .input-group input {
             width: 100%;
-            padding: 8px;
+            padding: 7px;
             background: #0f172a;
             border: 1px solid #334155;
             border-radius: 6px;
             color: #fff;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         .btn-main {
             width: 100%;
@@ -106,23 +131,24 @@
             border: none;
             border-radius: 8px;
             color: #000;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 5px;
+            margin-top: 4px;
         }
         .result-text {
-            margin-top: 10px;
-            font-size: 0.9rem;
+            margin-top: 8px;
+            font-size: 0.85rem;
             font-weight: bold;
-            min-height: 24px;
+            min-height: 22px;
             color: #4ade80;
         }
+        /* Mines Grid */
         .mines-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            margin: 10px 0;
+            gap: 5px;
+            margin: 8px 0;
         }
         .mine-cell {
             aspect-ratio: 1;
@@ -132,41 +158,61 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
         }
         .mine-cell.revealed { background: #0f172a; border-color: #475569; }
         .mine-cell.gem { color: #4ade80; }
         .mine-cell.boom { color: #f87171; }
+        /* Color Buttons */
         .color-btns {
             display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 8px;
         }
         .color-btn {
             flex: 1;
-            padding: 10px;
+            padding: 9px;
             border: none;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
             color: #fff;
+            font-size: 0.85rem;
         }
         .btn-green { background: #10b981; }
         .btn-violet { background: #8b5cf6; }
         .btn-red { background: #ef4444; }
+        /* Live Leaderboard Ticker */
+        .leaderboard-ticker {
+            margin-top: 10px;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 6px;
+            font-size: 0.7rem;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
 
 <div class="app-card">
     <div class="header">
-        <h1>MULTI-GAME CASINO ARENA</h1>
+        <h1>ADVANCED CASINO ARENA</h1>
+    </div>
+
+    <!-- VIP & Stats Header -->
+    <div class="stats-bar">
+        <span>VIP: <span id="vipTier" class="vip-badge">Bronze</span></span>
+        <span>XP: <span id="xpCount">0</span>/500</span>
     </div>
 
     <div class="balance-box">
-        <span>Balance:</span>
-        <span>$<span id="balance">1000</span></span>
+        <span>Balance: $<span id="balance">1000</span></span>
+        <button class="btn-daily" onclick="claimDailyBonus()">Daily Bonus</button>
     </div>
 
     <!-- Navigation Tabs -->
@@ -178,7 +224,7 @@
 
     <!-- Game 1: Crash -->
     <div id="crash-panel" class="game-panel active">
-        <div style="font-size: 2rem; color: #fbbf24; margin: 15px 0; font-weight: bold;" id="crashMultiplier">1.00x</div>
+        <div style="font-size: 1.8rem; color: #fbbf24; margin: 10px 0; font-weight: bold;" id="crashMultiplier">1.00x</div>
         <div class="input-group">
             <label>Bet Amount ($)</label>
             <input type="number" id="crashBet" value="50">
@@ -204,7 +250,7 @@
             <label>Bet Amount ($)</label>
             <input type="number" id="colorBet" value="50">
         </div>
-        <label style="font-size:0.75rem; color:#94a3b8; display:block; text-align:left; margin-bottom:5px;">Select Color (Green 2X | Violet 4.5X | Red 2X)</label>
+        <label style="font-size:0.7rem; color:#94a3b8; display:block; text-align:left; margin-bottom:4px;">Select Color (Green 2X | Violet 4.5X | Red 2X)</label>
         <div class="color-btns">
             <button class="color-btn btn-green" onclick="playColor('green')">Green</button>
             <button class="color-btn btn-violet" onclick="playColor('violet')">Violet</button>
@@ -212,16 +258,88 @@
         </div>
         <div class="result-text" id="colorResult">Pick a color to predict!</div>
     </div>
+
+    <!-- Live Leaderboard Ticker -->
+    <div class="leaderboard-ticker" id="tickerText">
+        🏆 Live Wins: Player_77 won $450 | Alex_99 won $1,200 | Zeeshan won $300
+    </div>
 </div>
 
 <script>
-    let balance = 1000;
+    // --- State & LocalStorage Management ---
+    let balance = parseInt(localStorage.getItem("casino_balance")) || 1000;
+    let xp = parseInt(localStorage.getItem("casino_xp")) || 0;
+    let lastClaimTime = parseInt(localStorage.getItem("casino_last_claim")) || 0;
 
-    function updateBalance() {
+    function saveState() {
+        localStorage.setItem("casino_balance", balance);
+        localStorage.setItem("casino_xp", xp);
+        localStorage.setItem("casino_last_claim", lastClaimTime);
+        updateUI();
+    }
+
+    function updateUI() {
         document.getElementById("balance").innerText = balance;
+        document.getElementById("xpCount").innerText = xp;
+        
+        let tier = "Bronze";
+        if (xp >= 2000) tier = "VIP Diamond";
+        else if (xp >= 1000) tier = "Gold";
+        else if (xp >= 500) tier = "Silver";
+        document.getElementById("vipTier").innerText = tier;
+    }
+
+    function addXP(amount) {
+        xp += amount;
+        saveState();
+    }
+
+    // --- Web Audio API Sound Engine ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        if (type === 'win') {
+            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'loss') {
+            osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+        } else if (type === 'click') {
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+        }
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+    }
+
+    // --- Daily Bonus System ---
+    function claimDailyBonus() {
+        playSound('click');
+        let now = Date.now();
+        if (now - lastClaimTime < 86400000) {
+            alert("Daily bonus already claimed! Come back tomorrow.");
+            return;
+        }
+        lastClaimTime = now;
+        balance += 250;
+        saveState();
+        alert("🎉 Successfully claimed $250 Daily Bonus!");
     }
 
     function switchTab(tabName) {
+        playSound('click');
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
 
@@ -238,21 +356,24 @@
         }
     }
 
-    // Crash Game
+    // --- 1. Crash Game ---
     let crashInterval = null;
     let currentMultiplier = 1.00;
     let isCrashing = false;
 
     function startCrashGame() {
+        playSound('click');
         if(isCrashing) {
             clearInterval(crashInterval);
             let bet = parseInt(document.getElementById("crashBet").value);
             let winnings = Math.floor(bet * currentMultiplier);
             balance += winnings;
-            updateBalance();
+            addXP(Math.floor(bet / 5));
+            playSound('win');
             document.getElementById("crashResult").innerHTML = `<span style="color:#4ade80;">Cashed out at ${currentMultiplier.toFixed(2)}x! Won $${winnings}</span>`;
             document.getElementById("crashBtn").innerText = "START FLIGHT";
             isCrashing = false;
+            saveState();
             return;
         }
 
@@ -263,7 +384,7 @@
         }
 
         balance -= bet;
-        updateBalance();
+        saveState();
         isCrashing = true;
         currentMultiplier = 1.00;
         document.getElementById("crashBtn").innerText = "CASHOUT";
@@ -278,13 +399,14 @@
             if(currentMultiplier >= parseFloat(crashPoint)) {
                 clearInterval(crashInterval);
                 isCrashing = false;
+                playSound('loss');
                 document.getElementById("crashBtn").innerText = "START FLIGHT";
                 document.getElementById("crashResult").innerHTML = `<span style="color:#f87171;">CRASHED at ${crashPoint}x! Lost $${bet}</span>`;
             }
         }, 150);
     }
 
-    // Mines Game
+    // --- 2. Mines Game ---
     let minePosition = -1;
     let minesActive = false;
 
@@ -303,13 +425,14 @@
     }
 
     function startMinesGame() {
+        playSound('click');
         let bet = parseInt(document.getElementById("minesBet").value);
         if(isNaN(bet) || bet <= 0 || bet > balance) {
             document.getElementById("minesResult").innerText = "Invalid bet amount!";
             return;
         }
         balance -= bet;
-        updateBalance();
+        saveState();
         minesActive = true;
         minePosition = Math.floor(Math.random() * 12);
         initMinesGrid(true);
@@ -324,19 +447,23 @@
         if(index === minePosition) {
             cell.classList.add('revealed', 'boom');
             cell.innerText = "💣";
+            playSound('loss');
             document.getElementById("minesResult").innerHTML = `<span style="color:#f87171;">Boom! You hit a mine. Lost $${bet}</span>`;
         } else {
             cell.classList.add('revealed', 'gem');
             cell.innerText = "💎";
             let reward = bet * 2;
             balance += reward;
-            updateBalance();
+            addXP(Math.floor(bet / 4));
+            playSound('win');
+            saveState();
             document.getElementById("minesResult").innerHTML = `<span style="color:#4ade80;">Safe! Won $${reward}</span>`;
         }
     }
 
-    // Color Prediction Game
+    // --- 3. Color Prediction Game ---
     function playColor(choice) {
+        playSound('click');
         let bet = parseInt(document.getElementById("colorBet").value);
         if(isNaN(bet) || bet <= 0 || bet > balance) {
             document.getElementById("colorResult").innerText = "Invalid bet amount!";
@@ -344,7 +471,7 @@
         }
 
         balance -= bet;
-        updateBalance();
+        saveState();
 
         const colorsList = ['green', 'green', 'red', 'red', 'violet'];
         let outcome = colorsList[Math.floor(Math.random() * colorsList.length)];
@@ -353,13 +480,25 @@
             let multiplier = (outcome === 'violet') ? 4.5 : 2.0;
             let win = Math.floor(bet * multiplier);
             balance += win;
-            updateBalance();
+            addXP(Math.floor(bet / 3));
+            playSound('win');
+            saveState();
             document.getElementById("colorResult").innerHTML = `<span style="color:#4ade80;">Outcome: ${outcome.toUpperCase()}! Won $${win}</span>`;
         } else {
+            playSound('loss');
             document.getElementById("colorResult").innerHTML = `<span style="color:#f87171;">Outcome: ${outcome.toUpperCase()}. You lost!</span>`;
         }
     }
 
+    // Simulated Live Leaderboard Ticker updates
+    const tickerNames = ["Zeeshan", "Bilal", "Ali_99", "Hamza_X", "Khan_Pro", "Ahmed_786"];
+    setInterval(() => {
+        let randomName = tickerNames[Math.floor(Math.random() * tickerNames.length)];
+        let randomWin = Math.floor(Math.random() * 1500) + 100;
+        document.getElementById("tickerText").innerText = `🏆 Live Wins: ${randomName} just won $${randomWin} in Crash!`;
+    }, 5000);
+
+    updateUI();
     initMinesGrid(false);
 </script>
 
