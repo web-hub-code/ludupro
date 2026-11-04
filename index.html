@@ -2,14 +2,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yalla Pro Ludo - Enterprise Edition</title>
+<title>Yalla Pro Ludo - Ultimate Global Edition</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
 body{background:radial-gradient(circle at center,#090d16 0%,#02040a 100%);color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px}
-.app-container{width:100%;max-width:440px;background:rgba(15,23,42,.95);backdrop-filter:blur(30px);border:1px solid rgba(56,189,248,0.2);border-radius:32px;box-shadow:0 30px 60px rgba(0,0,0,.9),0 0 50px rgba(56,189,248,0.1);padding:14px;text-align:center;position:relative;overflow:hidden;min-height:750px;display:flex;flex-direction:column;justify-content:space-between}
+.app-container{width:100%;max-width:440px;background:rgba(15,23,42,.96);backdrop-filter:blur(30px);border:2px solid rgba(56,189,248,0.4);border-radius:32px;box-shadow:0 30px 60px rgba(0,0,0,.9),0 0 50px rgba(56,189,248,0.15);padding:14px;text-align:center;position:relative;overflow:hidden;min-height:780px;display:flex;flex-direction:column;justify-content:space-between}
 
-/* Top Header Profile Bar */
+/* Top Profile Bar */
 .top-profile-bar{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.9));padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.08)}
 .user-info{display:flex;align-items:center;gap:8px}
 .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0284c7);display:flex;justify-content:center;align-items:center;font-weight:bold;font-size:0.9rem;border:2px solid #38bdf8}
@@ -22,8 +22,14 @@ body{background:radial-gradient(circle at center,#090d16 0%,#02040a 100%);color:
 .badge.coins{color:#fbbf24;border-color:rgba(251,191,36,0.3)}
 .badge.gems{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
 
-/* Main Content Area */
-.main-content{flex-grow:1;display:flex;flex-direction:column;justify-content:center;align-items:center;margin:10px 0}
+/* Yalla Voice Party Seats */
+.voice-party-bar{display:flex;justify-content:space-around;background:rgba(30,41,59,0.6);padding:8px;border-radius:18px;margin:8px 0;border:1px solid rgba(255,255,255,0.05)}
+.mic-seat{width:38px;height:38px;border-radius:50%;background:#1e293b;border:2px solid #38bdf8;display:flex;justify-content:center;align-items:center;font-size:0.85rem;cursor:pointer;position:relative}
+.mic-seat.active{border-color:#10b981;box-shadow:0 0 10px rgba(16,185,129,0.5)}
+.mic-badge{position:absolute;bottom:-2px;right:-2px;font-size:0.5rem;background:#000;padding:1px 3px;border-radius:50%}
+
+/* Main Board */
+.main-content{flex-grow:1;display:flex;flex-direction:column;justify-content:center;align-items:center;margin:5px 0}
 .board{width:100%;aspect-ratio:1;background:#e2e8f0;border:4px solid #1e293b;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);gap:1px;border-radius:16px;box-shadow:0 15px 35px rgba(0,0,0,.7)}
 .cell{background:#fff;display:flex;justify-content:center;align-items:center;position:relative;font-size:.55rem}
 .cell.red-base{background:#ef4444}
@@ -36,24 +42,31 @@ body{background:radial-gradient(circle at center,#090d16 0%,#02040a 100%);color:
 .pawn-yellow{background:radial-gradient(circle at 30% 30%,#facc15,#d97706)}
 
 /* Game Control Bar */
-.game-control-bar{display:flex;justify-content:space-between;align-items:center;background:rgba(30,41,59,0.7);padding:10px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.05);margin-bottom:10px}
+.game-control-bar{display:flex;justify-content:space-between;align-items:center;background:rgba(30,41,59,0.7);padding:10px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.05);margin-bottom:8px}
 .dice-box{font-size:1.6rem;background:#0f172a;width:42px;height:42px;border-radius:12px;display:flex;justify-content:center;align-items:center;border:2px solid #38bdf8;color:#38bdf8}
 .btn-roll{padding:8px 20px;background:linear-gradient(135deg,#38bdf8 0%,#0284c7 100%);border:none;border-radius:14px;color:#000;font-weight:bold;font-size:0.85rem;cursor:pointer;box-shadow:0 4px 15px rgba(56,189,248,0.4)}
 
 /* Bottom Navigation Tabs */
-.bottom-nav{display:flex;justify-content:space-around;background:rgba(15,23,42,0.9);padding:8px;border-radius:20px;border:1px solid rgba(255,255,255,0.05)}
-.nav-item{background:none;border:none;color:#94a3b8;font-size:0.75rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:0.2s}
+.bottom-nav{display:flex;justify-content:space-around;background:rgba(15,23,42,0.95);padding:8px;border-radius:20px;border:1px solid rgba(255,255,255,0.05)}
+.nav-item{background:none;border:none;color:#94a3b8;font-size:0.7rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:0.2s}
 .nav-item.active{color:#38bdf8}
 .nav-item span{font-size:1.1rem}
 
-/* Modals */
-.modal{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(9,13,22,0.95);backdrop-filter:blur(20px);border-radius:32px;z-index:300;padding:24px;flex-direction:column;justify-content:center;align-items:center}
+/* Modals & Luxury Animations */
+.modal{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(9,13,22,0.96);backdrop-filter:blur(20px);border-radius:32px;z-index:300;padding:24px;flex-direction:column;justify-content:center;align-items:center}
 .auth-input{width:100%;padding:12px;margin-bottom:12px;background:rgba(30,41,59,0.9);border:1px solid #334155;border-radius:14px;color:#fff;font-size:0.9rem}
+
+@keyframes luxuryFly {
+  0% { transform: translateY(0) scale(0.4); opacity: 0; }
+  50% { opacity: 1; transform: translateY(-200px) scale(1.3); }
+  100% { transform: translateY(-400px) scale(1); opacity: 0; }
+}
+.luxury-gift-anim { position: absolute; font-size: 3rem; animation: luxuryFly 1.8s ease-in-out forwards; z-index: 500; pointer-events: none; }
 </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app-container" id="appContainer">
 
 <!-- TOP PROFILE BAR -->
 <div class="top-profile-bar">
@@ -61,13 +74,21 @@ body{background:radial-gradient(circle at center,#090d16 0%,#02040a 100%);color:
 <div class="avatar" id="userAvatar">YP</div>
 <div class="user-details">
 <div class="user-name" id="userNameDisplay">Guest Player</div>
-<div class="user-level">⭐ VIP Level 1</div>
+<div class="user-level">🌟 Grandmaster VIP</div>
 </div>
 </div>
 <div class="currency-badges">
-<div class="badge coins"><span id="coinsCount">5,000</span> 🪙</div>
-<div class="badge gems"><span id="gemsCount">200</span> 💎</div>
+<div class="badge coins"><span id="coinsCount">15,000</span> 🪙</div>
+<div class="badge gems"><span id="gemsCount">850</span> 💎</div>
 </div>
+</div>
+
+<!-- YALLA VOICE PARTY SEATS -->
+<div class="voice-party-bar">
+<div class="mic-seat active" onclick="toggleMic(this)">🎙️<span class="mic-badge">🔊</span></div>
+<div class="mic-seat active" onclick="toggleMic(this)">🎙️<span class="mic-badge">🔊</span></div>
+<div class="mic-seat" onclick="toggleMic(this)">👑<span class="mic-badge">VIP</span></div>
+<div class="mic-seat" onclick="toggleMic(this)">➕<span class="mic-badge">MIC</span></div>
 </div>
 
 <!-- MAIN CONTENT / BOARD -->
@@ -84,15 +105,57 @@ body{background:radial-gradient(circle at center,#090d16 0%,#02040a 100%);color:
 <div style="font-size:0.7rem;color:#94a3b8" id="turnIndicator">Room: Not Joined</div>
 </div>
 
-<!-- BOTTOM NAVIGATION BAR -->
+<!-- BOTTOM NAVIGATION TABS (YALLA STYLE) -->
 <div class="bottom-nav">
-<button class="nav-item active" onclick="switchTab('game')"><span>🎮</span>Game</button>
+<button class="nav-item active" onclick="openModal('modeModal')"><span>🎲</span>Modes</button>
 <button class="nav-item" onclick="openModal('roomModal')"><span>🏠</span>Rooms</button>
+<button class="nav-item" onclick="openModal('giftModal')"><span>🏎️</span>Gifts</button>
 <button class="nav-item" onclick="openModal('shopModal')"><span>🛍️</span>Store</button>
 <button class="nav-item" onclick="openModal('authModal')"><span>👤</span>Profile</button>
 </div>
 
-<!-- AUTH MODAL -->
+<!-- MODAL 1: GAME MODES (Classic, Quick, 2v2 Team) -->
+<div id="modeModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:15px">🎮 Select Game Mode</h3>
+<div style="display:flex;flex-direction:column;gap:10px;width:100%;margin-bottom:15px">
+<button class="btn-roll" style="background:#1e293b;color:#38bdf8;border:1px solid #38bdf8;" onclick="selectMode('Classic')">Classic 4-Player Mode</button>
+<button class="btn-roll" style="background:#1e293b;color:#10b981;border:1px solid #10b981;" onclick="selectMode('Quick')">Quick Rush Mode</button>
+<button class="btn-roll" style="background:#1e293b;color:#fbbf24;border:1px solid #fbbf24;" onclick="selectMode('2v2')">2v2 Team Battle Mode</button>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('modeModal')">CLOSE</button>
+</div>
+
+<!-- MODAL 2: ROOMS -->
+<div id="roomModal" class="modal">
+<h3 style="color:#38bdf8;margin-bottom:15px">🏠 Online Multiplayer Rooms</h3>
+<input type="text" id="roomInput" class="auth-input" placeholder="Enter Room ID (e.g. 9988)">
+<button class="btn-roll" style="width:100%;margin-bottom:15px;" onclick="joinRoomModal()">JOIN TABLE</button>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('roomModal')">CLOSE</button>
+</div>
+
+<!-- MODAL 3: ANIMATED LUXURY GIFTS (Yalla Style) -->
+<div id="giftModal" class="modal">
+<h3 style="color:#fbbf24;margin-bottom:15px">🏎️ Send Luxury Gifts</h3>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:15px">
+<div style="background:#1e293b;padding:14px;border-radius:12px;cursor:pointer;font-size:1.8rem;" onclick="sendLuxuryGift('🏎️')">🏎️<br><span style="font-size:0.6rem;color:#fbbf24">Sports Car</span></div>
+<div style="background:#1e293b;padding:14px;border-radius:12px;cursor:pointer;font-size:1.8rem;" onclick="sendLuxuryGift('🛥️')">🛥️<br><span style="font-size:0.6rem;color:#fbbf24">Luxury Yacht</span></div>
+<div style="background:#1e293b;padding:14px;border-radius:12px;cursor:pointer;font-size:1.8rem;" onclick="sendLuxuryGift('🚀')">🚀<br><span style="font-size:0.6rem;color:#fbbf24">Space Rocket</span></div>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('giftModal')">CLOSE</button>
+</div>
+
+<!-- MODAL 4: STORE -->
+<div id="shopModal" class="modal">
+<h3 style="color:#fbbf24;margin-bottom:15px">🛍️ VIP Store & Rewards</h3>
+<div style="background:#1e293b;padding:15px;border-radius:16px;width:100%;margin-bottom:15px;border:1px solid #334155;">
+<p style="color:#fbbf24;font-weight:bold;margin-bottom:5px">Grandmaster Daily Pack</p>
+<p style="font-size:0.75rem;color:#94a3b8;margin-bottom:10px">Claim free daily bonus coins.</p>
+<button class="btn-roll" style="width:100%;background:#10b981;color:#fff" onclick="claimBonus()">CLAIM 5,000 COINS</button>
+</div>
+<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('shopModal')">CLOSE</button>
+</div>
+
+<!-- MODAL 5: AUTH -->
 <div id="authModal" class="modal">
 <h3 style="color:#38bdf8;margin-bottom:15px">🔐 Yalla Pro ID Center</h3>
 <input type="email" id="authEmail" class="auth-input" placeholder="Email Address">
@@ -102,28 +165,9 @@ body{background:radial-gradient(circle at center,#090d16 0%,#02040a 100%);color:
 <button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('authModal')">CLOSE</button>
 </div>
 
-<!-- ROOM MODAL -->
-<div id="roomModal" class="modal">
-<h3 style="color:#38bdf8;margin-bottom:15px">🏠 Online Multiplayer Rooms</h3>
-<input type="text" id="roomInput" class="auth-input" placeholder="Enter Room ID (e.g. 7788)">
-<button class="btn-roll" style="width:100%;margin-bottom:15px;" onclick="joinRoomModal()">JOIN TABLE</button>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('roomModal')">CLOSE</button>
 </div>
 
-<!-- STORE MODAL -->
-<div id="shopModal" class="modal">
-<h3 style="color:#fbbf24;margin-bottom:15px">🛍️ VIP Store & Rewards</h3>
-<div style="background:#1e293b;padding:15px;border-radius:16px;width:100%;margin-bottom:15px;border:1px solid #334155;">
-<p style="color:#fbbf24;font-weight:bold;margin-bottom:5px">Daily Bonus Pack</p>
-<p style="font-size:0.75rem;color:#94a3b8;margin-bottom:10px">Claim free daily coins and gems.</p>
-<button class="btn-roll" style="width:100%;background:#10b981;color:#fff" onclick="claimBonus()">CLAIM 2,000 COINS</button>
-</div>
-<button class="btn-roll" style="width:100%;background:#334155;color:#fff;" onclick="closeModal('shopModal')">CLOSE</button>
-</div>
-
-</div>
-
-<!-- FIREBASE & GAME LOGIC -->
+<!-- FIREBASE & GAME LOGIC SCRIPT -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -152,12 +196,12 @@ window.handleAuth = function(type) {
   if(!email || !pass) { alert('Enter credentials'); return; }
   
   if(type === 'signup') {
-    createUserWithEmailAndPassword(auth, email, pass).then((res) => {
+    createUserWithEmailAndPassword(auth, email, pass).then(() => {
       alert('Account Created Successfully!');
       closeModal('authModal');
     }).catch(e => alert(e.message));
   } else {
-    signInWithEmailAndPassword(auth, email, pass).then((res) => {
+    signInWithEmailAndPassword(auth, email, pass).then(() => {
       alert('Login Successful!');
       closeModal('authModal');
     }).catch(e => alert(e.message));
@@ -176,13 +220,36 @@ onAuthStateChanged(auth, (user) => {
 
 window.claimBonus = function() {
   let coinsEl = document.getElementById('coinsCount');
-  let current = parseInt(coinsEl.innerText.replace(',', '')) + 2000;
+  let current = parseInt(coinsEl.innerText.replace(',', '')) + 5000;
   coinsEl.innerText = current.toLocaleString();
-  alert('Successfully claimed +2,000 Coins!');
+  alert('Successfully claimed +5,000 Coins!');
   closeModal('shopModal');
 }
 
-// Ludo Engine
+window.selectMode = function(modeName) {
+  alert(`Selected ${modeName} Mode! Matchmaking starting...`);
+  closeModal('modeModal');
+}
+
+window.toggleMic = function(seat) {
+  seat.classList.toggle('active');
+  let badge = seat.querySelector('.mic-badge');
+  badge.innerText = seat.classList.contains('active') ? '🔊' : 'MUTED';
+}
+
+window.sendLuxuryGift = function(giftSymbol) {
+  closeModal('giftModal');
+  let container = document.getElementById('appContainer');
+  let giftEl = document.createElement('div');
+  giftEl.className = 'luxury-gift-anim';
+  giftEl.innerText = giftSymbol;
+  giftEl.style.left = `${Math.random() * 70 + 15}%`;
+  giftEl.style.bottom = '100px';
+  container.appendChild(giftEl);
+  setTimeout(() => giftEl.remove(), 1800);
+}
+
+// Ludo Engine & Firebase Sync
 const mainTrack = [
 [6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],
 [0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],
@@ -280,7 +347,6 @@ window.handlePawnClick = function(color, idx, data){
 
 window.openModal = function(id) { document.getElementById(id).style.display = 'flex'; }
 window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; }
-window.switchTab = function(tab) {}
 
 initBoard();
 </script>
