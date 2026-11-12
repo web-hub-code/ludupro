@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2xBet - Enterprise Gaming Platform</title>
+    <title>2xBet - Enterprise Gaming Platform & Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -45,13 +45,16 @@
             <button onclick="switchTab('slots')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">🎰 Slot Machines</button>
             <button onclick="switchTab('arena')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">⚔️ Skill & Arena Games</button>
             <button onclick="switchTab('kyc')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm text-goldaccent">🛡️ KYC & Verification</button>
+            
+            <!-- Dynamic Admin Tab Container -->
+            <div id="admin-tab-container"></div>
         </aside>
 
         <!-- Game / Dynamic Display Area -->
         <section class="md:col-span-3 bg-navy-800 p-6 rounded-xl border border-navy-700 shadow-lg min-h-[500px]">
             <div id="tab-content">
                 <h2 class="text-2xl font-bold mb-3 text-skyaccent">Welcome to 2xBet Gaming Suite</h2>
-                <p class="text-gray-400 text-sm leading-relaxed mb-6">Select a game category from the sidebar to explore all 19+ original server-validated titles connected to your Firebase project (`lucky-draw-93323`).</p>
+                <p class="text-gray-400 text-sm leading-relaxed mb-6">Select a game category from the sidebar to explore all original server-validated titles connected to your Firebase project (`lucky-draw-93323`).</p>
             </div>
         </section>
     </main>
@@ -66,8 +69,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyD3QEU0sEAsg6XGMtQg3rS6f05AVkGc2M4",
@@ -82,7 +84,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const functions = getFunctions(app);
+
+        const ADMIN_EMAIL = "webhub262@gmail.com";
 
         // Global Auth & Wallet Handler
         window.handleAuthAction = async function() {
@@ -91,7 +94,7 @@
                 await signOut(auth);
                 alert("Logged out successfully.");
             } else {
-                const email = prompt("Enter email for test login/signup:");
+                const email = prompt("Enter email (Use webhub262@gmail.com for Admin):");
                 const password = prompt("Enter password (min 6 chars):");
                 if (email && password) {
                     try {
@@ -100,13 +103,14 @@
                     } catch (e) {
                         try {
                             const cred = await createUserWithEmailAndPassword(auth, email, password);
-                            // Initialize user doc with starting coins
+                            const isAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
                             await setDoc(doc(db, "users", cred.user.uid), {
                                 email: email,
-                                coins: 1000.00, // Welcome bonus coins
+                                coins: 1000.00,
+                                role: isAdmin ? "admin" : "user",
                                 createdAt: new Date()
                             });
-                            alert("Account created with 1000 Welcome Coins!");
+                            alert("Account created successfully!");
                         } catch (err) {
                             alert("Auth Error: " + err.message);
                         }
@@ -115,30 +119,71 @@
             }
         };
 
-        // Auth state listener & Realtime Wallet sync
+        // Auth state listener & Realtime Wallet / Admin Sync
         onAuthStateChanged(auth, async (user) => {
             const authBtn = document.getElementById('auth-btn');
+            const adminContainer = document.getElementById('admin-tab-container');
+            
             if (user) {
                 authBtn.innerText = "Logout";
+                
+                // Fetch user role from Firestore
                 const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+                const userData = userSnap.exists() ? userSnap.data() : {};
+                
+                // Check if admin by email or role
+                if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() || userData.role === 'admin') {
+                    adminContainer.innerHTML = `<button onclick="switchTab('admin')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm text-goldaccent border border-goldaccent/30 mt-2">👑 Admin Dashboard</button>`;
+                } else {
+                    adminContainer.innerHTML = "";
+                }
+
                 onSnapshot(userRef, (docSnap) => {
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         document.getElementById('user-balance').innerText = data.coins ? data.coins.toFixed(2) : "0.00";
-                    } else {
-                        // Create doc if missing
-                        setDoc(userRef, { email: user.email, coins: 1000.00 });
                     }
                 });
             } else {
                 authBtn.innerText = "Login / Signup";
                 document.getElementById('user-balance').innerText = "0.00";
+                adminContainer.innerHTML = "";
             }
         });
 
-        window.switchTab = function(tabName) {
+        window.switchTab = async function(tabName) {
             const container = document.getElementById('tab-content');
-            if (tabName === 'crash') {
+            if (tabName === 'admin') {
+                const user = auth.currentUser;
+                if (!user || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+                    container.innerHTML = `<p class="text-red-500 font-bold">Access Denied. Admins only.</p>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <h2 class="text-xl font-bold mb-4 text-goldaccent">👑 Admin Control Panel</h2>
+                    <p class="text-xs text-gray-400 mb-6">Manage platform users, deposits, and balances.</p>
+                    <div id="admin-users-list" class="space-y-3">
+                        <p class="text-sm text-gray-300">Loading registered users...</p>
+                    </div>
+                `;
+
+                try {
+                    const querySnapshot = await getDocs(collection(db, "users"));
+                    let usersHTML = `<div class="bg-navy-900 p-4 rounded-lg border border-navy-700 overflow-x-auto"><table class="w-full text-left text-xs"><tr class="border-b border-navy-700 text-goldaccent"><th class="p-2">Email</th><th class="p-2">Role</th><th class="p-2">Balance</th><th class="p-2">Actions</th></tr>`;
+                    
+                    querySnapshot.forEach((docSnap) => {
+                        const u = docSnap.data();
+                        const uid = docSnap.id;
+                        usersHTML += `<tr class="border-b border-navy-800"><td class="p-2">${u.email || 'N/A'}</td><td class="p-2">${u.role || 'user'}</td><td class="p-2 text-skyaccent">${u.coins ? u.coins.toFixed(2) : '0.00'} Coins</td><td class="p-2"><button onclick="adminAddCoins('${uid}')" class="bg-goldaccent text-navy-900 font-bold px-2 py-1 rounded text-[10px]">Add 500 Coins</button></td></tr>`;
+                    });
+                    usersHTML += `</table></div>`;
+                    document.getElementById('admin-users-list').innerHTML = usersHTML;
+                } catch (err) {
+                    document.getElementById('admin-users-list').innerHTML = `<p class="text-red-400 text-xs">Error loading users: ${err.message}</p>`;
+                }
+            } else if (tabName === 'crash') {
                 container.innerHTML = `
                     <h2 class="text-xl font-bold mb-4 text-skyaccent">🚀 Crash & Instant Win Games</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -149,10 +194,6 @@
                         <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
                             <div><h3 class="font-bold text-goldaccent">TurboJet</h3><p class="text-xs text-gray-400 mt-1">High-speed jet takeoff multiplier.</p></div>
                             <button onclick="playGame('TurboJet')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now (Bet 50 Coins)</button>
-                        </div>
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">GemGrid Mines</h3><p class="text-xs text-gray-400 mt-1">5x5 grid safe tiles multiplier.</p></div>
-                            <button onclick="playGame('GemGrid Mines')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now (Bet 50 Coins)</button>
                         </div>
                     </div>
                 `;
@@ -168,10 +209,6 @@
                             <div><h3 class="font-bold text-goldaccent">Andar Bahar</h3><p class="text-xs text-gray-400 mt-1">Traditional matching card side selection.</p></div>
                             <button onclick="playGame('Andar Bahar')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
                         </div>
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">21 Blackjack</h3><p class="text-xs text-gray-400 mt-1">Classic 21 card game against dealer.</p></div>
-                            <button onclick="playGame('21 Blackjack')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
-                        </div>
                     </div>
                 `;
             } else if (tabName === 'slots') {
@@ -181,10 +218,6 @@
                         <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
                             <div><h3 class="font-bold text-goldaccent">Neon Fruits 5-Reel</h3><p class="text-xs text-gray-400 mt-1">Vibrant fruit symbols & paylines.</p></div>
                             <button onclick="playGame('Neon Fruits 5-Reel')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
-                        </div>
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">Triple 777 Classic</h3><p class="text-xs text-gray-400 mt-1">High-payout classic slot machine.</p></div>
-                            <button onclick="playGame('Triple 777 Classic')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
                         </div>
                     </div>
                 `;
@@ -196,10 +229,6 @@
                             <div><h3 class="font-bold text-goldaccent">Royal Ludo</h3><p class="text-xs text-gray-400 mt-1">Classic coin-entry multiplayer rooms.</p></div>
                             <button onclick="playGame('Royal Ludo')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
                         </div>
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">8-Ball Cue Arena</h3><p class="text-xs text-gray-400 mt-1">Cue-ball physics & pocket betting.</p></div>
-                            <button onclick="playGame('8-Ball Cue Arena')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
-                        </div>
                     </div>
                 `;
             } else if (tabName === 'kyc') {
@@ -209,6 +238,19 @@
                     <input type="file" id="kyc-file" class="block mb-4 text-xs text-gray-400 border border-navy-700 p-2 rounded bg-navy-900 w-full"/>
                     <button onclick="alert('KYC Document Submitted Successfully!')" class="bg-skyaccent text-navy-900 font-bold px-4 py-2 rounded text-xs hover:opacity-90 transition">Submit Verification</button>
                 `;
+            }
+        }
+
+        window.adminAddCoins = async function(targetUserId) {
+            try {
+                const userRef = doc(db, "users", targetUserId);
+                await updateDoc(userRef, {
+                    coins: increment(500)
+                });
+                alert("Successfully added 500 coins to user balance!");
+                switchTab('admin'); // Refresh admin table
+            } catch (err) {
+                alert("Error updating coins: " + err.message);
             }
         }
 
