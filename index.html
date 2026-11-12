@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2xBet - Enterprise Gaming Platform & Admin</title>
+    <title>2xBet - Live Interactive Gaming Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -25,11 +25,11 @@
     <header class="bg-navy-800 border-b border-navy-700 p-4 flex justify-between items-center shadow-md">
         <div class="flex items-center space-x-2">
             <span class="text-2xl font-black text-skyaccent tracking-wider">2x<span class="text-goldaccent">Bet</span></span>
-            <span class="text-xs bg-navy-700 px-2 py-1 rounded text-gray-300 border border-navy-600">Regulated & Licensed</span>
+            <span class="text-xs bg-navy-700 px-2 py-1 rounded text-gray-300 border border-navy-600">Live Engine</span>
         </div>
         <div id="user-wallet-area" class="flex items-center space-x-4">
             <div class="bg-navy-900 px-4 py-2 rounded-lg border border-navy-700 text-sm">
-                Balance: <span id="user-balance" class="font-bold text-goldaccent">0.00</span> Coins
+                Balance: <span id="user-balance" class="font-bold text-goldaccent">1000.00</span> Coins
             </div>
             <button onclick="handleAuthAction()" id="auth-btn" class="bg-skyaccent text-navy-900 font-bold px-4 py-2 rounded-lg hover:opacity-90 transition text-sm">Login / Signup</button>
         </div>
@@ -39,37 +39,37 @@
     <main class="container mx-auto p-4 grid grid-cols-1 md:grid-cols-4 gap-6 mt-4 flex-grow">
         <!-- Sidebar Navigation -->
         <aside class="bg-navy-800 p-4 rounded-xl border border-navy-700 space-y-2 h-fit shadow-lg">
-            <h3 class="text-xs font-semibold uppercase text-gray-400 mb-4 tracking-wider">Gaming Suite (19+ Games)</h3>
-            <button onclick="switchTab('crash')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">🚀 Crash & Instant Games</button>
-            <button onclick="switchTab('casino')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">🃏 Live Casino & Cards</button>
-            <button onclick="switchTab('slots')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">🎰 Slot Machines</button>
-            <button onclick="switchTab('arena')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">⚔️ Skill & Arena Games</button>
+            <h3 class="text-xs font-semibold uppercase text-gray-400 mb-4 tracking-wider">Gaming Suite</h3>
+            <button onclick="switchTab('crash')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">🚀 SkyRocket Crash</button>
+            <button onclick="switchTab('mines')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">💣 GemGrid Mines</button>
+            <button onclick="switchTab('dragon')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">🃏 Dragon vs Tiger</button>
+            <button onclick="switchTab('slots')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">🎰 Neon Fruits Slots</button>
+            <button onclick="switchTab('ludo')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm">⚔️ Royal Ludo</button>
             <button onclick="switchTab('kyc')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm text-goldaccent">🛡️ KYC & Verification</button>
             
-            <!-- Dynamic Admin Tab Container -->
             <div id="admin-tab-container"></div>
         </aside>
 
-        <!-- Game / Dynamic Display Area -->
-        <section class="md:col-span-3 bg-navy-800 p-6 rounded-xl border border-navy-700 shadow-lg min-h-[500px]">
-            <div id="tab-content">
-                <h2 class="text-2xl font-bold mb-3 text-skyaccent">Welcome to 2xBet Gaming Suite</h2>
-                <p class="text-gray-400 text-sm leading-relaxed mb-6">Select a game category from the sidebar to explore all original server-validated titles connected to your Firebase project (`lucky-draw-93323`).</p>
+        <!-- Game Display Area -->
+        <section class="md:col-span-3 bg-navy-800 p-6 rounded-xl border border-navy-700 shadow-lg min-h-[500px] flex flex-col justify-center items-center text-center">
+            <div id="tab-content" class="w-full">
+                <h2 class="text-2xl font-bold mb-3 text-skyaccent">Welcome to 2xBet Interactive</h2>
+                <p class="text-gray-400 text-sm leading-relaxed mb-6">Select any game from the sidebar to start playing live with real-time coin balance updates!</p>
             </div>
         </section>
     </main>
 
-    <!-- Footer Compliance -->
+    <!-- Footer -->
     <footer class="bg-navy-800 border-t border-navy-700 mt-16 py-6 text-center text-xs text-gray-400 space-y-2">
         <p>&copy; 2026 2xBet Global Operations. All rights reserved. Licensed under Curacao eGaming / MGA framework.</p>
         <p>Strictly 18+ | Responsible Gambling: BeGambleAware & GamCare Support Services.</p>
     </footer>
 
-    <!-- Firebase SDK & Realtime Connection Script -->
+    <!-- Firebase & Interactive Game Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, increment, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyD3QEU0sEAsg6XGMtQg3rS6f05AVkGc2M4",
@@ -84,183 +84,324 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
         const ADMIN_EMAIL = "webhub262@gmail.com";
 
-        // Global Auth & Wallet Handler
-        window.handleAuthAction = async function() {
-            const user = auth.currentUser;
-            if (user) {
-                await signOut(auth);
-                alert("Logged out successfully.");
-            } else {
-                const email = prompt("Enter email (Use webhub262@gmail.com for Admin):");
-                const password = prompt("Enter password (min 6 chars):");
-                if (email && password) {
-                    try {
-                        await signInWithEmailAndPassword(auth, email, password);
-                        alert("Logged in successfully!");
-                    } catch (e) {
-                        try {
-                            const cred = await createUserWithEmailAndPassword(auth, email, password);
-                            const isAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
-                            await setDoc(doc(db, "users", cred.user.uid), {
-                                email: email,
-                                coins: 1000.00,
-                                role: isAdmin ? "admin" : "user",
-                                createdAt: new Date()
-                            });
-                            alert("Account created successfully!");
-                        } catch (err) {
-                            alert("Auth Error: " + err.message);
-                        }
-                    }
-                }
-            }
-        };
+        let currentBalance = 1000.00;
 
-        // Auth state listener & Realtime Wallet / Admin Sync
+        // Auth & Wallet Sync
         onAuthStateChanged(auth, async (user) => {
             const authBtn = document.getElementById('auth-btn');
             const adminContainer = document.getElementById('admin-tab-container');
             
             if (user) {
                 authBtn.innerText = "Logout";
-                
-                // Fetch user role from Firestore
+                authBtn.onclick = () => signOut(auth);
                 const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
-                const userData = userSnap.exists() ? userSnap.data() : {};
                 
-                // Check if admin by email or role
-                if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() || userData.role === 'admin') {
-                    adminContainer.innerHTML = `<button onclick="switchTab('admin')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm text-goldaccent border border-goldaccent/30 mt-2">👑 Admin Dashboard</button>`;
-                } else {
-                    adminContainer.innerHTML = "";
-                }
-
                 onSnapshot(userRef, (docSnap) => {
                     if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        document.getElementById('user-balance').innerText = data.coins ? data.coins.toFixed(2) : "0.00";
+                        currentBalance = docSnap.data().coins || 1000;
+                        document.getElementById('user-balance').innerText = currentBalance.toFixed(2);
+                    } else {
+                        setDoc(userRef, { email: user.email, coins: 1000.00, role: user.email === ADMIN_EMAIL ? 'admin' : 'user' });
                     }
                 });
+
+                if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    adminContainer.innerHTML = `<button onclick="switchTab('admin')" class="w-full text-left px-3 py-2 rounded hover:bg-navy-700 transition font-medium text-sm text-goldaccent border border-goldaccent/30 mt-2">👑 Admin Dashboard</button>`;
+                }
             } else {
                 authBtn.innerText = "Login / Signup";
-                document.getElementById('user-balance').innerText = "0.00";
+                authBtn.onclick = handleAuthAction;
+                document.getElementById('user-balance').innerText = currentBalance.toFixed(2);
                 adminContainer.innerHTML = "";
             }
         });
 
-        window.switchTab = async function(tabName) {
-            const container = document.getElementById('tab-content');
-            if (tabName === 'admin') {
-                const user = auth.currentUser;
-                if (!user || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                    container.innerHTML = `<p class="text-red-500 font-bold">Access Denied. Admins only.</p>`;
-                    return;
-                }
-
-                container.innerHTML = `
-                    <h2 class="text-xl font-bold mb-4 text-goldaccent">👑 Admin Control Panel</h2>
-                    <p class="text-xs text-gray-400 mb-6">Manage platform users, deposits, and balances.</p>
-                    <div id="admin-users-list" class="space-y-3">
-                        <p class="text-sm text-gray-300">Loading registered users...</p>
-                    </div>
-                `;
-
+        window.handleAuthAction = async function() {
+            const email = prompt("Enter email (Use webhub262@gmail.com for Admin):");
+            const password = prompt("Enter password (min 6 chars):");
+            if (email && password) {
                 try {
-                    const querySnapshot = await getDocs(collection(db, "users"));
-                    let usersHTML = `<div class="bg-navy-900 p-4 rounded-lg border border-navy-700 overflow-x-auto"><table class="w-full text-left text-xs"><tr class="border-b border-navy-700 text-goldaccent"><th class="p-2">Email</th><th class="p-2">Role</th><th class="p-2">Balance</th><th class="p-2">Actions</th></tr>`;
-                    
-                    querySnapshot.forEach((docSnap) => {
-                        const u = docSnap.data();
-                        const uid = docSnap.id;
-                        usersHTML += `<tr class="border-b border-navy-800"><td class="p-2">${u.email || 'N/A'}</td><td class="p-2">${u.role || 'user'}</td><td class="p-2 text-skyaccent">${u.coins ? u.coins.toFixed(2) : '0.00'} Coins</td><td class="p-2"><button onclick="adminAddCoins('${uid}')" class="bg-goldaccent text-navy-900 font-bold px-2 py-1 rounded text-[10px]">Add 500 Coins</button></td></tr>`;
-                    });
-                    usersHTML += `</table></div>`;
-                    document.getElementById('admin-users-list').innerHTML = usersHTML;
-                } catch (err) {
-                    document.getElementById('admin-users-list').innerHTML = `<p class="text-red-400 text-xs">Error loading users: ${err.message}</p>`;
+                    await signInWithEmailAndPassword(auth, email, password);
+                    alert("Logged in successfully!");
+                } catch (e) {
+                    try {
+                        const cred = await createUserWithEmailAndPassword(auth, email, password);
+                        await setDoc(doc(db, "users", cred.user.uid), {
+                            email: email,
+                            coins: 1000.00,
+                            role: email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user'
+                        });
+                        alert("Account created with 1000 Welcome Coins!");
+                    } catch (err) {
+                        alert("Auth Error: " + err.message);
+                    }
                 }
-            } else if (tabName === 'crash') {
+            }
+        };
+
+        // Update Balance Helper
+        async function modifyBalance(amount) {
+            currentBalance += amount;
+            document.getElementById('user-balance').innerText = currentBalance.toFixed(2);
+            if (auth.currentUser) {
+                const userRef = doc(db, "users", auth.currentUser.uid);
+                await updateDoc(userRef, { coins: currentBalance });
+            }
+        }
+
+        // Tab Switcher & Game Engines
+        window.switchTab = function(tabName) {
+            const container = document.getElementById('tab-content');
+            
+            if (tabName === 'crash') {
                 container.innerHTML = `
-                    <h2 class="text-xl font-bold mb-4 text-skyaccent">🚀 Crash & Instant Win Games</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">SkyRocket Crash</h3><p class="text-xs text-gray-400 mt-1">Aviator-style rising multiplier curve.</p></div>
-                            <button onclick="playGame('SkyRocket Crash')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now (Bet 50 Coins)</button>
-                        </div>
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">TurboJet</h3><p class="text-xs text-gray-400 mt-1">High-speed jet takeoff multiplier.</p></div>
-                            <button onclick="playGame('TurboJet')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now (Bet 50 Coins)</button>
-                        </div>
+                    <h2 class="text-2xl font-bold mb-2 text-skyaccent">🚀 SkyRocket Crash</h2>
+                    <p class="text-xs text-gray-400 mb-6">Watch the multiplier rise and cash out before it crashes!</p>
+                    <div class="bg-navy-900 h-64 rounded-xl flex flex-col items-center justify-center border border-navy-700 mb-6 relative overflow-hidden">
+                        <div id="crash-multiplier" class="text-5xl font-black text-skyaccent">1.00x</div>
+                        <div id="crash-status" class="text-xs text-gray-400 mt-2">Place your bet to start</div>
+                    </div>
+                    <div class="flex justify-center space-x-4">
+                        <input type="number" id="crash-bet" value="50" class="bg-navy-900 border border-navy-700 px-4 py-2 rounded text-white w-32 text-center" placeholder="Bet Amount"/>
+                        <button id="crash-btn" onclick="startCrashGame()" class="bg-goldaccent text-navy-900 font-bold px-6 py-2 rounded hover:opacity-90 transition">Place Bet</button>
                     </div>
                 `;
-            } else if (tabName === 'casino') {
+            } else if (tabName === 'mines') {
                 container.innerHTML = `
-                    <h2 class="text-xl font-bold mb-4 text-skyaccent">🃏 Live Casino & Card Games</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">Dragon vs Tiger</h3><p class="text-xs text-gray-400 mt-1">Fast card comparison table.</p></div>
-                            <button onclick="playGame('Dragon vs Tiger')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
+                    <h2 class="text-2xl font-bold mb-2 text-skyaccent">💣 GemGrid Mines</h2>
+                    <p class="text-xs text-gray-400 mb-4">Click tiles to find diamonds. Avoid hidden mines!</p>
+                    <div class="text-sm text-goldaccent mb-4">Current Multiplier: <span id="mine-mult">1.00x</span></div>
+                    <div id="mines-grid" class="grid grid-cols-5 gap-2 max-w-xs mx-auto mb-4"></div>
+                    <button onclick="initMinesGame()" class="bg-skyaccent text-navy-900 font-bold px-6 py-2 rounded text-xs">Start New Game (Bet 50 Coins)</button>
+                `;
+                initMinesGame();
+            } else if (tabName === 'dragon') {
+                container.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-2 text-skyaccent">🃏 Dragon vs Tiger</h2>
+                    <p class="text-xs text-gray-400 mb-6">Choose your side and flip cards for instant payout!</p>
+                    <div class="grid grid-cols-2 gap-6 max-w-md mx-auto mb-6">
+                        <div class="bg-navy-900 p-6 rounded-xl border border-navy-700 text-center">
+                            <h3 class="text-lg font-bold text-red-400 mb-2">Dragon</h3>
+                            <div id="dragon-card" class="text-3xl mb-4">🎴</div>
+                            <button onclick="playDragonTiger('Dragon')" class="bg-skyaccent text-navy-900 font-bold px-4 py-2 rounded text-xs w-full">Bet Dragon (50)</button>
                         </div>
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">Andar Bahar</h3><p class="text-xs text-gray-400 mt-1">Traditional matching card side selection.</p></div>
-                            <button onclick="playGame('Andar Bahar')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
+                        <div class="bg-navy-900 p-6 rounded-xl border border-navy-700 text-center">
+                            <h3 class="text-lg font-bold text-blue-400 mb-2">Tiger</h3>
+                            <div id="tiger-card" class="text-3xl mb-4">🎴</div>
+                            <button onclick="playDragonTiger('Tiger')" class="bg-skyaccent text-navy-900 font-bold px-4 py-2 rounded text-xs w-full">Bet Tiger (50)</button>
                         </div>
                     </div>
+                    <div id="dt-result" class="text-sm font-bold text-goldaccent"></div>
                 `;
             } else if (tabName === 'slots') {
                 container.innerHTML = `
-                    <h2 class="text-xl font-bold mb-4 text-skyaccent">🎰 Slot Machines</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">Neon Fruits 5-Reel</h3><p class="text-xs text-gray-400 mt-1">Vibrant fruit symbols & paylines.</p></div>
-                            <button onclick="playGame('Neon Fruits 5-Reel')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
-                        </div>
+                    <h2 class="text-2xl font-bold mb-2 text-skyaccent">🎰 Neon Fruits Slots</h2>
+                    <p class="text-xs text-gray-400 mb-6">Spin the reels and match 3 items to win big!</p>
+                    <div class="bg-navy-900 p-6 rounded-xl border border-navy-700 max-w-xs mx-auto flex justify-around text-4xl mb-6">
+                        <span id="slot-1">🍒</span>
+                        <span id="slot-2">🍋</span>
+                        <span id="slot-3">🔔</span>
                     </div>
+                    <button onclick="spinSlots()" class="bg-goldaccent text-navy-900 font-bold px-8 py-2.5 rounded-lg text-sm hover:opacity-90">Spin (50 Coins)</button>
                 `;
-            } else if (tabName === 'arena') {
+            } else if (tabName === 'ludo') {
                 container.innerHTML = `
-                    <h2 class="text-xl font-bold mb-4 text-skyaccent">⚔️ Skill & Arena Games</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-navy-900 p-4 rounded-xl border border-navy-700 flex flex-col justify-between">
-                            <div><h3 class="font-bold text-goldaccent">Royal Ludo</h3><p class="text-xs text-gray-400 mt-1">Classic coin-entry multiplayer rooms.</p></div>
-                            <button onclick="playGame('Royal Ludo')" class="mt-4 bg-skyaccent text-navy-900 font-bold py-2 rounded text-xs">Play Now</button>
-                        </div>
+                    <h2 class="text-2xl font-bold mb-2 text-skyaccent">⚔️ Royal Ludo Quick Match</h2>
+                    <p class="text-xs text-gray-400 mb-6">Roll the dice against AI opponent to win coin stakes.</p>
+                    <div class="bg-navy-900 p-6 rounded-xl border border-navy-700 max-w-sm mx-auto mb-4">
+                        <div class="flex justify-between mb-4 text-sm"><span id="player-score">You: 0</span> <span id="ai-score">AI: 0</span></div>
+                        <div id="dice-display" class="text-5xl mb-4">🎲</div>
+                        <button onclick="rollLudoDice()" class="bg-skyaccent text-navy-900 font-bold px-6 py-2 rounded text-xs w-full">Roll Dice (Entry: 50 Coins)</button>
                     </div>
                 `;
             } else if (tabName === 'kyc') {
                 container.innerHTML = `
                     <h2 class="text-xl font-bold mb-2 text-skyaccent">🛡️ KYC & Identity Verification</h2>
-                    <p class="text-gray-400 text-xs mb-4">Upload your government-issued ID to comply with regulatory requirements.</p>
-                    <input type="file" id="kyc-file" class="block mb-4 text-xs text-gray-400 border border-navy-700 p-2 rounded bg-navy-900 w-full"/>
-                    <button onclick="alert('KYC Document Submitted Successfully!')" class="bg-skyaccent text-navy-900 font-bold px-4 py-2 rounded text-xs hover:opacity-90 transition">Submit Verification</button>
+                    <p class="text-gray-400 text-xs mb-4">Upload your ID document to unlock full withdrawals.</p>
+                    <input type="file" class="block mx-auto mb-4 text-xs text-gray-400 border border-navy-700 p-2 rounded bg-navy-900 w-72"/>
+                    <button onclick="alert('KYC documents successfully submitted!')" class="bg-skyaccent text-navy-900 font-bold px-4 py-2 rounded text-xs">Submit Verification</button>
                 `;
+            } else if (tabName === 'admin') {
+                container.innerHTML = `
+                    <h2 class="text-xl font-bold mb-4 text-goldaccent">👑 Admin Control Panel</h2>
+                    <div id="admin-users-list" class="space-y-3"><p class="text-xs text-gray-300">Loading users...</p></div>
+                `;
+                loadAdminUsers();
             }
         }
 
-        window.adminAddCoins = async function(targetUserId) {
+        // 1. Crash Game Engine
+        let crashInterval = null;
+        window.startCrashGame = async function() {
+            const betAmount = parseFloat(document.getElementById('crash-bet').value) || 50;
+            if (currentBalance < betAmount) { alert("Insufficient balance!"); return; }
+            await modifyBalance(-betAmount);
+            
+            const btn = document.getElementById('crash-btn');
+            btn.innerText = "Cashout";
+            btn.className = "bg-green-500 text-white font-bold px-6 py-2 rounded hover:opacity-90 transition";
+            
+            let multiplier = 1.00;
+            const crashPoint = parseFloat((1.1 + Math.random() * 4).toFixed(2));
+            document.getElementById('crash-status').innerText = "Rocket flying...";
+
+            crashInterval = setInterval(() => {
+                multiplier += 0.05;
+                document.getElementById('crash-multiplier').innerText = multiplier.toFixed(2) + "x";
+                
+                if (multiplier >= crashPoint) {
+                    clearInterval(crashInterval);
+                    document.getElementById('crash-multiplier').innerText = "CRASHED (" + crashPoint.toFixed(2) + "x)";
+                    document.getElementById('crash-status').innerText = "You lost the bet!";
+                    resetCrashButton();
+                }
+            }, 100);
+
+            btn.onclick = function() {
+                clearInterval(crashInterval);
+                const winnings = betAmount * multiplier;
+                modifyBalance(winnings);
+                document.getElementById('crash-status').innerText = `Cashed out successfully! Won ${winnings.toFixed(2)} coins.`;
+                resetCrashButton();
+            };
+        }
+
+        function resetCrashButton() {
+            const btn = document.getElementById('crash-btn');
+            btn.innerText = "Place Bet";
+            btn.className = "bg-goldaccent text-navy-900 font-bold px-6 py-2 rounded hover:opacity-90 transition";
+            btn.onclick = startCrashGame;
+        }
+
+        // 2. Mines Game Engine
+        window.initMinesGame = async function() {
+            if (currentBalance < 50) { alert("Insufficient balance!"); return; }
+            await modifyBalance(-50);
+            
+            const grid = document.getElementById('mines-grid');
+            grid.innerHTML = "";
+            let mult = 1.00;
+            const mineIndex = Math.floor(Math.random() * 25);
+
+            for (let i = 0; i < 25; i++) {
+                const tile = document.createElement('button');
+                tile.className = "bg-navy-900 h-12 rounded border border-navy-700 text-lg hover:bg-navy-700 transition";
+                tile.innerText = "❓";
+                tile.onclick = function() {
+                    if (i === mineIndex) {
+                        tile.innerText = "💣";
+                        tile.className = "bg-red-600 h-12 rounded text-lg";
+                        alert("Boom! You hit a mine.");
+                        disableMines();
+                    } else {
+                        tile.innerText = "💎";
+                        tile.className = "bg-green-600 h-12 rounded text-lg";
+                        mult += 0.20;
+                        document.getElementById('mine-mult').innerText = mult.toFixed(2) + "x";
+                        if (mult >= 2.5) {
+                            const prize = 50 * mult;
+                            modifyBalance(prize);
+                            alert(`You won ${prize.toFixed(2)} coins!`);
+                            disableMines();
+                        }
+                    }
+                };
+                grid.appendChild(tile);
+            }
+        }
+        function disableMines() {
+            const buttons = document.getElementById('mines-grid').getElementsByTagName('button');
+            for(let b of buttons) b.disabled = true;
+        }
+
+        // 3. Dragon vs Tiger Game Engine
+        window.playDragonTiger = async function(choice) {
+            if (currentBalance < 50) { alert("Insufficient balance!"); return; }
+            await modifyBalance(-50);
+
+            const cards = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            const dCard = cards[Math.floor(Math.random() * cards.length)];
+            const tCard = cards[Math.floor(Math.random() * cards.length)];
+
+            document.getElementById('dragon-card').innerText = dCard;
+            document.getElementById('tiger-card').innerText = tCard;
+
+            let winner = dCard === tCard ? "Tie" : (cards.indexOf(dCard) > cards.indexOf(tCard) ? "Dragon" : "Tiger");
+            const resDiv = document.getElementById('dt-result');
+
+            if (choice === winner) {
+                const winAmt = 100;
+                modifyBalance(winAmt);
+                resDiv.innerText = `Winner: ${winner}! You won ${winAmt} coins!`;
+            } else {
+                resDiv.innerText = `Winner: ${winner}. You lost the bet!`;
+            }
+        }
+
+        // 4. Slots Game Engine
+        window.spinSlots = async function() {
+            if (currentBalance < 50) { alert("Insufficient balance!"); return; }
+            await modifyBalance(-50);
+
+            const items = ['🍒', '🍋', '🔔', '⭐', '💎', '7️⃣'];
+            const s1 = items[Math.floor(Math.random() * items.length)];
+            const s2 = items[Math.floor(Math.random() * items.length)];
+            const s3 = items[Math.floor(Math.random() * items.length)];
+
+            document.getElementById('slot-1').innerText = s1;
+            document.getElementById('slot-2').innerText = s2;
+            document.getElementById('slot-3').innerText = s3;
+
+            if (s1 === s2 && s2 === s3) {
+                const prize = 500;
+                modifyBalance(prize);
+                alert(`JACKPOT! You matched 3 ${s1} and won ${prize} coins!`);
+            } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+                const prize = 100;
+                modifyBalance(prize);
+                alert(`Nice! You matched 2 items and won ${prize} coins.`);
+            }
+        }
+
+        // 5. Ludo Quick Match Engine
+        window.rollLudoDice = async function() {
+            if (currentBalance < 50) { alert("Insufficient balance!"); return; }
+            await modifyBalance(-50);
+
+            const userRoll = Math.floor(Math.random() * 6) + 1;
+            const aiRoll = Math.floor(Math.random() * 6) + 1;
+
+            document.getElementById('dice-display').innerText = `🎲 ${userRoll} (AI: ${aiRoll})`;
+            document.getElementById('player-score').innerText = `You rolled: ${userRoll}`;
+            document.getElementById('ai-score').innerText = `AI rolled: ${aiRoll}`;
+
+            if (userRoll > aiRoll) {
+                modifyBalance(100);
+                alert("You won the round and earned 100 coins!");
+            } else if (userRoll === aiRoll) {
+                modifyBalance(50);
+                alert("It's a draw! Stake refunded.");
+            } else {
+                alert("AI won this round!");
+            }
+        }
+
+        // Admin User Table Loader
+        async function loadAdminUsers() {
             try {
-                const userRef = doc(db, "users", targetUserId);
-                await updateDoc(userRef, {
-                    coins: increment(500)
+                const snap = await getDocs(collection(db, "users"));
+                let html = `<div class="bg-navy-900 p-4 rounded-lg border border-navy-700 overflow-x-auto"><table class="w-full text-left text-xs"><tr class="border-b border-navy-700 text-goldaccent"><th class="p-2">Email</th><th class="p-2">Role</th><th class="p-2">Balance</th></tr>`;
+                snap.forEach(d => {
+                    const u = d.data();
+                    html += `<tr class="border-b border-navy-800"><td class="p-2">${u.email || 'N/A'}</td><td class="p-2">${u.role || 'user'}</td><td class="p-2 text-skyaccent">${u.coins ? u.coins.toFixed(2) : '0'} Coins</td></tr>`;
                 });
-                alert("Successfully added 500 coins to user balance!");
-                switchTab('admin'); // Refresh admin table
-            } catch (err) {
-                alert("Error updating coins: " + err.message);
+                html += `</table></div>`;
+                document.getElementById('admin-users-list').innerHTML = html;
+            } catch(e) {
+                document.getElementById('admin-users-list').innerHTML = `<p class="text-red-400 text-xs">Error loading admin table.</p>`;
             }
-        }
-
-        window.playGame = async function(gameName) {
-            const user = auth.currentUser;
-            if (!user) {
-                alert("Please login first to play and place bets!");
-                return;
-            }
-            alert(`Launching ${gameName}. Connected to Firebase project: lucky-draw-93323.`);
         }
     </script>
 </body>
